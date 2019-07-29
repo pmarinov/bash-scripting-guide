@@ -1,0 +1,17 @@
+#lang pollen
+
+page0.poly.pm
+
+◊introduction.poly.pm{
+  shell_programming.poly.pm
+  starting_off_with_a_sha_bang.poly.pm
+  invoking_the_script.poly.pm
+}
+
+◊basics.poly.pm{
+  special_chars.poly.pm
+  variable_substit.poly.pm
+  variable_assign.poly.pm
+  untyped_vars.poly.pm
+  special_types.poly.pm
+}
