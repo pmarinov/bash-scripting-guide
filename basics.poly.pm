@@ -5,3 +5,5 @@
 
 
 ◊; TODO: display: Chapter X. Basics
+
+◊(texi-menu "basics.poly.pm")

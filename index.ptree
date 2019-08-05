@@ -1,6 +1,6 @@
 #lang pollen
 
-page0.poly.pm
+◊page0.poly.pm{
 
 ◊introduction.poly.pm{
   shell_programming.poly.pm
@@ -14,4 +14,6 @@ page0.poly.pm
   variable_assign.poly.pm
   untyped_vars.poly.pm
   special_types.poly.pm
+}
+
 }

@@ -5,14 +5,16 @@
 ◊(local-require pollen/pagetree)
 ◊(local-require debug/repl)
 
-◊(define (->poly-node texi-node)
 ◊; The variable 'here' is in .texi format, we need it as .poly.pm for
 ◊; the navigation functions to work
+◊(define (->poly-node texi-node)
     (string-replace (symbol->string texi-node) ".texi" ".poly.pm"))
 
-◊(define prev-node (previous (->poly-node here)))
-◊(define next-node (next (->poly-node here)))
-◊(define parent-node (parent (->poly-node here)))
+◊(define phere (->poly-node here))
+
+◊(define (prev-node) (previous phere))
+◊(define (next-node) (next phere))
+◊(define (parent-node) (parent phere))
 
 ◊(define (page-title node)
   (display (string-append "+node: " (symbol->string node) "\n"))
@@ -21,40 +23,33 @@
     (select 'page-title node)))
 
 ◊(define (parent-node-str)
-   (let ([parent1 parent-node])
-     (if parent1
-         (string-append (select 'page-title parent1))
-       (string-append ""))))
+  (let ([parent1 (parent-node)])
+    (select 'page-title parent1)))
 
 ◊(define (next-node-str)
-   (let ([next1 next-node])
+   (let ([next1 (next-node)])
      (if next1
          (string-append (select 'page-title next1))
        (string-append ""))))
 
-◊(define (prev-node-str node)
-   (let ([prev1 (previous (->poly-node node))])
+◊(define (prev-node-str)
+   (let ([prev1 (prev-node)])
      (if prev1
          (page-title prev1)
        "")))
 
 ◊;
 ◊; For every page except page0, define node and chapter
-◊(when (not (equal? here 'page0.texi))
-     (string-append
+◊(when (not (or (equal? here 'page0.texi) (equal? here 'page0.poly.pm)))
+   (string-append
        "@c " (symbol->string here) "\n"
        "@c Include file for '" this-book-title "'\n"
        "\n"
-       "@node " (page-title here) ", " (next-node-str) ", " (prev-node-str here) ", " (parent-node-str) "\n"
+       "@node " (page-title here) ", "
+       (next-node-str) ", "
+       (prev-node-str) ", "
+       (parent-node-str) "\n"
        "@chapter " (select-from-metas 'page-description metas) "\n"))
-
-◊;   (display (parent (string-replace (symbol->string here) ".texi" ".poly.pm"))))
-◊;     (if (next-node)
-◊;         (string-append "@node ")
-◊;       (string-append "no-next")))
-
-◊;       (when (next-node)
-◊;           (string-append (select "page-title" (next-node))))))
 
 ◊; Let page0 be the special node Top
 ◊(when (equal? here 'page0.texi)
@@ -64,6 +59,8 @@
          "@node Top\n"
          "top Zzz\n"))
 
+◊;
+◊; THE MAIN contents of the page
 ◊(apply string-append (filter string? (flatten doc)))
 
 ◊(define (->texi-page poly-pg)

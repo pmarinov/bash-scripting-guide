@@ -3,7 +3,7 @@
 ◊(require racket/math)
 ◊(require pollen/pagetree)
 
-◊define-meta[page-title]{Home}
+◊define-meta[page-title]{Top}
 ◊book-title{◊this-book-title}
 
 An in-depth exploration of the art of shell scripting
@@ -39,3 +39,5 @@ This book is suitable for classroom use as a general introduction to
 programming concepts.
 
 This document is herewith granted to the Public Domain. No copyright!
+
+◊(texi-menu "page0.poly.pm")
