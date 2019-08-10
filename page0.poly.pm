@@ -40,4 +40,5 @@ programming concepts.
 
 This document is herewith granted to the Public Domain. No copyright!
 
-◊(texi-menu "page0.poly.pm")
+◊; List pages under page0.poly.pm
+◊(node-menu "page0.poly.pm")

@@ -21,3 +21,6 @@ constructs, lend additional power and flexibility to scripts. Shell
 scripts are especially well suited for administrative system tasks and
 other routine repetitive tasks not requiring the bells and whistles of
 a full-blown tightly structured programming language.
+
+◊; List pages under introduction.poly.pm
+◊(node-menu "introduction.poly.pm")

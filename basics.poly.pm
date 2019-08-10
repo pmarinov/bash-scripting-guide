@@ -6,4 +6,5 @@
 
 ◊; TODO: display: Chapter X. Basics
 
-◊(texi-menu "basics.poly.pm")
+◊; List pages under basics.poly.pm
+◊(node-menu "basics.poly.pm")

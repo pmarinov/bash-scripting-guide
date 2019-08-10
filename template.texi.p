@@ -57,7 +57,7 @@
          "\\input texinfo\n"
          "@settitle " this-book-title "\n"
          "@node Top\n"
-         "top Zzz\n"))
+         "@top " this-book-title "\n"))
 
 ◊;
 ◊; THE MAIN contents of the page
