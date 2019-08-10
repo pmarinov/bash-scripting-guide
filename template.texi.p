@@ -17,8 +17,8 @@
 ◊(define (parent-node) (parent phere))
 
 ◊(define (page-title node)
-  (display (string-append "+node: " (symbol->string node) "\n"))
-  (if (equal? node 'page0.poly.pm)
+  ;(display (string-append "+node: " (symbol->string node) "\n"))
+  (if (equal? node 'pages/page0.poly.pm)
       ""
     (select 'page-title node)))
 
@@ -40,7 +40,7 @@
 
 ◊;
 ◊; For every page except page0, define node and chapter
-◊(when (not (or (equal? here 'page0.texi) (equal? here 'page0.poly.pm)))
+◊(when (not (or (equal? here 'pages/page0.texi) (equal? here 'pages/page0.poly.pm)))
    (string-append
        "@c " (symbol->string here) "\n"
        "@c Include file for '" this-book-title "'\n"
@@ -49,10 +49,11 @@
        (next-node-str) ", "
        (prev-node-str) ", "
        (parent-node-str) "\n"
-       "@chapter " (select-from-metas 'page-description metas) "\n"))
+       "@chapter " (select-from-metas 'page-description metas)
+       "\n"))
 
 ◊; Let page0 be the special node Top
-◊(when (equal? here 'page0.texi)
+◊(when (equal? here 'pages/page0.texi)
      (string-append
          "\\input texinfo\n"
          "@settitle " this-book-title "\n"
@@ -78,7 +79,7 @@
 
 ◊;
 ◊; In page0, generate list of include directives for all the .texi pages
-◊(if (equal? here 'page0.texi)
+◊(if (equal? here 'pages/page0.texi)
      ; List of include directives
      (string-append
        "@c Every node is in an individual file\n"

@@ -23,4 +23,4 @@ other routine repetitive tasks not requiring the bells and whistles of
 a full-blown tightly structured programming language.
 
 ◊; List pages under introduction.poly.pm
-◊(node-menu "introduction.poly.pm")
+◊(node-menu "pages/introduction.poly.pm")

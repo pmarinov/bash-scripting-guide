@@ -1,19 +1,19 @@
 #lang pollen
 
-◊page0.poly.pm{
+◊pages/page0.poly.pm{
 
-◊introduction.poly.pm{
-  shell_programming.poly.pm
-  starting_off_with_a_sha_bang.poly.pm
-  invoking_the_script.poly.pm
+◊pages/introduction.poly.pm{
+  pages/shell_programming.poly.pm
+  pages/starting_off_with_a_sha_bang.poly.pm
+  pages/invoking_the_script.poly.pm
 }
 
-◊basics.poly.pm{
-  special_chars.poly.pm
-  variable_substit.poly.pm
-  variable_assign.poly.pm
-  untyped_vars.poly.pm
-  special_types.poly.pm
+◊pages/basics.poly.pm{
+  pages/special_chars.poly.pm
+  pages/variable_substit.poly.pm
+  pages/variable_assign.poly.pm
+  pages/untyped_vars.poly.pm
+  pages/special_types.poly.pm
 }
 
 }

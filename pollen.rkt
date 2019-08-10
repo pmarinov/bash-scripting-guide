@@ -39,8 +39,7 @@
 
 ;; For a given node, make a texi menu of all of its direct children
 (define (texi-node-menu pg-tree top-node)
-  (let* ([pg-tree (load-pagetree "index.ptree")]
-        [str-mentries (string-join (map texi-make-mentry (children top-node pg-tree)) "\n")])
+  (let* ([str-mentries (string-join (map texi-make-mentry (children top-node pg-tree)) "\n")])
     (string-append
       "@menu\n"
       str-mentries
@@ -49,7 +48,7 @@
 
 ;;
 (define (node-menu top-node)
-  (let ([pg-tree (load-pagetree "index.ptree")])
+  (let ([pg-tree (load-pagetree "../index.ptree")])
     (case (current-poly-target)
       [(texi) (texi-node-menu pg-tree top-node)]
       [(txt) (map string-upcase pg-tree)]
