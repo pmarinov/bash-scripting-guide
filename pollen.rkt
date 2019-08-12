@@ -46,7 +46,7 @@
       "\n"
       "@end menu\n")))
 
-;;
+;; Menu
 (define (node-menu top-node)
   (let ([pg-tree (load-pagetree "../index.ptree")])
     (case (current-poly-target)
@@ -55,3 +55,16 @@
       ;; else (html)
       [else (map string-upcase (pagetree->list (current-pagetree)))])))
 
+;; Quotation
+(define (quotation #:author [author ""] . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@quotation\n"
+            (string-append* elements)
+            "\n"
+            (when author (string-append "@author " author "\n"))
+            "@end quotation")]
+      [(txt) (display "ERROR: quotation is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: quotation is not ready!")]))

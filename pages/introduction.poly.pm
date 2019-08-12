@@ -5,9 +5,9 @@
 
 ◊; TODO: display: Part 1. Introduction
 
+◊quotation[#:author "Webster's Dictionary, 1913 ed."]{
 Script: A writing; a written document. [Obs.]
-
---Webster's Dictionary, 1913 ed.
+}
 
 The shell is a command interpreter. More than just the insulating
 layer between the operating system kernel and the user, it's also a
