@@ -68,3 +68,14 @@
       [(txt) (display "ERROR: quotation is not ready!")]
       ;; else (html)
       [else (display "ERROR: quotation is not ready!")]))
+
+;; Section
+(define (section section-title)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@section " section-title
+            "\n")]
+      [(txt) (display "ERROR: section is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: section is not ready!")]))
