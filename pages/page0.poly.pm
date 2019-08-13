@@ -6,26 +6,6 @@
 ◊define-meta[page-title]{Top}
 ◊book-title{◊this-book-title}
 
-An in-depth exploration of the art of shell scripting
-
-Mendel Cooper
-
-◊; <thegrendel.abs@gmail.com>
-
-10
-10 Mar 2014
-
-Revision History
-
-Revision 6.5	05 Apr 2012	Revised by: mc
-'TUNGSTENBERRY' release
-
-Revision 6.6	27 Nov 2012	Revised by: mc
-'YTTERBIUMBERRY' release
-
-Revision 10	10 Mar 2014	Revised by: mc
-'PUBLICDOMAIN' release
-
 This tutorial assumes no previous knowledge of scripting or
 programming, yet progresses rapidly toward an intermediate/advanced
 level of instruction . . . all the while sneaking in little nuggets of
@@ -38,7 +18,7 @@ way to really learn scripting is to write scripts.
 This book is suitable for classroom use as a general introduction to
 programming concepts.
 
-This document is herewith granted to the Public Domain. No copyright!
+An in-depth exploration of the art of shell scripting.
 
 ◊; List pages under page0.poly.pm
 ◊(node-menu "pages/page0.poly.pm")

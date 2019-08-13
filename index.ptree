@@ -2,6 +2,8 @@
 
 ◊pages/page0.poly.pm{
 
+pages/legal.poly.pm
+
 ◊pages/introduction.poly.pm{
   pages/shell_programming.poly.pm
   pages/starting_off_with_a_sha_bang.poly.pm
