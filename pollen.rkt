@@ -90,3 +90,15 @@
       [(txt) (display "ERROR: dfn is not ready!")]
       ;; else (html)
       [else (display "ERROR: dfn is not ready!")]))
+
+;; Footnote
+(define (footnote . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@footnote{"
+            (string-append* elements)
+            "}")]
+      [(txt) (display "ERROR: dfn is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: dfn is not ready!")]))
