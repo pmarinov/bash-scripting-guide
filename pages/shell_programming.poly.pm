@@ -27,3 +27,22 @@ simple -- even austere -- similar to that of invoking and chaining
 together utilities at the command line, and there are only a few
 "rules" governing their use. Most short scripts work right the first
 time, and debugging even the longer ones is straightforward.
+
+◊note{
+In the early days of personal computing, the BASIC language enabled
+anyone reasonably computer proficient to write programs on an early
+generation of microcomputers. Decades later, the Bash scripting
+language enables anyone with a rudimentary knowledge of Linux or UNIX
+to do the same on modern machines.
+
+We now have miniaturized single-board computers with amazing
+capabilities, such as the Raspberry Pi. Bash scripting provides a way
+to explore the capabilities of these fascinating devices.
+}
+
+A shell script is a quick-and-dirty method of prototyping a complex
+application. Getting even a limited subset of the functionality to
+work in a script is often a useful first stage in project
+development. In this way, the structure of the application can be
+tested and tinkered with, and the major pitfalls found before
+proceeding to the final coding in C, C++, Java, Perl, or Python.

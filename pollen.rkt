@@ -115,3 +115,15 @@
       ;; else (html)
       [else (display "ERROR: file is not ready!")]))
 
+;; Note
+(define (note . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@indentedblock\n"
+            (string-append* elements)
+            "\n"
+            "@end indentedblock")]
+      [(txt) (display "ERROR: file is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: file is not ready!")]))
