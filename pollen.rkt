@@ -102,3 +102,16 @@
       [(txt) (display "ERROR: dfn is not ready!")]
       ;; else (html)
       [else (display "ERROR: dfn is not ready!")]))
+
+;; File name
+(define (fname . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@file{"
+            (string-append* elements)
+            "}")]
+      [(txt) (display "ERROR: file is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: file is not ready!")]))
+
