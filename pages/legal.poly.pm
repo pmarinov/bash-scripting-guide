@@ -20,6 +20,9 @@ license text from unlicense.org only refers to software, the intention
 is that all of the code and the book's text in all the output formats
 is dedicated to public domain.
 
+Some of the example scripts from contributors to the book have
+reatined copyright, respect their corresponding licenses.
+
 ◊section["License"]
 
 This is free and unencumbered software released into the public domain.
