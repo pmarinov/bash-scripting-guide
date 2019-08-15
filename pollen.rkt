@@ -22,8 +22,7 @@
 
 (define this-book-title "Advanced Bash-Scripting Guide")
 
-;; Dot is a rest argument, all arguments past book-title are combined
-;; in a list parameter elements
+;; Define book title
 (define (book-title . elements)
   (case (current-poly-target)
     [(texi) (string-append "@c " (string-append* elements))]
@@ -79,3 +78,15 @@
       [(txt) (display "ERROR: section is not ready!")]
       ;; else (html)
       [else (display "ERROR: section is not ready!")]))
+
+;; Definition (dfn)
+(define (dfn . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@dfn{"
+            (string-append* elements)
+            "}")]
+      [(txt) (display "ERROR: dfn is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: dfn is not ready!")]))

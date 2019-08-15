@@ -12,7 +12,7 @@ Script: A writing; a written document. [Obs.]
 The shell is a command interpreter. More than just the insulating
 layer between the operating system kernel and the user, it's also a
 fairly powerful programming language. A shell program, called a
-script, is an easy-to-use tool for building applications by "gluing
+@dfn{script}, is an easy-to-use tool for building applications by "gluing
 together" system calls, tools, utilities, and compiled
 binaries. Virtually the entire repertoire of UNIX commands, utilities,
 and tools is available for invocation by a shell script. If that were
