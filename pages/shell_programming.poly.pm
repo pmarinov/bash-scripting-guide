@@ -46,3 +46,20 @@ work in a script is often a useful first stage in project
 development. In this way, the structure of the application can be
 tested and tinkered with, and the major pitfalls found before
 proceeding to the final coding in C, C++, Java, Perl, or Python.
+
+◊section["When not to use shell scripts"]
+
+◊list-block[#:type "bullet"]{
+
+◊list-entry{Resource-intensive tasks, especially where speed is a
+factor (sorting, hashing, recursion ◊footnote{Although recursion is
+possible in a shell script, it tends to be slow and its implementation
+is often an ugly kludge.} ...)}
+
+◊list-entry{Procedures involving heavy-duty math operations,
+especially floating point arithmetic, arbitrary precision
+calculations, or complex numbers (use C++ or FORTRAN instead)}
+
+}
+
+◊section["The Bourne-Again Shell"]

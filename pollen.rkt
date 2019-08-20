@@ -127,3 +127,26 @@
       [(txt) (display "ERROR: file is not ready!")]
       ;; else (html)
       [else (display "ERROR: file is not ready!")]))
+
+;; List
+(define (list-block #:type [list-type ""] . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@itemize @bullet\n"
+            (string-append* elements)
+            "\n"
+            "@end itemize")]
+      [(txt) (display "ERROR: list-block is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: list is not ready!")]))
+
+(define (list-entry . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@item "
+            (string-append* elements))]
+      [(txt) (display "ERROR: list-entry is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: list-entry is not ready!")]))
