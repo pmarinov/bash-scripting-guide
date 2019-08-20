@@ -21,7 +21,7 @@ is that all of the code and the book's text in all the output formats
 is dedicated to public domain.
 
 Some of the example scripts from contributors to the book have
-reatined copyright, respect their corresponding licenses.
+retained copyright, respect their corresponding licenses.
 
 ◊section["License"]
 
