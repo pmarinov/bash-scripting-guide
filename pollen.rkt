@@ -55,7 +55,7 @@
       [else (map string-upcase (pagetree->list (current-pagetree)))])))
 
 ;; Quotation
-(define (quotation #:author [author ""] . elements)
+(define (quotation #:author [author #f] . elements)
     (case (current-poly-target)
       [(texi)
         (string-append
@@ -150,3 +150,15 @@
       [(txt) (display "ERROR: list-entry is not ready!")]
       ;; else (html)
       [else (display "ERROR: list-entry is not ready!")]))
+
+;; URL
+(define (url #:link link . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@url{" link ", "
+            (string-append* elements)
+            "}")]
+      [(txt) (display "ERROR: url is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: url is not ready!")]))
