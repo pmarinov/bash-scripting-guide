@@ -116,6 +116,19 @@
       ;; else (html)
       [else (display "ERROR: emph is not ready!")]))
 
+;; Strong
+;; Produces rendering of bold
+(define (strong . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@strong{"
+            (string-append* elements)
+            "}")]
+      [(txt) (display "ERROR: strong is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: strong is not ready!")]))
+
 ;; Footnote
 (define (footnote . elements)
     (case (current-poly-target)
