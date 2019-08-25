@@ -45,7 +45,8 @@ application. Getting even a limited subset of the functionality to
 work in a script is often a useful first stage in project
 development. In this way, the structure of the application can be
 tested and tinkered with, and the major pitfalls found before
-proceeding to the final coding in C, C++, Java, Perl, or Python.
+proceeding to the final coding in ◊term{C}, ◊term{C++}, ◊term{Java},
+◊term{Perl}, or ◊term{Python}.
 
 ◊section["When not to use shell scripts"]
 

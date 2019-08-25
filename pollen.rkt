@@ -91,6 +91,18 @@
       ;; else (html)
       [else (display "ERROR: dfn is not ready!")]))
 
+;; A term (a word that is not part of Engligh language
+;; texi: No representation
+;; html: Make it italic
+(define (term . elements)
+    (case (current-poly-target)
+      [(texi)
+        ;; Pass the text unchanged
+        (string-append* elements)]
+      [(txt) (display "ERROR: term is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: term is not ready!")]))
+
 ;; Footnote
 (define (footnote . elements)
     (case (current-poly-target)
