@@ -103,6 +103,19 @@
       ;; else (html)
       [else (display "ERROR: term is not ready!")]))
 
+;; Emphasize
+;; Produces rendering of italic
+(define (emphasize . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@emph{"
+            (string-append* elements)
+            "}")]
+      [(txt) (display "ERROR: emph is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: emph is not ready!")]))
+
 ;; Footnote
 (define (footnote . elements)
     (case (current-poly-target)
