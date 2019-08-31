@@ -59,9 +59,10 @@ is often an ugly kludge.} ...)}
 
 ◊list-entry{Procedures involving heavy-duty math operations,
 especially floating point arithmetic, arbitrary precision
-calculations, or complex numbers (use C++ or FORTRAN instead)}
+calculations, or complex numbers (use ◊term{C++} or ◊term{FORTRAN}
+instead)}
 
-◊list-entry{Cross-platform portability required (use C or Java
+◊list-entry{Cross-platform portability required (use ◊term{C} or ◊term{Java}
 instead)}
 
 ◊list-entry{Complex applications, where structured programming is a
@@ -99,10 +100,10 @@ the source code right out in the open for all the world to see.)}
 }
 
 If any of the above applies, consider a more powerful scripting
-language -- perhaps Perl, Tcl, Python, Ruby -- or possibly a compiled
-language such as C, C++, or Java. Even then, prototyping the
-application as a shell script might still be a useful development
-step.
+language -- perhaps ◊term{Perl}, ◊term{Tcl}, ◊term{Python},
+◊term{Ruby} -- or possibly a compiled language such as ◊term{C},
+◊term{C++}, or ◊term{Java}. Even then, prototyping the application as
+a shell script might still be a useful development step.
 
 ◊section["The Bourne-Again Shell"]
 
@@ -132,16 +133,16 @@ examples to illustrate various features of the shell. The example
 scripts work -- they've been tested, insofar as possible -- and some
 of them are even useful in real life. The reader can play with the
 actual working code of the examples in the source archive
-(scriptname.sh or scriptname.bash), ◊footnote{By convention,
-user-written shell scripts that are Bourne shell compliant generally
-take a name with a .sh extension. System scripts, such as those found
-in /etc/rc.d, do not necessarily conform to this nomenclature.} give
-them ◊dfn{execute} permission (chmod u+rx scriptname), then run them to see
-what happens. Should the source archive not be available, then
-cut-and-paste from the HTML or pdf rendered versions. Be aware that
-some of the scripts presented here introduce features before they are
-explained, and this may require the reader to temporarily skip ahead
-for enlightenment.
+(◊command{scriptname.sh} or ◊command{scriptname.bash}), ◊footnote{By
+convention, user-written shell scripts that are Bourne shell compliant
+generally take a name with a .sh extension. System scripts, such as
+those found in ◊fname{/etc/rc.d}, do not necessarily conform to this
+nomenclature.} give them ◊dfn{execute} permission (◊command{chmod
+u+rx scriptname}), then run them to see what happens. Should the
+source archive not be available, then cut-and-paste from the HTML or
+pdf rendered versions. Be aware that some of the scripts presented
+here introduce features before they are explained, and this may
+require the reader to temporarily skip ahead for enlightenment.
 
 Unless otherwise noted, the author of this book wrote the example
 scripts that follow.

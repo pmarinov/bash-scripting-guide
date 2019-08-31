@@ -153,6 +153,18 @@
       ;; else (html)
       [else (display "ERROR: file is not ready!")]))
 
+;; command
+(define (command . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@command{"
+            (string-append* elements)
+            "}")]
+      [(txt) (display "ERROR: file-path is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: file-path is not ready!")]))
+
 ;; Note
 (define (note . elements)
     (case (current-poly-target)
