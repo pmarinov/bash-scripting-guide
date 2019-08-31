@@ -153,7 +153,7 @@
       ;; else (html)
       [else (display "ERROR: file is not ready!")]))
 
-;; command
+;; Command
 (define (command . elements)
     (case (current-poly-target)
       [(texi)
@@ -164,6 +164,45 @@
       [(txt) (display "ERROR: file-path is not ready!")]
       ;; else (html)
       [else (display "ERROR: file-path is not ready!")]))
+
+(define (bracketed element)
+  (if (equal? element "\n")
+      (string-append "!")
+    (string-append "[" element "]")))
+
+(define (strip-new-line element)
+  (if (equal? element "\n")
+      " "
+    element))
+
+(define (strip-new-lines elements)
+    (map strip-new-line elements))
+
+;; Section
+;; Start a section for example code, it will be indexed List of Examples
+(define (section-example #:anchor anchor . elements)
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@section "
+          (string-append* (strip-new-lines elements))
+          "\n")]
+    [(txt) (display "ERROR: section-example is not ready!")]
+    ;; else (html)
+    [else (display "ERROR: section-example is not ready!")]))
+
+;; Example
+(define (example . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@example\n"
+            (string-append* elements)
+            "\n"
+            "@end example")]
+      [(txt) (display "ERROR: example is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: example is not ready!")]))
 
 ;; Note
 (define (note . elements)

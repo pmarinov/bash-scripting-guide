@@ -3,8 +3,6 @@
 ◊define-meta[page-title]{Shell Programming!}
 ◊define-meta[page-description]{What is shell scripting}
 
-◊; TODO: display: Chapter 1. Shell Programming!
-
 ◊quotation[#:author "Herbert Mayer"]{
 No programming language is perfect. There is not even a single best
 language; there are only languages well suited or perhaps poorly
