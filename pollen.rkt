@@ -56,17 +56,17 @@
 
 ;; Quotation
 (define (quotation #:author [author #f] . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@quotation\n"
-            (string-append* elements)
-            "\n"
-            (when author (string-append "@author " author "\n"))
-            "@end quotation")]
-      [(txt) (display "ERROR: quotation is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: quotation is not ready!")]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@quotation\n"
+          (string-append* elements)
+          "\n"
+          (when author (string-append "@author " author "\n"))
+          "@end quotation")]
+    [(txt) (display "ERROR: quotation is not ready!")]
+    ;; else (html)
+    [else (display "ERROR: quotation is not ready!")]))
 
 ;; Section
 (define (section section-title)
@@ -161,9 +161,22 @@
             "@command{"
             (string-append* elements)
             "}")]
-      [(txt) (display "ERROR: file-path is not ready!")]
+      [(txt) (display "ERROR: command is not ready!")]
       ;; else (html)
-      [else (display "ERROR: file-path is not ready!")]))
+      [else (display "ERROR: command is not ready!")]))
+
+;; Code
+;; Example: The function returns @code{nil}.
+(define (code . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@code{"
+            (string-append* elements)
+            "}")]
+      [(txt) (display "ERROR: code is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: code is not ready!")]))
 
 (define (bracketed element)
   (if (equal? element "\n")
@@ -196,10 +209,12 @@
     (case (current-poly-target)
       [(texi)
         (string-append
-            "@example\n"
+            "@indentedblock\n"
+            "@verbatim\n"
             (string-append* elements)
             "\n"
-            "@end example")]
+            "@end verbatim\n"
+            "@end indentedblock")]
       [(txt) (display "ERROR: example is not ready!")]
       ;; else (html)
       [else (display "ERROR: example is not ready!")]))
@@ -251,3 +266,15 @@
       [(txt) (display "ERROR: url is not ready!")]
       ;; else (html)
       [else (display "ERROR: url is not ready!")]))
+
+;; Abbreviation
+(define (abbr #:title title . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@abbr{" title ", "
+            (string-append* elements)
+            "}")]
+      [(txt) (display "ERROR: abbr is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: abbr is not ready!")]))
