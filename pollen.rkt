@@ -278,3 +278,33 @@
       [(txt) (display "ERROR: abbr is not ready!")]
       ;; else (html)
       [else (display "ERROR: abbr is not ready!")]))
+
+;; Definition
+(define (definition-block #:type definitions-type . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+          (cond
+            [(equal? definitions-type "variables")
+              "@table @var"]
+            [else
+              (string-append "ERROR: Unknown definitions-type "
+                  definitions-type)]
+            )
+          "\n"
+          (string-append* elements)
+          "\n"
+          "@end table")]
+      [(txt) (display "ERROR: list-block is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: list is not ready!")]))
+
+(define (definition-entry #:name definition-name . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@item " definition-name "\n"
+            (string-append* elements))]
+      [(txt) (display "ERROR: definition-entry is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: definition-entry is not ready!")]))
