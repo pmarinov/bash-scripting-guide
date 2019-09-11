@@ -233,7 +233,6 @@ variable. This is also known as backquotes or backticks.
 }
 
 ◊definition-entry[#:name ":"]{
-
 ◊strong{null command [colon]}. This is the shell equivalent of a "NOP"
 (◊emphasize{no op}, a do-nothing operation). It may be considered a synonym for
 the shell builtin ◊command{true}. The ":" command is itself a Bash ◊emphasize{builtin}, and
@@ -356,6 +355,162 @@ not_empty ()
 } # Contains a : (null command), and so is not empty.
 }
 
+}
+
+◊definition-entry[#:name "!"]{
+◊strong{reverse (or negate) the sense of a test or exit status
+[bang]}. The ! operator inverts the ◊emphasize{exit status} of the
+command to which it is applied. It also inverts the meaning of a test
+operator. This can, for example, change the sense of ◊emphasize{equal}
+( = ) to ◊emphasize{not-equal} ( != ). The ! operator is a Bash
+keyword.
+
+In a different context, the ! also appears in ◊emphasize{indirect variable references}.
+
+In yet another context, from the ◊emphasize{command line}, the !
+invokes the Bash ◊emphasize{history mechanism} (see Appendix L). Note
+that within a script, the history mechanism is disabled.
+}
+
+◊definition-entry[#:name "*"]{
+◊strong{wild card [asterisk]}. The * character serves as a "wild card"
+for filename expansion in ◊emphasize{globbing}. By itself, it matches
+every filename in a given directory.
+
+◊example{
+bash$ echo *
+abs-book.sgml add-drive.sh agram.sh alias.sh
+}
+
+The * also represents ◊emphasize{any number (or zero) characters} in a
+◊emphasize{regular expression}.
+}
+
+◊definition-entry[#:name "*"]{
+◊strong{arithmetic operator}. In the context of arithmetic operations,
+the * denotes multiplication.
+
+** A double asterisk can represent the ◊emphasize{exponentiation}
+operator or ◊emphasize{extended file-match globbing}.
+}
+
+◊definition-entry[#:name "?"]{
+◊strong{test operator}. Within certain expressions, the ? indicates a
+test for a condition.
+
+In a ◊emphasize{double-parentheses construct}, the ? can serve as an
+element of a C-style ◊emphasize{trinary operator}. ◊footnote{This is
+more commonly known as the ternary operator. Unfortunately, ternary is
+an ugly word. It doesn't roll off the tongue, and it doesn't
+elucidate. It obfuscates. Trinary is by far the more elegant usage.}
+
+Format: ◊code{condition?result-if-true:result-if-false}
+
+◊example{
+(( var0 = var1<98?9:21 ))
+#                ^ ^
+
+# if [ "$var1" -lt 98 ]
+# then
+#   var0=9
+# else
+#   var0=21
+# fi
+}
+
+In a ◊emphasize{parameter substitution} expression, the ? tests whether a variable has been set.
+}
+
+◊definition-entry[#:name "?"]{
+◊strong{wild card}. The ? character serves as a single-character "wild
+card" for filename expansion in ◊emphasize{globbing}, as well as
+◊emphasize{representing one character} in an ◊emphasize{extended
+regular expression}.
+}
+
+◊definition-entry[#:name "$"]{
+◊strong{Variable substitution (contents of a variable)}.
+
+◊example{
+var1=5
+var2=23skidoo
+
+echo $var1     # 5
+echo $var2     # 23skidoo
+}
+
+A $ prefixing a variable name indicates the ◊emphasize{value} the variable holds.
+}
+
+◊definition-entry[#:name "$"]{
+◊strong{end-of-line}. In a ◊emphasize{regular expression}, a "$"
+addresses the ◊emphasize{end of a line} of text.
+}
+
+◊definition-entry[#:name "$"]{
+◊strong{Parameter substitution}
+}
+
+◊definition-entry[#:name "$'...'"]{
+◊strong{Quoted string expansion}. This construct expands single or
+multiple escaped octal or hex values into ASCII
+◊footnote{◊abbr[#:title "ASCII"]{American Standard Code for
+Information Interchange}. This is a system for encoding text
+characters (alphabetic, numeric, and a limited set of symbols) as
+7-bit numbers that can be stored and manipulated by computers. Many of
+the ASCII characters are represented on a standard keyboard.} or
+Unicode characters.
+}
+
+◊definition-entry[#:name "$*, $@"]{
+◊strong{positional parameters}.
+}
+
+◊definition-entry[#:name "$?"]{
+◊strong{exit status variable}. The ◊emphasize{$? variable} holds the
+◊emphasize{exit status} of a command, a function, or of the script
+itself.
+}
+
+◊definition-entry[#:name "$$"]{
+◊strong{process ID variable}. The ◊emphasize{$$ variable} holds the
+◊emphasize{process ID} ◊footnote{◊abbr[#:title "PID"]{process ID}, is
+a number assigned to a running process. The PIDs of running processes
+may be viewed with a ◊command{ps} command.} of the script in which it
+appears.
+}
+
+◊definition-entry[#:name "()"]{
+◊strong{command group}.
+
+◊example{
+(a=hello; echo $a)
+}
+
+◊note{
+◊strong{Important:} A listing of commands within ◊emphasize{parentheses} starts a
+◊emphasize{subshell}.
+
+Variables inside parentheses, within the subshell, are not visible to
+the rest of the script. The parent process, the script, cannot read
+variables created in the ◊emphasize{child process}, the subshell.
+
+◊example{
+a=123
+( a=321; )
+
+echo "a = $a"   # a = 123
+# "a" within parentheses acts like a local variable.
+}
+}
+}
+
+◊definition-entry[#:name "()"]{
+◊strong{array initialization.}
+◊example{
+
+Array=(element1 element2 element3)
+}
 }
 
 } ◊;definition-block
