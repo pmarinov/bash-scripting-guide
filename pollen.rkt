@@ -191,7 +191,7 @@
 (define (strip-new-lines elements)
     (map strip-new-line elements))
 
-;; Section
+;; Section-example
 ;; Start a section for example code, it will be indexed List of Examples
 (define (section-example #:anchor anchor . elements)
   (case (current-poly-target)
@@ -203,6 +203,19 @@
     [(txt) (display "ERROR: section-example is not ready!")]
     ;; else (html)
     [else (display "ERROR: section-example is not ready!")]))
+
+;; Anchored example
+;; Start a section for example code, it will be indexed List of Examples
+(define (anchored-example #:anchor anchor . elements)
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@strong{"
+          (string-append* (strip-new-lines elements))
+          "}\n")]
+    [(txt) (display "ERROR: anchored-example is not ready!")]
+    ;; else (html)
+    [else (display "ERROR: anchored-example is not ready!")]))
 
 ;; Example
 (define (example . elements)

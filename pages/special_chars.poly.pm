@@ -548,4 +548,158 @@ file1 : A file1 : B file1 : C file2 : A file2 : B file2 : C
 }
 }
 
+◊definition-entry[#:name "@{a..z@}"]{
+◊strong{Extended Brace expansion.}
+
+◊example{
+echo {a..z} # a b c d e f g h i j k l m n o p q r s t u v w x y z
+# Echoes characters between a and z.
+
+echo {0..3} # 0 1 2 3
+# Echoes characters between 0 and 3.
+
+
+base64_charset=( {A..Z} {a..z} {0..9} + / = )
+# Initializing an array, using extended brace expansion.
+# From vladz's "base64.sh" example script.
+}
+
+The ◊emphasize{◊escaped{◊"{"}a..z◊escaped{◊"}"} extended brace
+expansion} construction is a feature introduced in version 3 of Bash.
+
+}
+
+◊definition-entry[#:name "@{@}"]{
+◊strong{Block of code [curly brackets]}. Also referred to as an
+◊emphasize{inline group}, this construct, in effect, creates an
+◊emphasize{anonymous function} (a function without a name). However,
+unlike in a "standard" ◊emphasize{function}, the variables inside a
+code block remain visible to the remainder of the script.
+
+◊example{
+bash$ { local a;
+          a=123; }
+bash: local: can only be used in a
+function
+
+
+a=123
+{ a=321; }
+echo "a = $a"   # a = 321   (value inside code block)
+
+# Thanks, S.C.
+}
+
+The code block enclosed in braces may have ◊emphasize{I/O redirected}
+to and from it.
+
+◊anchored-example[#:anchor "block_io_redirection1"]{Code blocks and I/O
+redirection}
+
+◊example{
+#!/bin/bash
+# Reading lines in /etc/fstab.
+
+File=/etc/fstab
+
+{
+read line1
+read line2
+} < $File
+
+echo "First line in $File is:"
+echo "$line1"
+echo
+echo "Second line in $File is:"
+echo "$line2"
+
+exit 0
+
+# Now, how do you parse the separate fields of each line?
+# Hint: use awk, or . . .
+# . . . Hans-Joerg Diers suggests using the "set" Bash builtin.
+}
+
+◊anchored-example[#:anchor "block_io_redirection2"]{Saving the output
+of a code block to a file}
+
+
+◊example{
+#!/bin/bash
+# rpm-check.sh
+
+#  Queries an rpm file for description, listing,
+#+ and whether it can be installed.
+#  Saves output to a file.
+#
+#  This script illustrates using a code block.
+
+SUCCESS=0
+E_NOARGS=65
+
+if [ -z "$1" ]
+then
+  echo "Usage: `basename $0` rpm-file"
+  exit $E_NOARGS
+fi
+
+{ # Begin code block.
+  echo
+  echo "Archive Description:"
+  rpm -qpi $1       # Query description.
+  echo
+  echo "Archive Listing:"
+  rpm -qpl $1       # Query listing.
+  echo
+  rpm -i --test $1  # Query whether rpm file can be installed.
+  if [ "$?" -eq $SUCCESS ]
+  then
+    echo "$1 can be installed."
+  else
+    echo "$1 cannot be installed."
+  fi
+  echo              # End code block.
+} > "$1.test"       # Redirects output of everything in block to file.
+
+echo "Results of rpm test in file $1.test"
+
+# See rpm man page for explanation of options.
+
+exit 0
+}
+
+Unlike a command group within (parentheses), as above, a code block
+enclosed by ◊emphasize{◊escaped{◊"{"}braces◊escaped{◊"}"}} will not
+normally launch a subshell.
+
+Exception: a code block in braces as part of a pipe may run as a
+subshell.
+
+◊example{
+ls | { read firstline; read secondline; }
+#  Error. The code block in braces runs as a subshell,
+#+ so the output of "ls" cannot be passed to variables within the block.
+echo "First line is $firstline; second line is $secondline"  # Won't work.
+
+# Thanks, S.C.
+}
+
+It is possible to iterate a code block using a ◊emphasize{non-standard for-loop}.
+
+}
+
+◊definition-entry[#:name "@{@}"]{
+
+◊strong{placeholder for text.} Used after ◊command{xargs -i} (replace
+strings option). The ◊emphasize{◊escaped{◊"{"}◊escaped{◊"}"}} double
+curly brackets are a placeholder for output text.
+
+◊example{
+ls . | xargs -i -t cp ./{} $1
+#            ^^         ^^
+
+# From "ex42.sh" (copydir.sh) example.
+}
+}
+
 } ◊;definition-block
