@@ -308,3 +308,12 @@
       [(txt) (display "ERROR: definition-entry is not ready!")]
       ;; else (html)
       [else (display "ERROR: definition-entry is not ready!")]))
+
+(define (escaped . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@" (string-append* elements))]
+      [(txt) (display "ERROR: escaped is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: escaped is not ready!")]))

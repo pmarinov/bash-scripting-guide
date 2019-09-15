@@ -513,4 +513,39 @@ Array=(element1 element2 element3)
 }
 }
 
+
+◊; TODO: Not yet clear how to produce the escaped sequence @{ and @}
+◊; inside a string, probably have a function that escape all braces in
+◊; a string
+
+◊definition-entry[#:name "@{xxx,yyy,zzz,...@}"]{
+◊strong{Brace expansion.}
+
+◊example{
+echo \"{These,words,are,quoted}\" # " prefix and suffix
+# "These" "words" "are" "quoted"
+
+cat {file1,file2,file3} > combined_file
+# Concatenates the files file1, file2, and file3 into combined_file.
+
+cp file22.{txt,backup}
+# Copies "file22.txt" to "file22.backup"
+}
+
+A command may act upon a comma-separated list of file specs within
+◊code{braces} (The shell does the brace expansion. The command itself acts
+upon the result of the expansion.) Filename expansion, known as
+◊emphasize{globbing}, applies to the file specs between the braces.
+
+◊note{Caution: No spaces allowed within the braces unless the spaces
+are quoted or escaped.
+
+◊example{
+echo {file1,file2}\ :{\A," B",' C'}
+
+file1 : A file1 : B file1 : C file2 : A file2 : B file2 : C
+}
+}
+}
+
 } ◊;definition-block
