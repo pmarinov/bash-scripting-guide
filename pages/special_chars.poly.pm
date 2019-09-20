@@ -689,7 +689,6 @@ It is possible to iterate a code block using a ◊emphasize{non-standard for-loo
 }
 
 ◊definition-entry[#:name "@{@}"]{
-
 ◊strong{placeholder for text.} Used after ◊command{xargs -i} (replace
 strings option). The ◊emphasize{◊escaped{◊"{"}◊escaped{◊"}"}} double
 curly brackets are a placeholder for output text.
@@ -700,6 +699,68 @@ ls . | xargs -i -t cp ./{} $1
 
 # From "ex42.sh" (copydir.sh) example.
 }
+}
+
+◊definition-entry[#:name "@{@} \\;"]{
+◊strong{pathname}. Mostly used in ◊code{find} constructs. This is
+not a shell ◊emphasize{builtin}.
+
+Definition: A ◊dfn{pathname} is a ◊emphasize{filename} that includes
+the complete ◊emphasize{path}. As an example,
+◊fname{/home/bozo/Notes/Thursday/schedule.txt}. This is sometimes
+referred to as the ◊emphasize{absolute path}.
+
+The ";" ends the ◊code{-exec} option of a ◊command{find} command
+sequence. It needs to be escaped to protect it from interpretation by
+the shell.
+}
+
+◊definition-entry[#:name "[ ]"]{
+◊strong{test}. Test expression between [ ]. Note that [ is part of the
+shell builtin ◊command{test} (and a synonym for it), ◊emphasize{not} a
+link to the external command ◊command{/usr/bin/test}.
+
+}
+
+◊definition-entry[#:name "[[ ]]"]{
+◊strong{test}. Test expression  between [[ ]]. More  flexible than the
+single-bracket [ ] test, this is a shell ◊emphasize{keyword}.
+
+}
+
+◊definition-entry[#:name "[ ]"]{
+
+◊strong{array element}. In the context of an ◊emphasize{array}, brackets set off
+the numbering of each element of that array.
+
+◊example{
+Array[1]=slot_1
+echo ${Array[1]}
+}
+
+}
+
+◊definition-entry[#:name "[ ]"]{
+◊strong{range of characters}. As part of a ◊emphasize{regular expression},
+brackets delineate a ◊emphasize{range of characters} to match.
+
+}
+
+◊definition-entry[#:name "$[ ... ]"]{
+
+◊strong{integer expansion}. Evaluate integer expression between $[ ].
+
+◊example{
+a=3
+b=7
+
+echo $[$a+$b]   # 10
+echo $[$a*$b]   # 21
+}
+
+Note that this usage is deprecated, and has been replaced by the
+◊emphasize{(( ... ))} construct.
+
 }
 
 } ◊;definition-block
