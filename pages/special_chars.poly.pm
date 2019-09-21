@@ -747,7 +747,6 @@ brackets delineate a ◊emphasize{range of characters} to match.
 }
 
 ◊definition-entry[#:name "$[ ... ]"]{
-
 ◊strong{integer expansion}. Evaluate integer expression between $[ ].
 
 ◊example{
@@ -760,6 +759,187 @@ echo $[$a*$b]   # 21
 
 Note that this usage is deprecated, and has been replaced by the
 ◊emphasize{(( ... ))} construct.
+
+}
+
+◊definition-entry[#:name "> &> >& >> < <>"]{
+◊strong{redirection}.
+
+◊code{scriptname >filename} redirects the output of ◊code{scriptname}
+to file ◊fname{filename}. Overwrite ◊fname{filename} if it already
+exists.
+
+◊code{command &>filename} redirects both the ◊code{stdout} and the
+◊code{stderr} of ◊code{command} to ◊fname{filename}.
+
+This is useful for suppressing output when testing for a
+condition. For example, let us test whether a certain command exists.
+
+◊example{
+bash$ type bogus_command &>/dev/null
+
+bash$ echo $?
+1
+}               
+
+Or in a script:
+
+◊example{
+command_test () { type "$1" &>/dev/null; }
+#                                      ^
+
+cmd=rmdir            # Legitimate command.
+command_test $cmd; echo $?   # 0
+
+
+cmd=bogus_command    # Illegitimate command
+command_test $cmd; echo $?   # 1
+}
+
+◊code{command >&2} redirects ◊code{stdout} of ◊code{command} to
+◊code{stderr}.
+
+◊code{scriptname >>filename} appends the output of ◊code{scriptname}
+to file ◊fname{filename}. If ◊fname{filename} does not already exist,
+it is created.
+
+◊code{[i]<>filename} opens file ◊fname{filename} for reading and
+writing, and assigns ◊emphasize{file descriptor} i to it. If
+◊fname{filename} does not exist, it is created.
+
+}
+
+◊definition-entry[#:name ">, <"]{
+◊strong{process substitution}.
+
+◊code{(command)>}
+
+◊code{<(command)}
+
+In a different context, the "<" and ">" characters act as
+◊emphasize{string comparison operators}.
+
+In yet another context, the "<" and ">" characters act as
+◊emphasize{integer comparison operators}
+
+}
+
+◊definition-entry[#:name "<<"]{
+◊strong{redirection} used in a ◊emphasize{here document}.
+
+}
+
+◊definition-entry[#:name "<<<"]{
+◊strong{redirection} used in a here string.
+
+}
+
+◊definition-entry[#:name "<, >"]{
+◊strong{ASCII comparison}.
+
+◊example{
+veg1=carrots
+veg2=tomatoes
+
+if [[ "$veg1" < "$veg2" ]]
+then
+  echo "Although $veg1 precede $veg2 in the dictionary,"
+  echo -n "this does not necessarily imply anything "
+  echo "about my culinary preferences."
+else
+  echo "What kind of dictionary are you using, anyhow?"
+fi
+}
+
+}
+
+◊definition-entry[#:name "\\<, \\>"]{
+◊strong{word boundary} in a ◊emphasize{regular expression}.
+
+◊example{
+bash$ grep '\<the\>' textfile
+}
+
+}
+
+◊definition-entry[#:name "|"]{
+
+
+◊strong{pipe}. Passes the output (◊code{stdout}) of a previous command to the
+input (◊code{stdin}) of the next one, or to the shell. This is a method of
+chaining commands together.
+
+◊example{
+echo ls -l | sh
+#  Passes the output of "echo ls -l" to the shell,
+#+ with the same result as a simple "ls -l".
+
+cat *.lst | sort | uniq
+# Merges and sorts all ".lst" files, then deletes duplicate lines.
+}
+
+A pipe, as a classic method of interprocess communication, sends the
+◊code{stdout} of one ◊emphasize{process} to the ◊code{stdin} of
+another. In a typical case, a command, such as ◊code{cat} or
+◊code{echo}, pipes a stream of data to a ◊emphasize{filter}, a command
+that transforms its input for processing. ◊footnote{Even as in olden
+times a ◊emphasize{philtre} denoted a potion alleged to have magical
+transformative powers, so does a UNIX ◊emphasize{filter} transform its
+target in (roughly) analogous fashion. (The coder who comes up with a
+"love philtre" that runs on a Linux machine will likely win accolades
+and honors.)}
+
+◊example{
+cat $filename1 $filename2 | grep $search_word
+}
+
+For an interesting note on the complexity of using UNIX pipes, see the
+◊url[#:link "http://www.faqs.org/faqs/unix-faq/faq/part3/"]{UNIX FAQ,
+Part 3}.
+
+The output of a command or commands may be piped to a script.
+
+◊example{
+#!/bin/bash
+# uppercase.sh : Changes input to uppercase.
+
+tr 'a-z' 'A-Z'
+#  Letter ranges must be quoted
+#+ to prevent filename generation from single-letter filenames.
+
+exit 0
+}
+
+Now, let us pipe the output of ◊code{ls -l} to this script.
+
+◊example{
+bash$ ls -l | ./uppercase.sh
+-RW-RW-R--    1 BOZO  BOZO       109 APR  7 19:49 1.TXT
+ -RW-RW-R--    1 BOZO  BOZO       109 APR 14 16:48 2.TXT
+ -RW-R--R--    1 BOZO  BOZO       725 APR 20 20:56 DATA-FILE
+}
+
+The ◊code{stdout} of each process in a pipe must be read as the
+◊code{stdin} of the next. If this is not the case, the data stream
+will ◊emphasize{block}, and the pipe will not behave as expected.
+
+◊example{
+cat file1 file2 | ls -l | sort
+# The output from "cat file1 file2" disappears.
+}
+
+A pipe runs as a ◊emphasize{child process}, and therefore cannot alter
+script variables.
+
+◊example{
+variable="initial_value"
+echo "new_value" | read variable
+echo "variable = $variable"     # variable = initial_value
+}
+
+If one of the commands in the pipe aborts, this prematurely terminates
+execution of the pipe. Called a ◊emphasize{broken pipe}, this
+condition sends a ◊emphasize{SIGPIPE signal}.
 
 }
 
