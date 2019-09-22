@@ -863,8 +863,6 @@ bash$ grep '\<the\>' textfile
 }
 
 ◊definition-entry[#:name "|"]{
-
-
 ◊strong{pipe}. Passes the output (◊code{stdout}) of a previous command to the
 input (◊code{stdin}) of the next one, or to the shell. This is a method of
 chaining commands together.
@@ -940,6 +938,324 @@ echo "variable = $variable"     # variable = initial_value
 If one of the commands in the pipe aborts, this prematurely terminates
 execution of the pipe. Called a ◊emphasize{broken pipe}, this
 condition sends a ◊emphasize{SIGPIPE signal}.
+
+}
+
+◊definition-entry[#:name ">|"]{
+◊strong{force redirection} (even if the ◊emphasize{noclobber} option
+is set). This will forcibly overwrite an existing file.
+
+}
+
+◊definition-entry[#:name "||"]{
+◊strong{OR logical operator}. In a ◊emphasize{test construct}, the ||
+operator causes a return of 0 (success) if ◊emphasize{either} of the
+linked test conditions is true.
+
+}
+
+◊definition-entry[#:name "&"]{
+◊strong{Run job in background}. A command followed by an & will run in
+the background.
+
+◊example{
+bash$ sleep 10 &
+[1] 850
+[1]+  Done                    sleep 10
+}
+
+Within a script, commands and even loops may run in the background.
+
+◊anchored-example[#:anchor "background_loop1"]{Running a loop in the background}
+
+◊example{
+#!/bin/bash
+# background-loop.sh
+
+for i in 1 2 3 4 5 6 7 8 9 10            # First loop.
+do
+  echo -n "$i "
+done & # Run this loop in background.
+       # Will sometimes execute after second loop.
+
+echo   # This 'echo' sometimes will not display.
+
+for i in 11 12 13 14 15 16 17 18 19 20   # Second loop.
+do
+  echo -n "$i "
+done  
+
+echo   # This 'echo' sometimes will not display.
+
+# ======================================================
+
+# The expected output from the script:
+# 1 2 3 4 5 6 7 8 9 10 
+# 11 12 13 14 15 16 17 18 19 20 
+
+# Sometimes, though, you get:
+# 11 12 13 14 15 16 17 18 19 20 
+# 1 2 3 4 5 6 7 8 9 10 bozo $
+# (The second 'echo' doesn't execute. Why?)
+
+# Occasionally also:
+# 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+# (The first 'echo' doesn't execute. Why?)
+
+# Very rarely something like:
+# 11 12 13 1 2 3 4 5 6 7 8 9 10 14 15 16 17 18 19 20 
+# The foreground loop preempts the background one.
+
+exit 0
+
+#  Nasimuddin Ansari suggests adding    sleep 1
+#+ after the   echo -n "$i"   in lines 6 and 14,
+#+ for some real fun.
+}
+
+Caution: A command run in the background within a script may cause the
+script to hang, waiting for a keystroke. Fortunately, there is a
+remedy for this.
+
+}
+
+◊definition-entry[#:name "&&"]{
+◊strong{AND logical operator}. In a ◊emphasize{test} construct, the &&
+operator causes a return of 0 (success) only if ◊emphasize{both} the
+linked test conditions are true.
+
+}
+
+◊definition-entry[#:name "-"]{
+◊strong{option, prefix}. Option flag for a command or filter. Prefix
+for an operator. Prefix for a ◊emphasize{default parameter} in
+◊emphasize{parameter substitution}.
+
+◊code{COMMAND -[Option1][Option2][...]}
+
+◊code{ls -al}
+
+◊code{sort -dfu $filename}
+
+◊example{
+if [ $file1 -ot $file2 ]
+then #      ^
+  echo "File $file1 is older than $file2."
+fi
+
+if [ "$a" -eq "$b" ]
+then #    ^
+  echo "$a is equal to $b."
+fi
+
+if [ "$c" -eq 24 -a "$d" -eq 47 ]
+then #    ^              ^
+  echo "$c equals 24 and $d equals 47."
+fi
+
+
+param2=${param1:-$DEFAULTVAL}
+#               ^
+}
+
+}
+
+◊definition-entry[#:name "-"]{
+◊strong{redirection from/to stdin or stdout [dash]}.
+
+◊example{
+bash$ cat -
+abc
+abc
+
+...
+
+Ctl-D
+}
+
+As expected, ◊code{cat -} echoes ◊code{stdin}, in this case keyboarded
+user input, to ◊code{stdout}. But, does I/O redirection using "-"
+have real-world applications?
+
+◊example{
+(cd /source/directory && tar cf - . ) | (cd /dest/directory && tar xpvf -)
+# Move entire file tree from one directory to another
+# [courtesy Alan Cox <a.cox@swansea.ac.uk>, with a minor change]
+
+# 1) cd /source/directory
+#    Source directory, where the files to be moved are.
+# 2) &&
+#   "And-list": if the 'cd' operation successful,
+#    then execute the next command.
+# 3) tar cf - .
+#    The 'c' option 'tar' archiving command creates a new archive,
+#    the 'f' (file) option, followed by '-' designates the target file
+#    as stdout, and do it in current directory tree ('.').
+# 4) |
+#    Piped to ...
+# 5) ( ... )
+#    a subshell
+# 6) cd /dest/directory
+#    Change to the destination directory.
+# 7) &&
+#   "And-list", as above
+# 8) tar xpvf -
+#    Unarchive ('x'), preserve ownership and file permissions ('p'),
+#    and send verbose messages to stdout ('v'),
+#    reading data from stdin ('f' followed by '-').
+#
+#    Note that 'x' is a command, and 'p', 'v', 'f' are options.
+#
+# Whew!
+
+
+
+# More elegant than, but equivalent to:
+#   cd source/directory
+#   tar cf - . | (cd ../dest/directory; tar xpvf -)
+#
+#     Also having same effect:
+# cp -a /source/directory/* /dest/directory
+#     Or:
+# cp -a /source/directory/* /source/directory/.[^.]* /dest/directory
+#     If there are hidden files in /source/directory.
+}
+
+
+◊example{
+bunzip2 -c linux-2.6.16.tar.bz2 | tar xvf -
+#  --uncompress tar file--      | --then pass it to "tar"--
+#  If "tar" has not been patched to handle "bunzip2",
+#+ this needs to be done in two discrete steps, using a pipe.
+#  The purpose of the exercise is to unarchive "bzipped" kernel source.
+}
+
+Note that in this context the "-" is not itself a Bash operator, but
+rather an option recognized by certain UNIX utilities that write to
+◊code{stdout}, such as ◊code{tar}, ◊code{cat}, etc.
+
+◊example{
+bash$ echo "whatever" | cat -
+whatever
+}
+
+Where a filename is expected, "-" redirects output to ◊code{stdout}
+(sometimes seen with ◊code{tar cf}), or accepts input from
+◊code{stdin}, rather than from a file. This is a method of using a
+file-oriented utility as a filter in a pipe.
+
+◊example{
+bash$ file
+Usage: file [-bciknvzL] [-f namefile] [-m magicfiles] file...
+}
+
+By itself on the command-line, ◊code{file} fails with an error message.
+
+Add a "-" for a more useful result. This causes the shell to await user input.
+
+◊example{
+bash$ file -
+abc
+standard input:              ASCII text
+
+
+bash$ file -
+#!/bin/bash
+standard input:              Bourne-Again shell script text executable
+}
+
+Now the command accepts input from ◊code{stdin} and analyzes it.
+
+The "-" can be used to pipe ◊code{stdout} to other commands. This permits
+such stunts as prepending lines to a file.
+
+Using ◊code{diff} to compare a file with a section of another:
+
+◊code{grep Linux file1 | diff file2 -}
+
+Finally, a real-world example using "-" with ◊code{tar}.
+
+◊anchored-example[#:anchor "backup_lastday1"]{Backup of all files
+changed in last day}
+
+◊example{
+#!/bin/bash
+
+#  Backs up all files in current directory modified within last 24 hours
+#+ in a "tarball" (tarred and gzipped file).
+
+BACKUPFILE=backup-$(date +%m-%d-%Y)
+#                 Embeds date in backup filename.
+#                 Thanks, Joshua Tschida, for the idea.
+archive=${1:-$BACKUPFILE}
+#  If no backup-archive filename specified on command-line,
+#+ it will default to "backup-MM-DD-YYYY.tar.gz."
+
+tar cvf - `find . -mtime -1 -type f -print` > $archive.tar
+gzip $archive.tar
+echo "Directory $PWD backed up in archive file \"$archive.tar.gz\"."
+
+
+#  Stephane Chazelas points out that the above code will fail
+#+ if there are too many files found
+#+ or if any filenames contain blank characters.
+
+# He suggests the following alternatives:
+# -------------------------------------------------------------------
+#   find . -mtime -1 -type f -print0 | xargs -0 tar rvf "$archive.tar"
+#      using the GNU version of "find".
+
+
+#   find . -mtime -1 -type f -exec tar rvf "$archive.tar" '{}' \;
+#         portable to other UNIX flavors, but much slower.
+# -------------------------------------------------------------------
+
+
+exit 0
+}
+
+Caution: Filenames beginning with "-" may cause problems when coupled
+with the "-" redirection operator. A script should check for this and
+add an appropriate prefix to such filenames, for example
+◊code{./-FILENAME}, ◊code{$PWD/-FILENAME}, or
+◊code{$PATHNAME/-FILENAME}.
+
+If the value of a variable begins with a "-", this may likewise create
+problems.
+
+◊example{
+var="-n"
+echo $var		
+# Has the effect of "echo -n", and outputs nothing.
+}
+
+}
+
+◊definition-entry[#:name "--"]{
+◊strong{The double-dash} -- prefixes long (verbatim) options to
+commands.
+
+◊code{sort --ignore-leading-blanks}
+
+Used with a Bash builtin, it means the ◊emphasize{end of options} to
+that particular command.
+
+Tip: This provides a handy means of removing files whose names begin
+with a dash.
+
+◊example{
+bash$ ls -l
+-rw-r--r-- 1 bozo bozo 0 Nov 25 12:29 -badname
+
+bash$ rm -- -badname
+
+bash$ ls -l
+total 0
+}
+
+The double-dash is also used in conjunction with ◊code{set}.
+
+◊code{set -- $variable}
 
 }
 
