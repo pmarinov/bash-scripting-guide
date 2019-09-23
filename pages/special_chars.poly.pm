@@ -1259,4 +1259,40 @@ The double-dash is also used in conjunction with ◊code{set}.
 
 }
 
+◊definition-entry[#:name "-"]{
+◊strong{previous working directory}. A ◊code{cd -} command changes to
+the previous working directory. This uses the ◊code{$OLDPWD} environmental
+variable.
+
+Caution: Do not confuse the "-" used in this sense with the "-"
+redirection operator just discussed. The interpretation of the "-"
+depends on the context in which it appears.
+
+}
+
+◊definition-entry[#:name "-"]{
+◊strong{Minus}. Minus sign in an arithmetic operation.
+
+}
+
+◊definition-entry[#:name "="]{
+◊strong{Equals}. Assignment operator
+
+◊example{
+a=28
+echo $a   # 28
+}
+
+In a different context, the "=" is a string comparison operator.
+
+}
+
+◊definition-entry[#:name "+"]{
+
+◊strong{Plus}. Addition arithmetic operator.
+
+In a different context, the "+" is a Regular Expression operator.
+
+}
+
 } ◊;definition-block
