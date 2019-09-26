@@ -1288,10 +1288,80 @@ In a different context, the "=" is a string comparison operator.
 }
 
 ◊definition-entry[#:name "+"]{
-
 ◊strong{Plus}. Addition arithmetic operator.
 
 In a different context, the "+" is a Regular Expression operator.
+
+}
+
+◊definition-entry[#:name "+"]{
+◊strong{Option}. Option flag for a command or filter.
+
+Certain commands and builtins use the "+" to enable certain options and
+the "-" to disable them. In parameter substitution, the "+" prefixes an
+alternate value that a variable expands to.
+
+}
+
+◊definition-entry[#:name "%"]{
+◊strong{modulo}. Modulo (remainder of a division) arithmetic
+operation.
+
+◊example{
+let "z = 5 % 3"
+echo $z  # 2
+}
+
+In a different context, the "%" is a pattern matching operator.
+
+}
+
+◊definition-entry[#:name "~"]{
+◊strong{home directory [tilde]}. This corresponds to the ◊code{$HOME}
+internal variable. ◊fname{~bozo} is bozo's home directory, and
+◊command{ls ~bozo} lists the contents of it. ◊fname{~/} is the current
+user's home directory, and ◊command{ls ~/} lists the contents of it.
+
+◊example{
+bash$ echo ~bozo
+/home/bozo
+
+bash$ echo ~
+/home/bozo
+
+bash$ echo ~/
+/home/bozo/
+
+bash$ echo ~:
+/home/bozo:
+
+bash$ echo ~nonexistent-user
+~nonexistent-user
+}
+
+}
+
+◊definition-entry[#:name "~+"]{
+◊strong{current working directory}. This corresponds to the ◊code{$PWD}
+internal variable.
+
+}
+
+◊definition-entry[#:name "~-"]{
+◊strong{previous working directory}. This corresponds to the
+◊code{$OLDPWD} internal variable.
+
+}
+
+◊definition-entry[#:name "=~"]{
+◊strong{regular expression match}. This operator was introduced with
+version 3 of Bash.
+
+}
+
+◊definition-entry[#:name "^"]{
+◊strong{beginning-of-line}. In a regular expression, a "^" addresses
+the beginning of a line of text.
 
 }
 
