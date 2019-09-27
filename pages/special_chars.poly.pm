@@ -1360,8 +1360,111 @@ version 3 of Bash.
 }
 
 ◊definition-entry[#:name "^"]{
-◊strong{beginning-of-line}. In a regular expression, a "^" addresses
+◊strong{beginning-of-line}. In a ◊emphasize{regular expression}, a "^" addresses
 the beginning of a line of text.
+
+}
+
+◊definition-entry[#:name "^, ^^"]{
+◊strong{Uppercase conversion} in ◊emphasize{parameter substitution}
+(added in version 4 of Bash).
+
+}
+
+◊definition-entry[#:name "Control Characters"]{
+◊strong{change the behavior of the terminal or text display}. A
+control character is a ◊strong{CONTROL + key} combination (pressed
+simultaneously). A control character may also be written in
+◊emphasize{octal} or ◊emphasize{hexadecimal} notation, following an
+◊emphasize{escape}.
+
+Control characters are not normally useful inside a script.
+
+◊list-block[#:type "bullet"]{
+
+◊list-entry{◊strong{Ctl-A} Moves cursor to beginning of line of text
+(on the command-line).}
+
+◊list-entry{◊strong{Ctl-B} ◊dfn{Backspace} (nondestructive).}
+
+◊list-entry{◊strong{Ctl-C} ◊dfn{Break}. Terminate a foreground job.}
+
+◊list-entry{◊strong{Ctl-D} ◊emphasize{Log out} from a shell (similar
+to ◊command{exit}).
+
+◊dfn{EOF} (end-of-file). This also terminates input from ◊code{stdin}.
+
+When typing text on the console or in an ◊emphasize{xterm} window,
+Ctl-D erases the character under the cursor. When there are no
+characters present, Ctl-D logs out of the session, as expected. In an
+◊emphasize{xterm} window, this has the effect of closing the window.}
+
+◊list-entry{◊strong{Ctl-E} Moves cursor to end of line of text (on the
+command-line).}
+
+◊list-entry{◊strong{Ctl-F} Moves cursor forward one character position
+(on the command-line).}
+
+◊list-entry{◊strong{Ctl-G} ◊dfn{BEL}. On some old-time teletype
+terminals, this would actually ring a bell. In an ◊emphasize{xterm} it
+might beep.}
+
+◊list-entry{◊strong{Ctl-H} ◊dfn{Rubout} (destructive
+backspace). Erases characters the cursor backs over while backspacing.
+
+◊example{
+#!/bin/bash
+# Embedding Ctl-H in a string.
+
+a="^H^H"                  # Two Ctl-H's -- backspaces
+                          # ctl-V ctl-H, using vi/vim
+echo "abcdef"             # abcdef
+echo
+echo -n "abcdef$a "       # abcd f
+#  Space at end  ^              ^  Backspaces twice.
+echo
+echo -n "abcdef$a"        # abcdef
+#  No space at end               ^ Doesn't backspace (why?).
+                          # Results may not be quite as expected.
+echo; echo
+
+# Constantin Hagemeier suggests trying:
+# a=$'\010\010'
+# a=$'\b\b'
+# a=$'\x08\x08'
+# But, this does not change the results.
+
+########################################
+
+# Now, try this.
+
+rubout="^H^H^H^H^H"       # 5 x Ctl-H.
+
+echo -n "12345678"
+sleep 2
+echo -n "$rubout"
+sleep 2
+}
+}
+
+◊list-entry{◊strong{Ctl-I} ◊dfn{Horizontal tab.}}
+
+◊list-entry{◊strong{Ctl-J} ◊dfn{Newline} (line feed). In a script, may
+also be expressed in octal notation -- '\012' or in hexadecimal --
+'\x0a'.}
+
+◊list-entry{◊strong{Ctl-K} ◊dfn{Vertical tab.} When typing text on the
+console or in an ◊emphasize{xterm} window, Ctl-K erases from the character under
+the cursor to end of line. Within a script, Ctl-K may behave
+differently, as in Lee Lee Maschmeyer's example, below.}
+
+◊list-entry{◊strong{Ctl-L} ◊dfn{Formfeed} (clear the terminal
+screen). In a terminal, this has the same effect as the
+◊command{clear} command. When sent to a printer, a Ctl-L causes an
+advance to end of the paper sheet.}
+
+
+}  ◊; end of list-block
 
 }
 
