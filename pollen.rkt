@@ -80,6 +80,7 @@
       [else (display "ERROR: section is not ready!")]))
 
 ;; Definition (dfn)
+;; Italic in HTML
 (define (dfn . elements)
     (case (current-poly-target)
       [(texi)
