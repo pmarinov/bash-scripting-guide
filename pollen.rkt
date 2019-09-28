@@ -165,6 +165,18 @@
       ;; else (html)
       [else (display "ERROR: command is not ready!")]))
 
+;; Command
+(define (kbd . elements)
+    (case (current-poly-target)
+      [(texi)
+        (string-append
+            "@kbd{"
+            (string-append* elements)
+            "}")]
+      [(txt) (display "ERROR: command is not ready!")]
+      ;; else (html)
+      [else (display "ERROR: command is not ready!")]))
+
 ;; Code
 ;; Example: The function returns @code{nil}.
 (define (code . elements)

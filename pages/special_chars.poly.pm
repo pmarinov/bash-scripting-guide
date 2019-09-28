@@ -1395,9 +1395,10 @@ to ◊command{exit}).
 ◊dfn{EOF} (end-of-file). This also terminates input from ◊code{stdin}.
 
 When typing text on the console or in an ◊emphasize{xterm} window,
-Ctl-D erases the character under the cursor. When there are no
-characters present, Ctl-D logs out of the session, as expected. In an
-◊emphasize{xterm} window, this has the effect of closing the window.}
+◊kbd{Ctl-D} erases the character under the cursor. When there are no
+characters present, ◊kbd{Ctl-D} logs out of the session, as
+expected. In an ◊emphasize{xterm} window, this has the effect of
+closing the window.}
 
 ◊list-entry{◊strong{Ctl-E} Moves cursor to end of line of text (on the
 command-line).}
@@ -1454,18 +1455,152 @@ also be expressed in octal notation -- '\012' or in hexadecimal --
 '\x0a'.}
 
 ◊list-entry{◊strong{Ctl-K} ◊dfn{Vertical tab.} When typing text on the
-console or in an ◊emphasize{xterm} window, Ctl-K erases from the character under
-the cursor to end of line. Within a script, Ctl-K may behave
-differently, as in Lee Lee Maschmeyer's example, below.}
+console or in an ◊emphasize{xterm} window, ◊kbd{Ctl-K} erases from the
+character under the cursor to end of line. Within a script,
+◊kbd{Ctl-K} may behave differently, as in Lee Lee Maschmeyer's
+example, below.}
 
 ◊list-entry{◊strong{Ctl-L} ◊dfn{Formfeed} (clear the terminal
 screen). In a terminal, this has the same effect as the
-◊command{clear} command. When sent to a printer, a Ctl-L causes an
-advance to end of the paper sheet.}
+◊command{clear} command. When sent to a printer, a ◊kbd{Ctl-L} causes
+an advance to end of the paper sheet.}
+
+◊list-entry{◊strong{Ctl-M} ◊dfn{Carriage return}.
+
+◊example{
+#!/bin/bash
+# Thank you, Lee Maschmeyer, for this example.
+
+read -n 1 -s -p \
+$'Control-M leaves cursor at beginning of this line. Press Enter. \x0d'
+           # Of course, '0d' is the hex equivalent of Control-M.
+echo >&2   #  The '-s' makes anything typed silent,
+           #+ so it is necessary to go to new line explicitly.
+
+read -n 1 -s -p $'Control-J leaves cursor on next line. \x0a'
+           #  '0a' is the hex equivalent of Control-J, linefeed.
+echo >&2
+
+###
+
+read -n 1 -s -p $'And Control-K\x0bgoes straight down.'
+echo >&2   #  Control-K is vertical tab.
+
+# A better example of the effect of a vertical tab is:
+
+var=$'\x0aThis is the bottom line\x0bThis is the top line\x0a'
+echo "$var"
+#  This works the same way as the above example. However:
+echo "$var" | col
+#  This causes the right end of the line to be higher than the left end.
+#  It also explains why we started and ended with a line feed --
+#+ to avoid a garbled screen.
+
+# As Lee Maschmeyer explains:
+# --------------------------
+#  In the [first vertical tab example] . . . the vertical tab
+#+ makes the printing go straight down without a carriage return.
+#  This is true only on devices, such as the Linux console,
+#+ that can't go "backward."
+#  The real purpose of VT is to go straight UP, not down.
+#  It can be used to print superscripts on a printer.
+#  The col utility can be used to emulate the proper behavior of VT.
+
+exit 0
+}
+}
+
+◊list-entry{◊strong{Ctl-N} Erases a line of text recalled from history
+buffer ◊footnote{Bash stores a list of commands previously issued from
+the command-line in a buffer, or memory space, for recall with the
+builtin history commands.} (on the command-line).}
+
+◊list-entry{◊strong{Ctl-O} Issues a ◊emphasize{newline} (on the
+command-line).}
+
+◊list-entry{◊strong{Ctl-P} Recalls last command from history buffer
+(on the command-line).}
+
+◊list-entry{◊strong{Ctl-Q} Resume (◊dfn{XON}). This resumes
+◊code{stdin} in a terminal.}
+
+◊list-entry{◊strong{Ctl-R} Backwards search for text in history buffer
+(on the command-line).}
+
+◊list-entry{◊strong{Ctl-S} Suspend (◊dfn{XOFF}). This freezes
+◊code{stdin} in a terminal. (Use ◊kbd{Ctl-Q} to restore input.)}
+
+◊list-entry{◊strong{Ctl-T} Reverses the position of the character the
+cursor is on with the previous character (on the command-line).}
+
+◊list-entry{◊strong{Ctl-U} Erase a line of input, from the cursor
+backward to beginning of line. In some settings, @kbd{Ctl-U} erases the
+entire line of input, regardless of cursor position.}
+
+◊list-entry{◊strong{Ctl-V} When inputting text, ◊kbd{Ctl-V} permits inserting
+control characters. For example, the following two are equivalent:
+
+◊example{
+echo -e '\x0a'
+echo <Ctl-V><Ctl-J>
+}
+
+◊kbd{Ctl-V} is primarily useful from within a text editor.
+
+}
+
+◊list-entry{◊strong{Ctl-W} When typing text on the console or in an
+xterm window, ◊kbd{Ctl-W} erases from the character under the cursor
+backwards to the first instance of ◊emphasize{whitespace}. In some
+settings, ◊kbd{Ctl-W} erases backwards to first non-alphanumeric
+character.}
+
+◊list-entry{◊strong{Ctl-X} In certain word processing programs,
+◊emphasize{Cuts} highlighted text and copies to ◊emphasize{clipboard}.}
+
+◊list-entry{◊strong{Ctl-Y} ◊emphasize{Pastes} back text previously erased (with
+◊kbd{Ctl-U} or ◊kbd{Ctl-W}).}
+
+◊list-entry{◊strong{Ctl-Z} ◊emphasize{Pauses} a foreground job.}
+
+◊list-entry{◊strong{Ctl-Z} ◊emphasize{Substitute} operation in certain
+word processing applications.}
+
+◊list-entry{◊strong{Ctl-Z} ◊dfn{EOF} (end-of-file) character in the
+MSDOS filesystem.}
 
 
 }  ◊; end of list-block
 
+}  ◊; end of "Control Characters"
+
+◊definition-entry[#:name "Whitespace"]{
+
+◊strong{functions as a separator between commands and/or
+variables}. Whitespace consists of either spaces, tabs, blank lines,
+or any combination thereof. ◊footnote{A linefeed (newline) is also a
+whitespace character. This explains why a blank line, consisting only
+of a linefeed, is considered whitespace.} In some contexts, such as
+variable assignment, whitespace is not permitted, and results in a
+syntax error.
+
+Blank lines have no effect on the action of a script, and are
+therefore useful for visually separating functional sections.
+
+◊code{$IFS}, the special variable separating ◊emphasize{fields} of input to
+certain commands. It defaults to whitespace.
+
+◊note{Definition: A ◊dfn{field} is a discrete chunk of data expressed
+as a string of consecutive characters. Separating each field from
+adjacent fields is either whitespace or some other designated
+character (often determined by the ◊code{$IFS}). In some contexts, a
+field may be called a record.}
+
+To preserve whitespace within a string or in a variable, use quoting.
+
+UNIX filters can target and operate on whitespace using the POSIX
+character class [:space:].
 }
+
 
 } ◊;definition-block
