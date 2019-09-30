@@ -113,9 +113,9 @@
             "@emph{"
             (string-append* elements)
             "}")]
-      [(txt) (display "ERROR: emph is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: emph is not ready!")]))
+      [(html) `(span [[class "placeholder-emphasize"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; Strong
 ;; Produces rendering of bold
@@ -126,9 +126,9 @@
             "@strong{"
             (string-append* elements)
             "}")]
-      [(txt) (display "ERROR: strong is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: strong is not ready!")]))
+      [(html) `(span [[class "placeholder-strong"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; Footnote
 (define (footnote . elements)
@@ -138,9 +138,9 @@
             "@footnote{"
             (string-append* elements)
             "}")]
-      [(txt) (display "ERROR: dfn is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: dfn is not ready!")]))
+      [(html) `(span [[class "placeholder-footnote"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; File name
 (define (fname . elements)
@@ -150,9 +150,9 @@
             "@file{"
             (string-append* elements)
             "}")]
-      [(txt) (display "ERROR: file is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: file is not ready!")]))
+      [(html) `(span [[class "placeholder-fname"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; Command
 (define (command . elements)
@@ -162,9 +162,9 @@
             "@command{"
             (string-append* elements)
             "}")]
-      [(txt) (display "ERROR: command is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: command is not ready!")]))
+      [(html) `(span [[class "placeholder-command"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; Command
 (define (kbd . elements)
@@ -174,9 +174,9 @@
             "@kbd{"
             (string-append* elements)
             "}")]
-      [(txt) (display "ERROR: command is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: command is not ready!")]))
+      [(html) `(span [[class "placeholder-kbd"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; Code
 ;; Example: The function returns @code{nil}.
@@ -187,9 +187,9 @@
             "@code{"
             (string-append* elements)
             "}")]
-      [(txt) (display "ERROR: code is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: code is not ready!")]))
+      [(html) `(span [[class "placeholder-code"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 (define (bracketed element)
   (if (equal? element "\n")
@@ -213,9 +213,9 @@
           "@section "
           (string-append* (strip-new-lines elements))
           "\n")]
-    [(txt) (display "ERROR: section-example is not ready!")]
-    ;; else (html)
-    [else (display "ERROR: section-example is not ready!")]))
+      [(html) `(span [[class "placeholder-section-example"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; Anchored example
 ;; Start a section for example code, it will be indexed List of Examples
@@ -226,9 +226,9 @@
           "@strong{"
           (string-append* (strip-new-lines elements))
           "}\n")]
-    [(txt) (display "ERROR: anchored-example is not ready!")]
-    ;; else (html)
-    [else (display "ERROR: anchored-example is not ready!")]))
+      [(html) `(span [[class "placeholder-anchored-example"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; Example
 (define (example . elements)
@@ -241,9 +241,9 @@
             "\n"
             "@end verbatim\n"
             "@end indentedblock")]
-      [(txt) (display "ERROR: example is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: example is not ready!")]))
+      [(html) `(span [[class "placeholder-example"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; Note
 (define (note . elements)
@@ -254,9 +254,9 @@
             (string-append* elements)
             "\n"
             "@end indentedblock")]
-      [(txt) (display "ERROR: file is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: file is not ready!")]))
+      [(html) `(span [[class "placeholder-note"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; List
 (define (list-block #:type [list-type ""] . elements)
@@ -267,9 +267,9 @@
             (string-append* elements)
             "\n"
             "@end itemize")]
-      [(txt) (display "ERROR: list-block is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: list is not ready!")]))
+      [(html) `(span [[class "placeholder-list-block"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 (define (list-entry . elements)
     (case (current-poly-target)
@@ -277,9 +277,9 @@
         (string-append
             "@item "
             (string-append* elements))]
-      [(txt) (display "ERROR: list-entry is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: list-entry is not ready!")]))
+      [(html) `(span [[class "placeholder-list-entry"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; URL
 (define (url #:link link . elements)
@@ -289,9 +289,9 @@
             "@url{" link ", "
             (string-append* elements)
             "}")]
-      [(txt) (display "ERROR: url is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: url is not ready!")]))
+      [(html) `(span [[class "placeholder-list-url"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; Abbreviation
 (define (abbr #:title title . elements)
@@ -301,9 +301,9 @@
             "@abbr{" title ", "
             (string-append* elements)
             "}")]
-      [(txt) (display "ERROR: abbr is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: abbr is not ready!")]))
+      [(html) `(span [[class "placeholder-list-abbr"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 ;; Definition
 (define (definition-block #:type definitions-type . elements)
@@ -321,9 +321,9 @@
           (string-append* elements)
           "\n"
           "@end table")]
-      [(txt) (display "ERROR: list-block is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: list is not ready!")]))
+      [(html) `(span [[class "placeholder-definition-block"]] ,@elements)]
+      ;; else (txt)
+      [else (string-append* elements)]))
 
 (define (definition-entry #:name definition-name . elements)
     (case (current-poly-target)

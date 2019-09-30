@@ -21,4 +21,4 @@ programming concepts.
 An in-depth exploration of the art of shell scripting.
 
 ◊; List pages under page0.poly.pm
-◊(node-menu "pages/page0.poly.pm")
+◊; ◊(node-menu "pages/page0.poly.pm")
