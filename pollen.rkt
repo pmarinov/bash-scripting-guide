@@ -5,6 +5,7 @@
   racket/list
   racket/string
   pollen/core
+  racket/path
   pollen/decode
   pollen/setup
   pollen/pagetree
@@ -26,9 +27,9 @@
 (define (book-title . elements)
   (case (current-poly-target)
     [(texi) (string-append "@c " (string-append* elements))]
-    [(txt) (map string-upcase elements)]
-    ;; else (html)
-    [else (txexpr 'h1 '() elements)]))
+    [(html) `(h1 [[class "placeholder-book-title"]] ,@elements)]
+    ;; else (txt)
+    [else (map string-upcase elements)]))
 
 (define (texi-make-mentry node)
   (let* ([str-node-title (select 'page-title node)]
@@ -50,9 +51,9 @@
   (let ([pg-tree (load-pagetree "../index.ptree")])
     (case (current-poly-target)
       [(texi) (texi-node-menu pg-tree top-node)]
-      [(txt) (map string-upcase pg-tree)]
-      ;; else (html)
-      [else (map string-upcase (pagetree->list (current-pagetree)))])))
+      [(html) (string-append* (map symbol->string (children top-node pg-tree)))]
+      ;; else (txt)
+      [else (map string-upcase pg-tree)])))
 
 ;; Quotation
 (define (quotation #:author [author #f] . elements)
