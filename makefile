@@ -4,14 +4,23 @@
 
 SHELL = /bin/bash
 
-zap: ## Resets Pollen cache, deletes LaTeX working folders, feed.xml and all .html, .ltx files
-	rm pages/*.html pages/*.texi pages/*.txt; \
-	rm template.texi template.html \
-	rm page0.info; \
+# ANSI encoded colors for the help screen
+BOLD = \x1b[1m
+NC = \x1b[0m
+
+# Function: `del' => $1: folder, $2: file glob
+# (surround glob in double quotes when invoking)
+del = find $(1) -name $(2) -exec rm -v {} \;
+
+zap: ## Resets Pollen cache, ereases all generated file (.html, .texi, .info, and .txt files)
+	$(call del,.,"*.txt")
+	$(call del,.,"*.html")
+	$(call del,.,"*.texi")
+	$(call del,.,"*.info")
 	raco pollen reset
 
 # Self-documenting make file (http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html)
 help: ## Displays this help screen
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	@sed -E -n -e "s%^([a-zA-Z_ ]+:).*## (.*)%${BOLD}\1${NC}\t\2%p" makefile
 
 .DEFAULT_GOAL := help
