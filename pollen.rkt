@@ -65,132 +65,132 @@
           "\n"
           (when author (string-append "@author " author "\n"))
           "@end quotation")]
-    [(txt) (display "ERROR: quotation is not ready!")]
-    ;; else (html)
-    [else (display "ERROR: quotation is not ready!")]))
+    [(html) `(span [[class "placeholder-quotation"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Section
 (define (section section-title)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@section " section-title
-            "\n")]
-      [(txt) (display "ERROR: section is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: section is not ready!")]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@section " section-title
+          "\n")]
+    [(html) `(strong [[class "placeholder-section"]] ,section-title)]
+    ;; else (txt)
+    [else (string-append* section-title)]))
 
 ;; Definition (dfn)
 ;; Italic in HTML
 (define (dfn . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@dfn{"
-            (string-append* elements)
-            "}")]
-      [(txt) (display "ERROR: dfn is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: dfn is not ready!")]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@dfn{"
+          (string-append* elements)
+          "}")]
+    [(html) `(span [[class "placeholder-dfn"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; A term (a word that is not part of Engligh language
 ;; texi: No representation
 ;; html: Make it italic
 (define (term . elements)
-    (case (current-poly-target)
-      [(texi)
-        ;; Pass the text unchanged
-        (string-append* elements)]
-      [(txt) (display "ERROR: term is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: term is not ready!")]))
+  (case (current-poly-target)
+    [(texi)
+      ;; Pass the text unchanged
+      (string-append* elements)]
+    [(html) `(span [[class "placeholder-dfn"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Emphasize
 ;; Produces rendering of italic
 (define (emphasize . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@emph{"
-            (string-append* elements)
-            "}")]
-      [(html) `(span [[class "placeholder-emphasize"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@emph{"
+          (string-append* elements)
+          "}")]
+    [(html) `(span [[class "placeholder-emphasize"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Strong
 ;; Produces rendering of bold
 (define (strong . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@strong{"
-            (string-append* elements)
-            "}")]
-      [(html) `(span [[class "placeholder-strong"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@strong{"
+          (string-append* elements)
+          "}")]
+    [(html) `(span [[class "placeholder-strong"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Footnote
 (define (footnote . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@footnote{"
-            (string-append* elements)
-            "}")]
-      [(html) `(span [[class "placeholder-footnote"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@footnote{"
+          (string-append* elements)
+          "}")]
+    [(html) `(span [[class "placeholder-footnote"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; File name
 (define (fname . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@file{"
-            (string-append* elements)
-            "}")]
-      [(html) `(span [[class "placeholder-fname"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@file{"
+          (string-append* elements)
+          "}")]
+    [(html) `(span [[class "placeholder-fname"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Command
 (define (command . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@command{"
-            (string-append* elements)
-            "}")]
-      [(html) `(span [[class "placeholder-command"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@command{"
+          (string-append* elements)
+          "}")]
+    [(html) `(span [[class "placeholder-command"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Command
 (define (kbd . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@kbd{"
-            (string-append* elements)
-            "}")]
-      [(html) `(span [[class "placeholder-kbd"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@kbd{"
+          (string-append* elements)
+          "}")]
+    [(html) `(span [[class "placeholder-kbd"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Code
 ;; Example: The function returns @code{nil}.
 (define (code . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@code{"
-            (string-append* elements)
-            "}")]
-      [(html) `(span [[class "placeholder-code"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@code{"
+          (string-append* elements)
+          "}")]
+    [(html) `(span [[class "placeholder-code"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 (define (bracketed element)
   (if (equal? element "\n")
@@ -214,9 +214,9 @@
           "@section "
           (string-append* (strip-new-lines elements))
           "\n")]
-      [(html) `(span [[class "placeholder-section-example"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+    [(html) `(span [[class "placeholder-section-example"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Anchored example
 ;; Start a section for example code, it will be indexed List of Examples
@@ -227,120 +227,120 @@
           "@strong{"
           (string-append* (strip-new-lines elements))
           "}\n")]
-      [(html) `(span [[class "placeholder-anchored-example"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+    [(html) `(span [[class "placeholder-anchored-example"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Example
 (define (example . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@indentedblock\n"
-            "@verbatim\n"
-            (string-append* elements)
-            "\n"
-            "@end verbatim\n"
-            "@end indentedblock")]
-      [(html) `(span [[class "placeholder-example"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@indentedblock\n"
+          "@verbatim\n"
+          (string-append* elements)
+          "\n"
+          "@end verbatim\n"
+          "@end indentedblock")]
+    [(html) `(span [[class "placeholder-example"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Note
 (define (note . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@indentedblock\n"
-            (string-append* elements)
-            "\n"
-            "@end indentedblock")]
-      [(html) `(span [[class "placeholder-note"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@indentedblock\n"
+          (string-append* elements)
+          "\n"
+          "@end indentedblock")]
+    [(html) `(span [[class "placeholder-note"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; List
 (define (list-block #:type [list-type ""] . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@itemize @bullet\n"
-            (string-append* elements)
-            "\n"
-            "@end itemize")]
-      [(html) `(span [[class "placeholder-list-block"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@itemize @bullet\n"
+          (string-append* elements)
+          "\n"
+          "@end itemize")]
+    [(html) `(span [[class "placeholder-list-block"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 (define (list-entry . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@item "
-            (string-append* elements))]
-      [(html) `(span [[class "placeholder-list-entry"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@item "
+          (string-append* elements))]
+    [(html) `(span [[class "placeholder-list-entry"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; URL
 (define (url #:link link . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@url{" link ", "
-            (string-append* elements)
-            "}")]
-      [(html) `(span [[class "placeholder-list-url"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@url{" link ", "
+          (string-append* elements)
+          "}")]
+    [(html) `(span [[class "placeholder-list-url"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Abbreviation
 (define (abbr #:title title . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@abbr{" title ", "
-            (string-append* elements)
-            "}")]
-      [(html) `(span [[class "placeholder-list-abbr"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@abbr{" title ", "
+          (string-append* elements)
+          "}")]
+    [(html) `(span [[class "placeholder-list-abbr"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 ;; Definition
 (define (definition-block #:type definitions-type . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-          (cond
-            [(equal? definitions-type "variables")
-              "@table @var"]
-            [else
-              (string-append "ERROR: Unknown definitions-type "
-                  definitions-type)]
-            )
-          "\n"
-          (string-append* elements)
-          "\n"
-          "@end table")]
-      [(html) `(span [[class "placeholder-definition-block"]] ,@elements)]
-      ;; else (txt)
-      [else (string-append* elements)]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+        (cond
+          [(equal? definitions-type "variables")
+            "@table @var"]
+          [else
+            (string-append "ERROR: Unknown definitions-type "
+                definitions-type)]
+          )
+        "\n"
+        (string-append* elements)
+        "\n"
+        "@end table")]
+    [(html) `(span [[class "placeholder-definition-block"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 (define (definition-entry #:name definition-name . elements)
-    (case (current-poly-target)
-      [(texi)
-        (string-append
-            "@item " definition-name "\n"
-            (string-append* elements))]
-      [(txt) (display "ERROR: definition-entry is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: definition-entry is not ready!")]))
+  (case (current-poly-target)
+    [(texi)
+      (string-append
+          "@item " definition-name "\n"
+          (string-append* elements))]
+    [(html) `(span [[class "placeholder-definition-entry"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
 
 (define (escaped . elements)
     (case (current-poly-target)
       [(texi)
         (string-append
             "@" (string-append* elements))]
-      [(txt) (display "ERROR: escaped is not ready!")]
-      ;; else (html)
-      [else (display "ERROR: escaped is not ready!")]))
+    [(html) `(span [[class "placeholder-escaped"]] ,@elements)]
+    ;; else (txt)
+    [else (string-append* elements)]))
