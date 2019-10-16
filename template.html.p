@@ -8,7 +8,7 @@
     ◊(select-from-metas 'page-description metas) |
     ◊(->html this-book-title)
   </title>
-  <link rel="stylesheet" type="text/css" href="style.css"/>
+  <link rel="stylesheet" type="text/css" href="../style.css"/>
 </head>
 <body>
 ◊(->html doc)

@@ -22,8 +22,11 @@ pages-texi := $(patsubst %.poly.pm,%.texi,$(pages-sourcefiles))
 
 # The ‘all’ rule references the rules BELOW it (the above are just variable
 # definitions, not rules).
-all: $(pages-sourcelistings) $(pages-html) page0.info
+all: $(pages-sourcelistings) $(pages-html) style.css page0.info
 all: ## Re-generate book (HTML and INFO)
+
+style.css: style.css.pp
+	raco pollen render $<
 
 $(pages-html): $(core-files) template.html.p
 $(pages-html): %.html: %.poly.pm
