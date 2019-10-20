@@ -23,6 +23,19 @@
 
 (define this-book-title "Advanced Bash-Scripting Guide")
 
+(define (root . elements)
+  (case (current-poly-target)
+    [(html)
+      (txexpr 'root empty (decode-elements elements
+        #:txexpr-elements-proc decode-paragraphs-flow))]
+    ;; `else' -- passthrough without changes
+    [else (txexpr 'root empty (decode-elements elements))]))
+
+;; Two '\n' mark a paragraph, single '\n' is ignored (doesn't generate
+;; "<br/>")
+(define (decode-paragraphs-flow elements)
+  (decode-paragraphs elements #:linebreak-proc (lambda (x) x)))
+
 ;; Define book title
 (define (book-title . elements)
   (case (current-poly-target)

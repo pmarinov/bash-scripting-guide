@@ -4,6 +4,7 @@
 ◊(require pollen/pagetree)
 
 ◊define-meta[page-title]{Top}
+◊define-meta[page-description]{Page0}
 ◊book-title{◊this-book-title}
 
 This tutorial assumes no previous knowledge of scripting or

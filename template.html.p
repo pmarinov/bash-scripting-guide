@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>
-    ◊(select-from-metas 'page-title metas) --
+    ◊(select-from-metas 'page-title metas) |
     ◊(select-from-metas 'page-description metas) |
     ◊(->html this-book-title)
   </title>
