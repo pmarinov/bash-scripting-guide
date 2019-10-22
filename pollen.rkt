@@ -59,12 +59,17 @@
       "\n"
       "@end menu\n")))
 
+(define (html-node-menu pg-tree top-node)
+  '(@ (a [[href "http://example.com"]] "Y1!")
+    (a [[href "http://example.com"]] "Y2"))
+)
+
 ;; Menu
 (define (node-menu top-node)
   (let ([pg-tree (load-pagetree "../index.ptree")])
     (case (current-poly-target)
       [(texi) (texi-node-menu pg-tree top-node)]
-      [(html) (string-append* (map symbol->string (children top-node pg-tree)))]
+      [(html) (html-node-menu pg-tree top-node)]
       ;; else (txt)
       [else (map string-upcase pg-tree)])))
 
