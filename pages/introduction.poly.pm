@@ -3,8 +3,6 @@
 ◊define-meta[page-title]{Introduction}
 ◊define-meta[page-description]{What is a UNIX shell}
 
-◊; TODO: display: Part 1. Introduction
-
 ◊quotation[#:author "Webster's Dictionary, 1913 ed."]{
 Script: A writing; a written document. [Obs.]
 }

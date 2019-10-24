@@ -59,10 +59,14 @@
       "\n"
       "@end menu\n")))
 
+; Create a link to a page (node)
+(define (menu-make-mentry node)
+  `(a [[href ,(symbol->string node)]] ,(select 'page-title node)))
+
+; For a given node, make a menu of HTML links to its direct children
 (define (html-node-menu pg-tree top-node)
-  '(@ (a [[href "http://example.com"]] "Y1!")
-    (a [[href "http://example.com"]] "Y2"))
-)
+  (let ([menu '(@)])
+    (append menu (map menu-make-mentry (children top-node pg-tree)))))
 
 ;; Menu
 (define (node-menu top-node)
