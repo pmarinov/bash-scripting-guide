@@ -59,13 +59,39 @@
       "\n"
       "@end menu\n")))
 
-; Create a link to a page (node)
-(define (menu-make-mentry node)
-  `(div (a [[href ,(symbol->string node)]] ,(select 'page-title node))))
+;; Format node for display purposes
+(define (node->display node)
+  (if (pagenodeish? node)
+      (if (string? node)
+          (string-append "(s) " node)
+        (string-append "(n) " (symbol->string node)))
+    (string-append " (x) not a node")))
 
-; For a given node, make a menu of HTML links to its direct children
+;; Convert node to string, if not alredy a string
+(define (node->string node)
+  (if (string? node)
+    node
+    (symbol->string node)))
+
+;; For a given node, make a menu of HTML links to its direct children
 (define (html-node-menu pg-tree top-node)
+  ;; Compute depth of a node
+  (define (node-depth node depth)
+    (cond
+      [(string=?
+         (node->string node)
+         (node->string top-node))
+        depth]
+      [else (node-depth (parent node pg-tree) (+ depth 1))]))
+
+  (define (menu-make-mentry node)
+    (printf "node: ~a ~a~n" (node->display node) (node-depth node 0))
+    `(div (a [[href ,(symbol->string node)]] ,(select 'page-title node))))
+
+  ; Create a link to a page (node)
   (append '(@) (map menu-make-mentry (children top-node pg-tree))))
+  ; (printf "~a~n" (pagetree->list pg-tree))
+  ; (append '(@) (map menu-make-mentry (rest (pagetree->list pg-tree)))))
 
 ;; Menu
 (define (node-menu top-node)
