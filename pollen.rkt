@@ -82,7 +82,7 @@
     (printf "menu-make-mentry: ~a~n" (node->display node))
     (let ([node-children (children node pg-tree)])
       (if node-children
-          (append '(@) (node-link node) (map menu-make-mentry node-children))
+          (append (node-link node) (map menu-make-mentry node-children))
         (node-link node))))
 
   ;; html-node-menu:
