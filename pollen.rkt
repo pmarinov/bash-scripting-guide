@@ -79,17 +79,21 @@
   (define (node-link node) `(@ (div (a [[href ,(symbol->string node)]] ,(select 'page-title node)))))
   ;; menu-make-mentry:
   ;; Recursively create a menu of links for a node and its children
-  (define (menu-make-mentry node)
-    (printf "menu-make-mentry: ~a~n" (node->display node))
+  (define (menu-make-mentry node depth)
+    (printf "menu-make-mentry: ~a ~a~n" (node->display node) depth)
     (let ([node-children (children node pg-tree)])
       ; (printf "~a~n" (node-link node))
       (if node-children
-          (append (node-link node) (map menu-make-mentry node-children))
+          (append (node-link node)
+            (map (lambda (node)
+              (menu-make-mentry node (+ depth 1))) node-children))
         (node-link node))))
 
   ;; html-node-menu:
   ;; Create a link to a page (node)
-  (append '(@) (map menu-make-mentry (children top-node pg-tree))))
+  (append '(@)
+    (map (lambda (node)
+      (menu-make-mentry node 0)) (children top-node pg-tree))))
 
 ;; Menu
 (define (node-menu top-node)
