@@ -76,7 +76,7 @@
 
 ;; For a given node, make a menu of HTML links to its direct children
 (define (html-node-menu pg-tree top-node)
-  (define (node-link node) `(@ (div (a [[href ,(symbol->string node)]] ,(select 'page-title node)))))
+  (define (node-link node) `(li (a [[href ,(symbol->string node)]] ,(select 'page-title node))))
   ;; menu-make-mentry:
   ;; Recursively create a menu of links for a node and its children
   (define (menu-make-mentry node depth)
@@ -84,9 +84,11 @@
     (let ([node-children (children node pg-tree)])
       ; (printf "~a~n" (node-link node))
       (if node-children
-          (append (node-link node)
-            (map (lambda (node)
-              (menu-make-mentry node (+ depth 1))) node-children))
+          (let ([menu-children
+                 (map (lambda (node)
+                   (menu-make-mentry node (+ depth 1))) node-children)])
+            (append (node-link node)
+              `(ul ,@menu-children)))
         (node-link node))))
 
   ;; html-node-menu:
