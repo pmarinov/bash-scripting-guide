@@ -84,18 +84,20 @@
     (let ([node-children (children node pg-tree)])
       ; (printf "~a~n" (node-link node))
       (if node-children
-          (let ([menu-children
-                 (map (lambda (node)
-                   (menu-make-mentry node (+ depth 1))) node-children)])
-            (append (node-link node)
-              `(ul ,@menu-children)))
+          ;; node-link + ul + nested recursive menu entries
+          `(@ ,(node-link node)
+            (ul
+              ,@(map (lambda (node)
+                (menu-make-mentry node (+ depth 1))) node-children)))
+        ;; A node link
         (node-link node))))
 
   ;; html-node-menu:
   ;; Create a link to a page (node)
-  (append '(@)
-    (map (lambda (node)
-      (menu-make-mentry node 0)) (children top-node pg-tree))))
+  `(@
+    (ul
+      ,@(map (lambda (node)
+        (menu-make-mentry node 0)) (children top-node pg-tree)))))
 
 ;; Menu
 (define (node-menu top-node)
