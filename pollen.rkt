@@ -74,13 +74,21 @@
     node
     (symbol->string node)))
 
+(define (node-strip-page-location node)
+  (string-replace node "pages/" ""))
+
+;; node->ref:
+;; Converter from node to HTML page name
+(define (node->href node-poly-pm)
+  (string-replace (node-strip-page-location (symbol->string node-poly-pm)) ".poly.pm" ".html"))
+
 ;; For a given node, make a menu of HTML links to its direct children
 (define (html-node-menu pg-tree top-node)
-  (define (node-link node) `(li (a [[href ,(symbol->string node)]] ,(select 'page-title node))))
+  (define (node-link node) `(li (a [[href ,(node->href node)]] ,(select 'page-title node))))
   ;; menu-make-mentry:
   ;; Recursively create a menu of links for a node and its children
   (define (menu-make-mentry node depth)
-    (printf "menu-make-mentry: ~a ~a~n" (node->display node) depth)
+    ; (printf "menu-make-mentry: ~a ~a~n" (node->display node) depth)
     (let ([node-children (children node pg-tree)])
       ; (printf "~a~n" (node-link node))
       (if node-children
@@ -93,7 +101,8 @@
         (node-link node))))
 
   ;; html-node-menu:
-  ;; Create a link to a page (node)
+  ;; Start with an ul tag for the top level and insert all children
+  ;; entries
   `(@
     (ul
       ,@(map (lambda (node)
@@ -129,7 +138,7 @@
       (string-append
           "@section " section-title
           "\n")]
-    [(html) `(strong [[class "placeholder-section"]] ,section-title)]
+    [(html) `(h2 [[class "placeholder-section"]] ,section-title)]
     ;; else (txt)
     [else (string-append* section-title)]))
 
@@ -216,7 +225,7 @@
           "@command{"
           (string-append* elements)
           "}")]
-    [(html) `(span [[class "placeholder-command"]] ,@elements)]
+    [(html) `(code [[class "placeholder-command"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -228,7 +237,7 @@
           "@kbd{"
           (string-append* elements)
           "}")]
-    [(html) `(span [[class "placeholder-kbd"]] ,@elements)]
+    [(html) `(code [[class "placeholder-kbd"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -241,7 +250,7 @@
           "@code{"
           (string-append* elements)
           "}")]
-    [(html) `(span [[class "placeholder-code"]] ,@elements)]
+    [(html) `(code [[class "placeholder-code"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -295,7 +304,7 @@
           "\n"
           "@end verbatim\n"
           "@end indentedblock")]
-    [(html) `(span [[class "placeholder-example"]] ,@elements)]
+    [(html) `(pre [[class "placeholder-example"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
