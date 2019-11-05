@@ -55,4 +55,33 @@ another process, its ◊emphasize{parent}.
 
 }
 
+◊definition-entry[#:name "Positional parameters"]{
+Arguments passed to the script from the command line: ◊code{$0, $1,
+$2, $3...}
+
+◊code{$0} is the name of the script itself, ◊code{$1} is the first
+argument, ◊code{$2} the second, ◊code{$3} the third, and so
+forth. After ◊code{$9}, the arguments must be enclosed in brackets,
+for example, ◊code{$◊escaped{◊"{"}10◊escaped{◊"}"},
+$◊escaped{◊"{"}11◊escaped{◊"}"}, $◊escaped{◊"{"}12◊escaped{◊"}"}}.
+
+The special variables ◊code{$*} and ◊code{$◊escaped{@}} denote all the
+positional parameters.
+
+Note: The process calling the script sets the ◊code{$0} parameter. By
+convention, this parameter is the name of the script. See the manpage
+(manual page) for ◊code{execv}.
+
+From the command-line, however, ◊code{$0} is the name of the shell.
+
+◊example{
+bash$ echo $0
+bash
+
+tcsh% echo $0
+tcsh
+}
+
+}
+
 }

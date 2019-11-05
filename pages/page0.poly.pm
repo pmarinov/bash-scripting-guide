@@ -9,7 +9,7 @@
 
 This tutorial assumes no previous knowledge of scripting or
 programming, yet progresses rapidly toward an intermediate/advanced
-level of instruction . . . ◊emphasize{all the while sneaking in little
+level of instruction... ◊emphasize{all the while sneaking in little
 nuggets of UNIX® wisdom and lore.} It serves as a textbook, a manual
 for self-study, and as a reference and source of knowledge on shell
 scripting techniques. The exercises and heavily-commented examples
