@@ -24,3 +24,9 @@ body {
   color: ◊|color-text|;
   font-family: serif;
 }
+
+pre.code {
+  background-color: #f7f7f8;
+  line-height: 1.45;
+  padding: 10px;
+}

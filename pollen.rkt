@@ -304,7 +304,7 @@
           "\n"
           "@end verbatim\n"
           "@end indentedblock")]
-    [(html) `(pre [[class "placeholder-example"]] ,@elements)]
+    [(html) `(pre [[class "code"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
