@@ -104,7 +104,7 @@
   ;; Start with an ul tag for the top level and insert all children
   ;; entries
   `(@
-    (ul
+    (ul [[class "toc"]]
       ,@(map (lambda (node)
         (menu-make-mentry node 0)) (children top-node pg-tree)))))
 

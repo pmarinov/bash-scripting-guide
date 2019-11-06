@@ -30,3 +30,21 @@ pre.code {
   line-height: 1.45;
   padding: 10px;
 }
+
+ul.toc {
+  background-color: #f7f7f8;
+  line-height: 1.6;
+  padding: 1.25em;
+  list-style-type: none;
+  font-family: sans-serif;
+}
+
+.toc li {
+  list-style-type: none;
+}
+
+.toc li a {
+  list-style-type: none;
+  color: ◊|color-text|;
+  text-decoration: none;
+}
