@@ -6,15 +6,21 @@
 
 h1, h2, h3, h4, h5, h6 {
   font-family: sans-serif;
-  font-weight: 300;
 }
 
 h1 {
-	color: ◊|color-book-title|;
+  color: ◊|color-book-title|;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+h1, h2 {
+  letter-spacing: -0.01em;
+  word-spacing: -0.05em;
 }
 
 h2, h3, h4, h5, h6 {
-	color: ◊|color-title|;
+  color: ◊|color-title|;
 }
 
 body {
