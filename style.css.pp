@@ -29,6 +29,11 @@ body {
   margin-right: auto;
   color: ◊|color-text|;
   font-family: serif;
+  line-height: 1.6
+}
+
+p {
+  margin-bottom: 1.25em;
 }
 
 pre.code {
