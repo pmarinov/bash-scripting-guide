@@ -15,10 +15,10 @@ to the Public Domain
 ◊section["Lisense commentary"]
 
 This work in source format is a program (software) which when run
-produces the book in a variety of readable formats. While the standard
-license text from unlicense.org only refers to software, the intention
-is that all of the code and the book's text in all the output formats
-is dedicated to public domain.
+produces the book in a variety of human-readable formats. While the
+text of the license from unlicense.org only refers to software, the
+intention is that not only the code but also the entirety of the
+book's text in all the output formats is dedicated to public domain.
 
 Some of the example scripts from contributors to the book have
 retained copyright, respect their corresponding licenses.
