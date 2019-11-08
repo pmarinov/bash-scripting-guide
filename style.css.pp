@@ -14,11 +14,6 @@ h1 {
   margin-bottom: 0.5em;
 }
 
-h1, h2 {
-  letter-spacing: -0.01em;
-  word-spacing: -0.05em;
-}
-
 h2, h3, h4, h5, h6 {
   color: ◊|color-title|;
 }
