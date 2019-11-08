@@ -276,7 +276,7 @@
           "@section "
           (string-append* (strip-new-lines elements))
           "\n")]
-    [(html) `(span [[class "placeholder-section-example"]] ,@elements)]
+    [(html) `(h2 [[id ,anchor]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
