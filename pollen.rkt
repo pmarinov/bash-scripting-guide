@@ -127,7 +127,7 @@
           "\n"
           (when author (string-append "@author " author "\n"))
           "@end quotation")]
-    [(html) `(span [[class "placeholder-quotation"]] ,@elements)]
+    [(html) `(em [[class "placeholder-quotation"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -151,7 +151,7 @@
           "@dfn{"
           (string-append* elements)
           "}")]
-    [(html) `(span [[class "placeholder-dfn"]] ,@elements)]
+    [(html) `(em [[class "placeholder-dfn"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -163,7 +163,7 @@
     [(texi)
       ;; Pass the text unchanged
       (string-append* elements)]
-    [(html) `(span [[class "placeholder-dfn"]] ,@elements)]
+    [(html) `(em [[class "placeholder-dfn"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -173,10 +173,10 @@
   (case (current-poly-target)
     [(texi)
       (string-append
-          "@emph{"
-          (string-append* elements)
-          "}")]
-    [(html) `(span [[class "placeholder-emphasize"]] ,@elements)]
+        "@emph{"
+        (string-append* elements)
+        "}")]
+    [(html) `(em [[class "placeholder-emphasize"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -186,10 +186,10 @@
   (case (current-poly-target)
     [(texi)
       (string-append
-          "@strong{"
-          (string-append* elements)
-          "}")]
-    [(html) `(span [[class "placeholder-strong"]] ,@elements)]
+        "@strong{"
+        (string-append* elements)
+        "}")]
+    [(html) `(strong [[class "placeholder-strong"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -198,9 +198,9 @@
   (case (current-poly-target)
     [(texi)
       (string-append
-          "@footnote{"
-          (string-append* elements)
-          "}")]
+        "@footnote{"
+        (string-append* elements)
+        "}")]
     [(html) `(span [[class "placeholder-footnote"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
@@ -213,7 +213,7 @@
           "@file{"
           (string-append* elements)
           "}")]
-    [(html) `(span [[class "placeholder-fname"]] ,@elements)]
+    [(html) `(code [[class "placeholder-fname"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -330,7 +330,7 @@
           (string-append* elements)
           "\n"
           "@end itemize")]
-    [(html) `(span [[class "placeholder-list-block"]] ,@elements)]
+    [(html) `(ul [[class "placeholder-list-block"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -340,7 +340,7 @@
       (string-append
           "@item "
           (string-append* elements))]
-    [(html) `(span [[class "placeholder-list-entry"]] ,@elements)]
+    [(html) `(li [[class "placeholder-list-entry"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
