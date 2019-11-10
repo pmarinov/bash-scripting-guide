@@ -38,30 +38,33 @@ case "$variable" in
   xyz)  echo "\$variable = xyz" ;;
 esac
 }
+}
 
 ◊definition-entry[#:name "#"]{
 ◊strong{Comments}. Lines beginning with a # (with the exception of #!)
 are comments and will ◊emphasize{not} be executed.
 
-◊example{# This line is a comment.}
+◊example{# This line is a comment.
+}
 
 Comments may also occur following the end of a command.
 
 ◊example{echo "A comment will follow." # Comment here.
 #                            ^ Note whitespace before #
 }
-}
 
 Comments may also follow whitespace at the beginning of a line.
 
-◊example{# A tab precedes this comment.}
+◊example{# A tab precedes this comment.
+}
 
 Comments may even be embedded within a pipe.
 
 ◊example{initial=( `cat "$startfile" | sed -e '/#/d' | tr -d '\n' |\
 # Delete lines containing '#' comment character.
            sed -e 's/\./\. /g' -e 's/_/_ /g'` )
-# Excerpted from life.sh script}
+# Excerpted from life.sh script
+}
 
 ◊note{Caution: A command may not follow a comment on the same
 line. There is no method of terminating the comment, in order for
@@ -84,10 +87,10 @@ echo $(( 2#101011 ))  # Base conversion, not a comment.
 # Thanks, S.C.
 }
 
+
 The standard quoting and escape characters (" ' \) escape the #.
 
 Certain pattern matching operations also use the #.
-
 }
 
 ◊definition-entry[#:name ";&, ;&"]{
