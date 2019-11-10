@@ -33,7 +33,7 @@
     [else (txexpr 'root empty (decode-elements elements))]))
 
 ;; Two '\n' mark a paragraph, single '\n' is ignored (doesn't generate
-;; "<br/>")
+;; "<br/>"), the idea is to do a pass-through for unmodified linebreaks
 (define (decode-paragraphs-flow elements)
   (decode-paragraphs elements #:linebreak-proc (lambda (x) x)))
 
@@ -84,10 +84,12 @@
 
 ;; For a given node, make a menu of HTML links to its direct children
 (define (html-node-menu pg-tree top-node)
+  ;; node-link:
+  ;; One li entry in an ul list
   (define (node-link node) `(li (a [[href ,(node->href node)]] ,(select 'page-title node))))
   ;; menu-make-mentry:
   ;; Recursively create a menu of links for a node and its children
-  (define (menu-make-mentry node depth)
+  (define (menu-make-mentry node)
     ; (printf "menu-make-mentry: ~a ~a~n" (node->display node) depth)
     (let ([node-children (children node pg-tree)])
       ; (printf "~a~n" (node-link node))
@@ -95,8 +97,7 @@
           ;; node-link + ul + nested recursive menu entries
           `(@ ,(node-link node)
             (ul
-              ,@(map (lambda (node)
-                (menu-make-mentry node (+ depth 1))) node-children)))
+              ,@(map menu-make-mentry node-children)))
         ;; A node link
         (node-link node))))
 
@@ -105,8 +106,7 @@
   ;; entries
   `(@
     (ul [[class "toc"]]
-      ,@(map (lambda (node)
-        (menu-make-mentry node 0)) (children top-node pg-tree)))))
+      ,@(map menu-make-mentry (children top-node pg-tree)))))
 
 ;; Menu
 (define (node-menu top-node)
