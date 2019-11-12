@@ -23,14 +23,28 @@
 
 (define this-book-title "Advanced Bash-Scripting Guide")
 
+;; Collect a list footnotes in a page
+;; (Lis of a lists, each note is an x-expression)
+(define footnotes null)
+
+;; footnotes-render:
+;; Render footnotes as an x-expression to be placed at the bottom of
+;; the page
+(define (footnotes-render)
+  `((div "Footnotes")(div "Footnotes-end")))
+
 (define (root . elements)
   (case (current-poly-target)
     [(html)
       ; (printf "~a~n" elements)
-      (txexpr 'root empty (decode-elements elements
-        #:txexpr-elements-proc decode-paragraphs-flow))]
+      `(root
+        ,@(decode-elements elements
+          #:txexpr-elements-proc decode-paragraphs-flow)
+        ,@(footnotes-render))]
+      ;; (txexpr 'root '() (decode-elements elements
+      ;;   #:txexpr-elements-proc decode-paragraphs-flow))]
     ;; `else' -- passthrough without changes
-    [else (txexpr 'root empty (decode-elements elements))]))
+    [else `(root ,@elements)]))
 
 ;; Two '\n' mark a paragraph, single '\n' is ignored (doesn't generate
 ;; "<br/>"), the idea is to do a pass-through for unmodified linebreaks
@@ -201,7 +215,15 @@
         "@footnote{"
         (string-append* elements)
         "}")]
-    [(html) `(span [[class "placeholder-footnote"]] ,@elements)]
+    [(html)
+      ;; Collect into footnotes
+      (set! footnotes (append footnotes (list elements)))
+      ;; Render a link to jump to the footnote
+      ; (printf "~a: ~a~n" (length footnotes) footnotes)
+      (let* ([fn-index (length footnotes)]
+             [fn-index-anchor (format "#~a" fn-index)]
+             [fn-index-str (format "[~a]" fn-index)])
+        `(a [[href ,fn-index-anchor]] ,fn-index-str))]
     ;; else (txt)
     [else (string-append* elements)]))
 
