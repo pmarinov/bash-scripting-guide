@@ -31,6 +31,10 @@ p {
   margin-bottom: 1.25em;
 }
 
+code {
+  background-color: #f7f7f8;
+}
+
 pre.code {
   background-color: #f7f7f8;
   line-height: 1.45;
