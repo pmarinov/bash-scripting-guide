@@ -55,6 +55,6 @@ ul.toc {
 
 .toc li a {
   list-style-type: none;
-  color: ◊|color-text|;
+  color: #2156a5;
   text-decoration: none;
 }
