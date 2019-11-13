@@ -31,7 +31,15 @@
 ;; Render footnotes as an x-expression to be placed at the bottom of
 ;; the page
 (define (footnotes-render)
-  `((div "Footnotes")(div "Footnotes-end")))
+  (define (a-footnote note-elements)
+    (let ([a-index (+ 1 (index-of footnotes note-elements))])
+      ; (printf "~a~n" a-index)
+      `(div
+        (span [[style "padding-right: 12px"]] ,(format "~a" a-index))
+        (span ,@note-elements))))
+  (when footnotes
+    `((div [[class "footnotes"]]
+      ,@(map a-footnote footnotes)))))
 
 (define (root . elements)
   (case (current-poly-target)
