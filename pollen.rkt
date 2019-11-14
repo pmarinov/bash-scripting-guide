@@ -306,7 +306,7 @@
           "@section "
           (string-append* (strip-new-lines elements))
           "\n")]
-    [(html) `(h2 [[id ,anchor]] ,@elements)]
+    [(html) `(h3 [[class "section-example"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 

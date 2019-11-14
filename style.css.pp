@@ -18,6 +18,10 @@ h2, h3, h4, h5, h6 {
   color: ◊|color-title|;
 }
 
+h3.section-example {
+  color: inherit;
+}
+
 body {
   max-width: 1000px;
   margin-left: auto;
