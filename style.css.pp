@@ -80,6 +80,8 @@ dt.def {
 }
 
 .footnotes {
+  border-top: 2px lightgray dotted;
+  padding-top: 0.25em;
   display: grid;
   grid-gap: 0.2em;
   grid-template-columns: 2.5em 1fr;

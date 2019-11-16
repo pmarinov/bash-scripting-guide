@@ -35,7 +35,9 @@
     (let ([a-index (+ 1 (index-of footnotes note-elements))])
       ; (printf "~a~n" a-index)
       `(@
-        (span ,(format "[~a]" a-index))
+        (span [[id ,(format "_footnotedef_~a" a-index)]]
+          (a [[href ,(format "#_footnoteref_~a" a-index)]]
+            ,(format "[~a]" a-index)))
         (span ,@note-elements))))
   (when footnotes
     `((div [[class "footnotes"]]
@@ -229,9 +231,10 @@
       ;; Render a link to jump to the footnote
       ; (printf "~a: ~a~n" (length footnotes) footnotes)
       (let* ([fn-index (length footnotes)]
-             [fn-index-anchor (format "#~a" fn-index)]
+             [fn-index-id (format "_footnoteref_~a" fn-index)]
+             [fn-index-jump (format "#_footnotedef_~a" fn-index)]
              [fn-index-str (format "[~a]" fn-index)])
-        `(a [[href ,fn-index-anchor]] ,fn-index-str))]
+        `(a [[id ,fn-index-id] [href ,f\n-index-jump]] ,fn-index-str))]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -267,6 +270,7 @@
           "@kbd{"
           (string-append* elements)
           "}")]
+    ;; html: TODO: Split key combinations at '-' or '+'
     [(html) `(kbd ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
@@ -394,6 +398,7 @@
           "@abbr{" title ", "
           (string-append* elements)
           "}")]
+    ;; TODO: Display the abbreviation too
     [(html) `(span [[class "placeholder-list-abbr"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
