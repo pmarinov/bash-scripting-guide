@@ -3,9 +3,11 @@
 ◊define-meta[page-title]{Variable Assignment}
 ◊define-meta[page-description]{The assignment operator}
 
-=
+◊definition-block[#:type "variables"]{
 
-the assignment operator (no space before and after)
+◊definition-entry[#:name "="]{
+◊strong{the assignment operator} (no space ◊emphasize{before} and
+◊emphasize{after})
 
 Caution: Do not confuse this with ◊code{=} and ◊code{-eq}, which test,
 rather than assign!
@@ -13,8 +15,7 @@ rather than assign!
 Note that ◊code{=} can be either an ◊emphasize{assignment} or a
 ◊emphasize{test} operator, depending on context.
 
-◊section-example[#:anchor "varassign_plain1"]{Plain Variable
-Assignment}
+◊strong{Plain Variable Assignment}
 
 ◊example{
 #!/bin/bash
@@ -55,8 +56,7 @@ echo
 exit 0
 }
 
-◊section-example[#:anchor "varassign_fancy1"]{Variable Assignment,
-plain and fancy}
+◊strong{Variable Assignment, plain and fancy}
 
 ◊example{
 #!/bin/bash
@@ -92,3 +92,6 @@ backquotes). This is likewise a form of ◊emphasize{command substitution}.
 R=$(cat /etc/redhat-release)
 arch=$(uname -m)
 }
+
+}  ◊; definition entry
+}  ◊; section definitions
