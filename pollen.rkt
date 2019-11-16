@@ -414,7 +414,7 @@
         (string-append* elements)
         "\n"
         "@end table")]
-    [(html) `(dl [[class "placeholder-definition-block"]] ,@elements)]
+    [(html) `(dl ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 
@@ -426,7 +426,7 @@
           (string-append* elements))]
     [(html)
       `(@
-        (dt ,definition-name)
+        (dt [[class "def"]] ,definition-name)
         (dd ,@elements))]
     ;; else (txt)
     [else (string-append* elements)]))

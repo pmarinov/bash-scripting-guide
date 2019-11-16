@@ -63,6 +63,10 @@ ul.toc {
   text-decoration: none;
 }
 
+dt.def {
+  font-weight: bold;
+}
+
 .footnotes {
   display: grid;
   grid-gap: 0.2em;
