@@ -34,8 +34,8 @@
   (define (a-footnote note-elements)
     (let ([a-index (+ 1 (index-of footnotes note-elements))])
       ; (printf "~a~n" a-index)
-      `(div
-        (span [[style "padding-right: 12px"]] ,(format "~a" a-index))
+      `(@
+        (span ,(format "[~a]" a-index))
         (span ,@note-elements))))
   (when footnotes
     `((div [[class "footnotes"]]

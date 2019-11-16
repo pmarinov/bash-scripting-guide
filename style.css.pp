@@ -62,3 +62,9 @@ ul.toc {
   color: #2156a5;
   text-decoration: none;
 }
+
+.footnotes {
+  display: grid;
+  grid-gap: 0.2em;
+  grid-template-columns: 2.5em 1fr;
+}

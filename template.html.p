@@ -18,7 +18,7 @@
 
 ◊(->html doc)
 
-The current page is called ◊|here|.
+◊;The current page is called ◊|here|.
 
 </body>
 </html>
