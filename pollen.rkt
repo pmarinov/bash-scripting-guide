@@ -267,7 +267,7 @@
           "@kbd{"
           (string-append* elements)
           "}")]
-    [(html) `(code [[class "placeholder-kbd"]] ,@elements)]
+    [(html) `(kbd ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 

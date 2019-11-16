@@ -1073,7 +1073,7 @@ abc
 
 ...
 
-Ctl-D
+Ctrl-D
 }
 
 As expected, ◊code{cat -} echoes ◊code{stdin}, in this case keyboarded
@@ -1385,42 +1385,42 @@ Control characters are not normally useful inside a script.
 
 ◊list-block[#:type "bullet"]{
 
-◊list-entry{◊strong{Ctl-A} Moves cursor to beginning of line of text
+◊list-entry{◊strong{Ctrl-A} Moves cursor to beginning of line of text
 (on the command-line).}
 
-◊list-entry{◊strong{Ctl-B} ◊dfn{Backspace} (nondestructive).}
+◊list-entry{◊strong{Ctrl-B} ◊dfn{Backspace} (nondestructive).}
 
-◊list-entry{◊strong{Ctl-C} ◊dfn{Break}. Terminate a foreground job.}
+◊list-entry{◊strong{Ctrl-C} ◊dfn{Break}. Terminate a foreground job.}
 
-◊list-entry{◊strong{Ctl-D} ◊emphasize{Log out} from a shell (similar
+◊list-entry{◊strong{Ctrl-D} ◊emphasize{Log out} from a shell (similar
 to ◊command{exit}).
 
 ◊dfn{EOF} (end-of-file). This also terminates input from ◊code{stdin}.
 
 When typing text on the console or in an ◊emphasize{xterm} window,
-◊kbd{Ctl-D} erases the character under the cursor. When there are no
-characters present, ◊kbd{Ctl-D} logs out of the session, as
+◊kbd{Ctrl-D} erases the character under the cursor. When there are no
+characters present, ◊kbd{Ctrl-D} logs out of the session, as
 expected. In an ◊emphasize{xterm} window, this has the effect of
 closing the window.}
 
-◊list-entry{◊strong{Ctl-E} Moves cursor to end of line of text (on the
+◊list-entry{◊strong{Ctrl-E} Moves cursor to end of line of text (on the
 command-line).}
 
-◊list-entry{◊strong{Ctl-F} Moves cursor forward one character position
+◊list-entry{◊strong{Ctrl-F} Moves cursor forward one character position
 (on the command-line).}
 
-◊list-entry{◊strong{Ctl-G} ◊dfn{BEL}. On some old-time teletype
+◊list-entry{◊strong{Ctrl-G} ◊dfn{BEL}. On some old-time teletype
 terminals, this would actually ring a bell. In an ◊emphasize{xterm} it
 might beep.}
 
-◊list-entry{◊strong{Ctl-H} ◊dfn{Rubout} (destructive
+◊list-entry{◊strong{Ctrl-H} ◊dfn{Rubout} (destructive
 backspace). Erases characters the cursor backs over while backspacing.
 
 ◊example{
 #!/bin/bash
-# Embedding Ctl-H in a string.
+# Embedding Ctrl-H in a string.
 
-a="^H^H"                  # Two Ctl-H's -- backspaces
+a="^H^H"                  # Two Ctrl-H's -- backspaces
                           # ctl-V ctl-H, using vi/vim
 echo "abcdef"             # abcdef
 echo
@@ -1442,7 +1442,7 @@ echo; echo
 
 # Now, try this.
 
-rubout="^H^H^H^H^H"       # 5 x Ctl-H.
+rubout="^H^H^H^H^H"       # 5 x Ctrl-H.
 
 echo -n "12345678"
 sleep 2
@@ -1451,24 +1451,24 @@ sleep 2
 }
 }
 
-◊list-entry{◊strong{Ctl-I} ◊dfn{Horizontal tab.}}
+◊list-entry{◊strong{Ctrl-I} ◊dfn{Horizontal tab.}}
 
-◊list-entry{◊strong{Ctl-J} ◊dfn{Newline} (line feed). In a script, may
+◊list-entry{◊strong{Ctrl-J} ◊dfn{Newline} (line feed). In a script, may
 also be expressed in octal notation -- '\012' or in hexadecimal --
 '\x0a'.}
 
-◊list-entry{◊strong{Ctl-K} ◊dfn{Vertical tab.} When typing text on the
-console or in an ◊emphasize{xterm} window, ◊kbd{Ctl-K} erases from the
+◊list-entry{◊strong{Ctrl-K} ◊dfn{Vertical tab.} When typing text on the
+console or in an ◊emphasize{xterm} window, ◊kbd{Ctrl-K} erases from the
 character under the cursor to end of line. Within a script,
-◊kbd{Ctl-K} may behave differently, as in Lee Lee Maschmeyer's
+◊kbd{Ctrl-K} may behave differently, as in Lee Lee Maschmeyer's
 example, below.}
 
-◊list-entry{◊strong{Ctl-L} ◊dfn{Formfeed} (clear the terminal
+◊list-entry{◊strong{Ctrl-L} ◊dfn{Formfeed} (clear the terminal
 screen). In a terminal, this has the same effect as the
-◊command{clear} command. When sent to a printer, a ◊kbd{Ctl-L} causes
+◊command{clear} command. When sent to a printer, a ◊kbd{Ctrl-L} causes
 an advance to end of the paper sheet.}
 
-◊list-entry{◊strong{Ctl-M} ◊dfn{Carriage return}.
+◊list-entry{◊strong{Ctrl-M} ◊dfn{Carriage return}.
 
 ◊example{
 #!/bin/bash
@@ -1513,63 +1513,63 @@ exit 0
 }
 }
 
-◊list-entry{◊strong{Ctl-N} Erases a line of text recalled from history
+◊list-entry{◊strong{Ctrl-N} Erases a line of text recalled from history
 buffer ◊footnote{Bash stores a list of commands previously issued from
 the command-line in a buffer, or memory space, for recall with the
 builtin history commands.} (on the command-line).}
 
-◊list-entry{◊strong{Ctl-O} Issues a ◊emphasize{newline} (on the
+◊list-entry{◊strong{Ctrl-O} Issues a ◊emphasize{newline} (on the
 command-line).}
 
-◊list-entry{◊strong{Ctl-P} Recalls last command from history buffer
+◊list-entry{◊strong{Ctrl-P} Recalls last command from history buffer
 (on the command-line).}
 
-◊list-entry{◊strong{Ctl-Q} Resume (◊dfn{XON}). This resumes
+◊list-entry{◊strong{Ctrl-Q} Resume (◊dfn{XON}). This resumes
 ◊code{stdin} in a terminal.}
 
-◊list-entry{◊strong{Ctl-R} Backwards search for text in history buffer
+◊list-entry{◊strong{Ctrl-R} Backwards search for text in history buffer
 (on the command-line).}
 
-◊list-entry{◊strong{Ctl-S} Suspend (◊dfn{XOFF}). This freezes
-◊code{stdin} in a terminal. (Use ◊kbd{Ctl-Q} to restore input.)}
+◊list-entry{◊strong{Ctrl-S} Suspend (◊dfn{XOFF}). This freezes
+◊code{stdin} in a terminal. (Use ◊kbd{Ctrl-Q} to restore input.)}
 
-◊list-entry{◊strong{Ctl-T} Reverses the position of the character the
+◊list-entry{◊strong{Ctrl-T} Reverses the position of the character the
 cursor is on with the previous character (on the command-line).}
 
-◊list-entry{◊strong{Ctl-U} Erase a line of input, from the cursor
-backward to beginning of line. In some settings, @kbd{Ctl-U} erases the
+◊list-entry{◊strong{Ctrl-U} Erase a line of input, from the cursor
+backward to beginning of line. In some settings, @kbd{Ctrl-U} erases the
 entire line of input, regardless of cursor position.}
 
-◊list-entry{◊strong{Ctl-V} When inputting text, ◊kbd{Ctl-V} permits inserting
+◊list-entry{◊strong{Ctrl-V} When inputting text, ◊kbd{Ctrl-V} permits inserting
 control characters. For example, the following two are equivalent:
 
 ◊example{
 echo -e '\x0a'
-echo <Ctl-V><Ctl-J>
+echo <Ctrl-V><Ctrl-J>
 }
 
-◊kbd{Ctl-V} is primarily useful from within a text editor.
+◊kbd{Ctrl-V} is primarily useful from within a text editor.
 
 }
 
-◊list-entry{◊strong{Ctl-W} When typing text on the console or in an
-xterm window, ◊kbd{Ctl-W} erases from the character under the cursor
+◊list-entry{◊strong{Ctrl-W} When typing text on the console or in an
+xterm window, ◊kbd{Ctrl-W} erases from the character under the cursor
 backwards to the first instance of ◊emphasize{whitespace}. In some
-settings, ◊kbd{Ctl-W} erases backwards to first non-alphanumeric
+settings, ◊kbd{Ctrl-W} erases backwards to first non-alphanumeric
 character.}
 
-◊list-entry{◊strong{Ctl-X} In certain word processing programs,
+◊list-entry{◊strong{Ctrl-X} In certain word processing programs,
 ◊emphasize{Cuts} highlighted text and copies to ◊emphasize{clipboard}.}
 
-◊list-entry{◊strong{Ctl-Y} ◊emphasize{Pastes} back text previously erased (with
-◊kbd{Ctl-U} or ◊kbd{Ctl-W}).}
+◊list-entry{◊strong{Ctrl-Y} ◊emphasize{Pastes} back text previously erased (with
+◊kbd{Ctrl-U} or ◊kbd{Ctrl-W}).}
 
-◊list-entry{◊strong{Ctl-Z} ◊emphasize{Pauses} a foreground job.}
+◊list-entry{◊strong{Ctrl-Z} ◊emphasize{Pauses} a foreground job.}
 
-◊list-entry{◊strong{Ctl-Z} ◊emphasize{Substitute} operation in certain
+◊list-entry{◊strong{Ctrl-Z} ◊emphasize{Substitute} operation in certain
 word processing applications.}
 
-◊list-entry{◊strong{Ctl-Z} ◊dfn{EOF} (end-of-file) character in the
+◊list-entry{◊strong{Ctrl-Z} ◊dfn{EOF} (end-of-file) character in the
 MSDOS filesystem.}
 
 

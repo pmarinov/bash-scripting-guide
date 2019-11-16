@@ -45,6 +45,18 @@ pre.code {
   padding: 10px;
 }
 
+kbd {
+  font-family: monospace;
+  color: rgba(0,0,0,.8);
+  background: #f7f7f7;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;
+  margin: 0 0.15em;
+  padding: 0.2em 0.5em;
+  white-space: nowrap;
+}
+
 ul.toc {
   background-color: #f7f7f8;
   line-height: 1.6;
@@ -72,3 +84,8 @@ dt.def {
   grid-gap: 0.2em;
   grid-template-columns: 2.5em 1fr;
 }
+
+/* emacs:            */
+/* Local Variables:  */
+/* mode: css         */
+/* End:              */
