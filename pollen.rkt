@@ -39,7 +39,8 @@
           (a [[href ,(format "#_footnoteref_~a" a-index)]]
             ,(format "[~a]" a-index)))
         (span ,@note-elements))))
-  (when footnotes
+  (if (empty? footnotes)
+    '()
     `((div [[class "footnotes"]]
       ,@(map a-footnote footnotes)))))
 
