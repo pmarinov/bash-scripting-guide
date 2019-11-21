@@ -10,7 +10,7 @@
 
 The _Advanced Bash-Scripting Guide_ is a book written by Mendel Cooper
 and part of The Linux Documentation Project, page
-{guides}[Guides]. *This is a fork* of the original work itself which
+{guides}[Guides]. *This is a fork* of the original work which itself
 had been (since 2014) dedicated to the *Public Domain*.
 
 Motivation for the new edition:
