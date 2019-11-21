@@ -38,3 +38,8 @@ move it to ◊fname{/usr/local/bin} (as ◊code{root}, of course), to make
 the script available to yourself and all other users as a systemwide
 executable. The script could then be invoked by simply typing
 ◊command{scriptname [ENTER]} from the command-line.
+
+◊; emacs:
+◊; Local Variables:
+◊; mode: fundamental
+◊; End:

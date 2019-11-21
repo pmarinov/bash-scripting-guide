@@ -204,3 +204,8 @@ echo "$uninitialized"                                # 5
 }
 
 TODO: See also Example 15-23.
+
+◊; emacs:
+◊; Local Variables:
+◊; mode: fundamental
+◊; End:

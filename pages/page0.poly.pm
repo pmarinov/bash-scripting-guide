@@ -29,3 +29,8 @@ https://github.com/pmarinov/bash-scripting-guide
 
 ◊; List pages under page0.poly.pm
 ◊(node-menu "pages/page0.poly.pm")
+
+◊; emacs:
+◊; Local Variables:
+◊; mode: fundamental
+◊; End:

@@ -66,3 +66,8 @@ Revision 6.5 05 Apr 2012 Revised by: mc
 ◊section["Note"]
 
 See AUTHORS in the source folder
+
+◊; emacs:
+◊; Local Variables:
+◊; mode: fundamental
+◊; End:

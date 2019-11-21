@@ -144,3 +144,8 @@ exit 0
 }
 
 }
+
+◊; emacs:
+◊; Local Variables:
+◊; mode: fundamental
+◊; End:
