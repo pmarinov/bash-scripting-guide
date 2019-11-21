@@ -1,0 +1,31 @@
+= README =
+:guides: http://tldp.org/guides.html
+:license: https://github.com/pmarinov/bash-scripting-guide/blob/master/LICENSE.txt
+:pollen: https://docs.racket-lang.org/pollen/index.html
+
+*Advanced Bash-Scripting Guide*
+(New Edition based on Pollen)
+
+== About ==
+
+The _Advanced Bash-Scripting Guide_ is a book written by Mendel Cooper and part of The Linux
+Documentation Project, page {guides}[Guides]. *This is a fork* of the
+original work which had been (since 2014) dedicated to the *Public Domain*. 
+
+Motivation for the new edition:
+
+* To produce a modern-looking HTML format
+* To produce a GNU Info format, readable inside Emacs
+* To use Pollen as a publishing system, see {pollen}["Pollen: the book
+  is a program"]
+* To invite contributions by hosting on GitHub
+
+== License ==
+
+Public Domain, see {license}[LICENSE.txt]
+
+== Changelog ==
+
+2019-11-17, v0.2.0, pmarinov
+
+* First 2 chapters formatted for GNU Info reader and in HTML
