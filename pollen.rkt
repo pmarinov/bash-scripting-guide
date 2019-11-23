@@ -387,7 +387,10 @@
           "@url{" link ", "
           (string-append* elements)
           "}")]
-    [(html) `(span [[class "placeholder-list-url"]] ,@elements)]
+    [(html)
+      (if (empty? elements)
+          `(a [[href ,link]] ,link)
+        `(a [[href ,link]] ,@elements))]
     ;; else (txt)
     [else (string-append* elements)]))
 
