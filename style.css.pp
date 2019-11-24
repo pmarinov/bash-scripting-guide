@@ -87,6 +87,11 @@ dt.def {
   grid-template-columns: 2.5em 1fr;
 }
 
+.quotation {
+  font-style: italic;
+  max-width: 65%;
+}
+
 /* emacs:            */
 /* Local Variables:  */
 /* mode: css         */

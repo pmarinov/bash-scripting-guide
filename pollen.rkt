@@ -50,7 +50,8 @@
       ; (printf "~a~n" elements)
       `(root
         ,@(decode-elements elements
-          #:txexpr-elements-proc decode-paragraphs-flow)
+          #:txexpr-elements-proc decode-paragraphs-flow
+          #:exclude-tags '(script))
         ,@(footnotes-render))]
       ;; (txexpr 'root '() (decode-elements elements
       ;;   #:txexpr-elements-proc decode-paragraphs-flow))]
@@ -152,7 +153,16 @@
           "\n"
           (when author (string-append "@author " author "\n"))
           "@end quotation")]
-    [(html) `(em [[class "placeholder-quotation"]] ,@elements)]
+    [(html)
+      `(@
+         ;; Holding div
+         (div [[style "float:right"] [class "quotation"]]
+           ;; Quotation + author
+           (div ,@elements)
+           ,(when author
+             `(div (string-append "--" ,author))))
+         ;; Separate the float from the rest of the page that follows
+         (div [[style "clear: both"]]))]
     ;; else (txt)
     [else (string-append* elements)]))
 
