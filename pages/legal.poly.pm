@@ -6,8 +6,8 @@
 ◊section["Introduction"]
 
 This book was originally compiled by Mendel Cooper, his last version
-can be found on The Linux Documentation Project:
-http://tldp.org/LDP/abs/html/index.html
+can be found on The Linux Documentation Project: ◊url[#:link
+"http://tldp.org/LDP/abs/html/index.html"]{}
 
 In the revision from March, 10th 2014, Mendel Cooper has dedicated it
 to the Public Domain
