@@ -86,7 +86,7 @@ tcsh
 The special variables ◊code{$*} and ◊code{$◊escaped{@}} denote all the
 positional parameters.
 
-◊strong{Positional Parameters}
+◊strong{Example: Positional Parameters}
 
 ◊example{
 #!/bin/bash
@@ -140,6 +140,66 @@ echo
 
 exit 0
 }
+
+
+◊emphasize{Bracket notation} for positional parameters leads to a
+fairly simple way of referencing the ◊emphasize{last} argument passed
+to a script on the command-line. This also requires
+◊emphasize{indirect referencing}.
+
+◊example{
+args=$#           # Number of args passed.
+lastarg=${!args}
+# Note: This is an *indirect reference* to $args ...
+
+
+# Or:       lastarg=${!#}             (Thanks, Chris Monson.)
+# This is an *indirect reference* to the $# variable.
+# Note that lastarg=${!$#} doesn't work.
+}
+
+Some scripts can perform different operations, depending on which name
+they are invoked with. For this to work, the script needs to check
+◊code{$0}, the name it was invoked by. ◊footnote{If the the script is
+sourced or symlinked, then this will not work. It is safer to check
+$BASH_Source.} There must also exist symbolic links to all the
+alternate names of the script. See Example 16-2.
+
+Tip: If a script expects a command-line parameter but is invoked
+without one, this may cause a ◊emphasize{null variable assignment},
+generally an undesirable result. One way to prevent this is to append
+an extra character to both sides of the assignment statement using the
+expected positional parameter.
+
+◊example{
+variable1_=$1_  # Rather than variable1=$1
+# This will prevent an error, even if positional parameter is absent.
+
+critical_argument01=$variable1_
+
+# The extra character can be stripped off later, like so.
+variable1=${variable1_/_/}
+# Side effects only if $variable1_ begins with an underscore.
+# This uses one of the parameter substitution templates discussed later.
+# (Leaving out the replacement pattern results in a deletion.)
+
+#  A more straightforward way of dealing with this is
+#+ to simply test whether expected positional parameters have been passed.
+if [ -z $1 ]
+then
+  exit $E_MISSING_POS_PARAM
+fi
+
+
+#  However, as Fabian Kreutz points out,
+#+ the above method may have unexpected side-effects.
+#  A better method is parameter substitution:
+#         ${1:-$DefaultVal}
+#  See the "Parameter Substition" section
+#+ in the "Variables Revisited" chapter.
+}
+
+◊strong{Example: ◊emphasize{wh, whois} domain name lookup}
 
 }
 
