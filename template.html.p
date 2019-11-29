@@ -12,6 +12,12 @@
 </head>
 <body>
 
+<div class="navbar">
+  <span><div>prev</div><div>title</div></span>
+  <span style='text-align: center'>title</span>
+  <span style='text-align: right'><div>next</div><div>title</div></span>
+</div>
+
 ◊; On page0 the H1 is the book title
 ◊; everywhere else, render H1 from the page description
 ◊(when (not (or (equal? here 'pages/page0.html) (equal? here 'pages/page0.poly.pm)))

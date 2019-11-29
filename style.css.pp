@@ -92,6 +92,11 @@ dt.def {
   max-width: 65%;
 }
 
+.navbar {
+  display: grid;
+  grid-template-columns: 30% 40% 30%;
+}
+
 /* emacs:            */
 /* Local Variables:  */
 /* mode: css         */
