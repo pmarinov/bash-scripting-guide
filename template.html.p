@@ -1,9 +1,9 @@
 <!doctype html>
 
-◊(local-require racket/list)
+◊;(local-require racket/list)
 ◊(local-require racket/string)
-◊(local-require pollen/pagetree)
-◊(local-require debug/repl)
+◊;(local-require pollen/pagetree)
+◊;(local-require debug/repl)
 
 <html lang="en">
 <head>
@@ -17,15 +17,30 @@
 </head>
 <body>
 
-◊(define prev-page (previous here))
-◊(define next-page (next here))
+◊(define (->poly-node html-node)
+  ;(printf "1: ~a~n" html-node)
+  (string-replace (symbol->string html-node) ".html" ".poly.pm"))
+
+◊(define prev-page (previous (->poly-node here)))
 
 ◊(define (nav-bar curpage)
-  `(@
-  ,(when `(previous ,curpage)
-    `(span "PREV"))
-  ,(when `(next ,curpage)
-    `(span "NEXT"))))
+  ;(printf "2: ~a~n" curpage)
+  (let ([prev-page (previous (->poly-node here))]
+      [next-page (next (->poly-node here))])
+    (printf "3: ~a~n" prev-page)
+    (printf "4: ~a~n" next-page)
+    `(@
+      (div [[class "navbar"]]
+        (span [[class "left"]]
+          ,(when prev-page
+            `(@
+              (div "TITLE")
+              (div ,(symbol->string prev-page)))))
+        (span "TITLE")
+        (span [[class "right"]]
+          ,(if next-page
+              `(div ,next-page)
+            `(div)))))))
 
 ◊;; <div class="navbar">
 ◊;;   <span><div>prev</div><div>title</div></span>
@@ -36,8 +51,8 @@
 ◊;
 ◊; Define NODE and CHAPTER for each page
 ◊; (except page0)
-◊(printf "~a~n" (nav-bar here))
-◊(->html (nav-bar here))
+◊(printf "~a~n" (nav-bar (->poly-node here)))
+◊(->html (nav-bar (->poly-node here)))
 
 ◊; On page0 the H1 is the book title
 ◊; everywhere else, render H1 from the page description

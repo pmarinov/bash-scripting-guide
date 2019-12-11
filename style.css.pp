@@ -97,6 +97,17 @@ dt.def {
   grid-template-columns: 30% 40% 30%;
 }
 
+.navbar .left {
+}
+
+.navbar .center {
+  text-align: center;
+}
+
+.navbar .right {
+  text-align: right;
+}
+
 /* emacs:            */
 /* Local Variables:  */
 /* mode: css         */
