@@ -1,9 +1,7 @@
 <!doctype html>
 
-◊;(local-require racket/list)
 ◊(local-require racket/string)
-◊;(local-require pollen/pagetree)
-◊;(local-require debug/repl)
+◊(local-require threading)
 
 <html lang="en">
 <head>
@@ -21,26 +19,41 @@
   ;(printf "1: ~a~n" html-node)
   (string-replace (symbol->string html-node) ".html" ".poly.pm"))
 
-◊(define prev-page (previous (->poly-node here)))
+◊; Convenience function, obtains Page Title
+◊(define (page-title node)
+  (if node
+      (select 'page-title node)
+    ""))
 
-◊(define (nav-bar curpage)
-  ;(printf "2: ~a~n" curpage)
-  (let ([prev-page (previous (->poly-node here))]
-      [next-page (next (->poly-node here))])
+◊; Convenience function, returns HTML form of a .poly.pm page
+◊(define (->href page)
+  (~> (symbol->string page)
+    (string-replace ".poly.pm" ".html")
+    (string-replace "pages/" "")))
+
+◊(define (nav-bar)
+  (let* ([page-poly (->poly-node here)]
+      [prev-page (previous page-poly)]
+      [next-page (next page-poly)])
     (printf "3: ~a~n" prev-page)
     (printf "4: ~a~n" next-page)
     `(@
-      (div [[class "navbar"]]
+      (div [[class "navbar separator-top"]]
         (span [[class "left"]]
-          ,(when prev-page
+          ,(if prev-page
             `(@
-              (div "TITLE")
-              (div ,(symbol->string prev-page)))))
-        (span "TITLE")
+              (div
+                (a [[href ,(->href prev-page)]] "Prev"))
+              (div ,(page-title prev-page)))
+            (div "No more")))
+        (span ,this-book-title)
         (span [[class "right"]]
           ,(if next-page
-              `(div ,next-page)
-            `(div)))))))
+            `(@
+              (div
+                (a [[href ,(->href next-page)]] "Next"))
+              (div ,(page-title next-page)))
+            (div "No more")))))))
 
 ◊;; <div class="navbar">
 ◊;;   <span><div>prev</div><div>title</div></span>
@@ -51,8 +64,8 @@
 ◊;
 ◊; Define NODE and CHAPTER for each page
 ◊; (except page0)
-◊(printf "~a~n" (nav-bar (->poly-node here)))
-◊(->html (nav-bar (->poly-node here)))
+◊(printf "~a~n" (nav-bar))
+◊(->html (nav-bar))
 
 ◊; On page0 the H1 is the book title
 ◊; everywhere else, render H1 from the page description

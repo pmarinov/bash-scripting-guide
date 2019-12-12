@@ -93,8 +93,14 @@ dt.def {
 }
 
 .navbar {
+  font-family: sans-serif;
   display: grid;
   grid-template-columns: 30% 40% 30%;
+}
+
+.separator-top {
+  border-bottom: 2px lightgray dotted;
+  padding-bottom: 0.4em;
 }
 
 .navbar .left {
