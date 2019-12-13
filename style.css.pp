@@ -96,6 +96,7 @@ dt.def {
   font-family: sans-serif;
   display: grid;
   grid-template-columns: 30% 40% 30%;
+  color: gray;
 }
 
 .separator-top {
