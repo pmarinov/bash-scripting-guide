@@ -24,7 +24,7 @@ scripts.}
 This book is suitable for classroom use as a general introduction to
 programming concepts.
 
-If you wanted to contribute or make corrections go to
+If you wanted to contribute or make corrections, please go to
 ◊url[#:link "https://github.com/pmarinov/bash-scripting-guide"]{}
 
 ◊; List pages under page0.poly.pm
