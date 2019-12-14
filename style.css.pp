@@ -104,6 +104,12 @@ dt.def {
   padding-bottom: 0.4em;
 }
 
+.separator-bottom {
+  border-top: 2px lightgray dotted;
+  margin-top: 2em;
+  padding-top: 0.4em;
+}
+
 .navbar .left {
 }
 

@@ -31,7 +31,16 @@
     (string-replace ".poly.pm" ".html")
     (string-replace "pages/" "")))
 
-◊(define (nav-bar)
+◊;; Design of the nav bar
+◊;; <div class="navbar">
+◊;;   <span><div>prev</div><div>title</div></span>
+◊;;   <span style='text-align: center'>title</span>
+◊;;   <span style='text-align: right'><div>next</div><div>title</div></span>
+◊;; </div>
+
+◊; nav-bar:
+◊; An instance of a nav-bar
+◊(define (nav-bar #:location-top [location-top #t])
   (define (nav-bar-entry to-page link-name)
     (if to-page
       `(@
@@ -40,11 +49,13 @@
           (a [[href ,(->href to-page)]] ,link-name)))
       (div "No more")))
   (let* ([page-poly (->poly-node here)]
+      [class-location
+        (if location-top "separator-top" "separator-bottom")]
       [prev-page (previous page-poly)]
       [next-page (next page-poly)]
       [parent-page (parent page-poly)])
     `(@
-      (div [[class "navbar separator-top"]]
+      (div [[class ,(string-append "navbar" " " class-location)]]
         ;; Go to prev
         (span [[class "left"]] ,(nav-bar-entry prev-page "Prev"))
         ;; Go to parent
@@ -58,17 +69,9 @@
         ;; Go to next
         (span [[class "right"]] ,(nav-bar-entry next-page "Next"))))))
 
-◊;; <div class="navbar">
-◊;;   <span><div>prev</div><div>title</div></span>
-◊;;   <span style='text-align: center'>title</span>
-◊;;   <span style='text-align: right'><div>next</div><div>title</div></span>
-◊;; </div>
-
-◊;
-◊; Define NODE and CHAPTER for each page
-◊; (except page0)
+◊; TOP nav-bar
 ◊; (printf "~a~n" (nav-bar))
-◊(->html (nav-bar))
+◊(->html (nav-bar #:location-top #t))
 
 ◊; On page0 the H1 is the book title
 ◊; everywhere else, render H1 from the page description
@@ -77,8 +80,8 @@
 
 ◊(->html doc)
 
-◊; TODO: Add page navigation (prev, next, up)
-◊;The current page is called ◊|here|.
+◊; BOTTOM nav-var
+◊(->html (nav-bar #:location-top #f))
 
 </body>
 </html>
