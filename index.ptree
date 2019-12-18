@@ -18,4 +18,8 @@ pages/legal.poly.pm
   pages/special_types.poly.pm
 }
 
+◊pages/quoting.poly.pm{
+  pages/quoting_strings.poly.pm
+}
+
 }
