@@ -40,10 +40,10 @@ page0.info: $(pages-texi)
 	makeinfo pages/page0.texi
 
 zap: ## Resets Pollen cache, ereases all generated file (.html, .texi, .info, and .txt files)
-	$(call del,.,"*.txt")
-	$(call del,.,"*.html")
-	$(call del,.,"*.texi")
-	$(call del,.,"*.info")
+	$(call del,./pages,"*.txt")
+	$(call del,./pages,"*.html")
+	$(call del,./pages,"*.texi")
+	$(call del,.,"page0.info")
 	raco pollen reset
 
 # Self-documenting make file (http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html)
