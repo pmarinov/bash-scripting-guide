@@ -21,6 +21,7 @@ pages/legal.poly.pm
 ◊pages/quoting.poly.pm{
   pages/quoting_strings.poly.pm
   pages/quoting_variables.poly.pm
+  pages/escaping.poly.pm
 }
 
 }
