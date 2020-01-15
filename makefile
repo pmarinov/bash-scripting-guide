@@ -19,10 +19,11 @@ pages-sourcefiles := $(wildcard pages/*.poly.pm)
 # Target files
 pages-html := $(patsubst %.poly.pm,%.html,$(pages-sourcefiles))
 pages-texi := $(patsubst %.poly.pm,%.texi,$(pages-sourcefiles))
+pages-web := $(patsubst pages/%, web/%, $(pages-html))
 
 # The ‘all’ rule references the rules BELOW it (the above are just variable
 # definitions, not rules).
-all: $(pages-sourcelistings) $(pages-html) style.css page0.info
+all: $(pages-sourcelistings) $(pages-html) style.css page0.info $(pages-web) web/style.css
 all: ## Re-generate book (HTML and INFO)
 
 style.css: style.css.pp
@@ -31,6 +32,14 @@ style.css: style.css.pp
 $(pages-html): $(core-files) template.html.p
 $(pages-html): %.html: %.poly.pm
 	raco pollen render -t html $<
+
+web/style.css: style.css
+	mkdir -p web
+	cp -p style.css web/style.css
+
+$(pages-web): web/%.html: pages/%.html
+	mkdir -p web
+	sed -e 's~../style.css~style.css~' $< > $@
 
 $(pages-texi): $(core-files) template.texi.p
 $(pages-texi): %.texi: %.poly.pm
@@ -42,6 +51,8 @@ page0.info: $(pages-texi)
 zap: ## Resets Pollen cache, ereases all generated file (.html, .texi, .info, and .txt files)
 	$(call del,./pages,"*.txt")
 	$(call del,./pages,"*.html")
+	$(call del,./web,"*.html")
+	$(call del,./web,"style.css")
 	$(call del,./pages,"*.texi")
 	$(call del,.,"page0.info")
 	raco pollen reset
