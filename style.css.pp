@@ -69,7 +69,7 @@ ul.toc {
   list-style-type: none;
 }
 
-.toc li a {
+.toc li a:link {
   list-style-type: none;
   color: #2156a5;
   text-decoration: none;
