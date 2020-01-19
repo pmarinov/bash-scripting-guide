@@ -94,6 +94,7 @@ dt.def {
 
 .navbar {
   font-family: sans-serif;
+  font-size: 0.9em;
   display: grid;
   grid-template-columns: 30% 40% 30%;
   color: gray;
