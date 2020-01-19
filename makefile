@@ -20,10 +20,12 @@ pages-sourcefiles := $(wildcard pages/*.poly.pm)
 pages-html := $(patsubst %.poly.pm,%.html,$(pages-sourcefiles))
 pages-texi := $(patsubst %.poly.pm,%.texi,$(pages-sourcefiles))
 pages-web := $(patsubst pages/%, web/%, $(pages-html))
+# Special case: remove page0.html (replace with en empty strng)
+pages-web := $(pages-web:web/page0.html=)
 
 # The ‘all’ rule references the rules BELOW it (the above are just variable
 # definitions, not rules).
-all: $(pages-sourcelistings) $(pages-html) style.css page0.info $(pages-web) web/style.css
+all: $(pages-sourcelistings) $(pages-html) style.css page0.info $(pages-web) web/index.html web/style.css
 all: ## Re-generate book (HTML and INFO)
 
 style.css: style.css.pp
@@ -37,9 +39,14 @@ web/style.css: style.css
 	mkdir -p web
 	cp -p style.css web/style.css
 
+# Special case: transfer page0.html as index.html
+web/index.html: pages/page0.html
+	mkdir -p web
+	sed -e 's~../style.css~style.css~' -e 's~page0~index~' $< > $@
+
 $(pages-web): web/%.html: pages/%.html
 	mkdir -p web
-	sed -e 's~../style.css~style.css~' $< > $@
+	sed -e 's~../style.css~style.css~' -e 's~page0~index~' $< > $@
 
 $(pages-texi): $(core-files) template.texi.p
 $(pages-texi): %.texi: %.poly.pm
