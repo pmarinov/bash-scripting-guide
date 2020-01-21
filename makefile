@@ -29,10 +29,12 @@ all: $(pages-sourcelistings) $(pages-html) style.css page0.info $(pages-web) web
 all: ## Re-generate book (HTML and INFO)
 
 style.css: style.css.pp
+	@echo "[" $@ "]"
 	raco pollen render $<
 
 $(pages-html): $(core-files) template.html.p
 $(pages-html): %.html: %.poly.pm
+	@echo "[" $@ "]"
 	raco pollen render -t html $<
 
 web/style.css: style.css
@@ -50,6 +52,7 @@ $(pages-web): web/%.html: pages/%.html
 
 $(pages-texi): $(core-files) template.texi.p
 $(pages-texi): %.texi: %.poly.pm
+	@echo "[" $@ "]"
 	raco pollen render -t texi $<
 
 page0.info: $(pages-texi)
