@@ -334,7 +334,7 @@
           "@strong{"
           (string-append* (strip-new-lines elements))
           "}\n")]
-    [(html) `(span [[class "placeholder-anchored-example"]] ,@elements)]
+    [(html) `(span [[class "title-anchored-example"]] ,@elements)]
     ;; else (txt)
     [else (string-append* elements)]))
 

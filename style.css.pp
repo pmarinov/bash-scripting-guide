@@ -45,6 +45,10 @@ pre.code {
   padding: 10px;
 }
 
+.title-anchored-example {
+  font-weight: bold;
+}
+
 kbd {
   font-family: monospace;
   color: rgba(0,0,0,.8);
