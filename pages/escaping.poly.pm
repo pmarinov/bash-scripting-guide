@@ -267,6 +267,185 @@ echo "\"Hello\" ... he said."    # "Hello" ... he said.
 
 }
 
+◊definition-entry[#:name "\\$"]{
+gives the dollar sign its literal meaning (variable name following \\$ will not be referenced)
+
+◊example{
+echo "\$variable01"           # $variable01
+echo "The book cost \$7.98."  # The book cost $7.98.
+}
+
+}
+
+◊definition-entry[#:name "\\\\"]{
+gives the backslash its literal meaning
+
+◊example{
+echo "\\"  # Results in \
+
+# Whereas . . .
+
+echo "\"   # Invokes secondary prompt from the command-line.
+           # In a script, gives an error message.
+
+# However . . .
+
+echo '\'   # Results in \
+}
+
+Note: The behavior of \ depends on whether it is escaped,
+strong-quoted, weak-quoted, or appearing within command substitution
+or a here document.
+
+◊example{
+                     #  Simple escaping and quoting
+echo \z               #  z
+echo \\z              # \z
+echo '\z'             # \z
+echo '\\z'            # \\z
+echo "\z"             # \z
+echo "\\z"            # \z
+
+                      #  Command substitution
+echo `echo \z`        #  z
+echo `echo \\z`       #  z
+echo `echo \\\z`      # \z
+echo `echo \\\\z`     # \z
+echo `echo \\\\\\z`   # \z
+echo `echo \\\\\\\z`  # \\z
+echo `echo "\z"`      # \z
+echo `echo "\\z"`     # \z
+
+                      # Here document
+cat <<EOF
+\z
+EOF                   # \z
+
+cat <<EOF
+\\z
+EOF                   # \z
+
+# These examples supplied by Stéphane Chazelas.
+}
+
+Elements of a string assigned to a variable may be escaped, but the
+escape character alone may not be assigned to a variable.
+
+◊example{
+variable=\
+echo "$variable"
+# Will not work - gives an error message:
+# test.sh: : command not found
+# A "naked" escape cannot safely be assigned to a variable.
+#
+#  What actually happens here is that the "\" escapes the newline and
+#+ the effect is        variable=echo "$variable"
+#+                      invalid variable assignment
+
+variable=\
+23skidoo
+echo "$variable"        #  23skidoo
+                        #  This works, since the second line
+                        #+ is a valid variable assignment.
+
+variable=\
+#        \^    escape followed by space
+echo "$variable"        # space
+
+variable=\\
+echo "$variable"        # \
+
+variable=\\\
+echo "$variable"
+# Will not work - gives an error message:
+# test.sh: \: command not found
+#
+#  First escape escapes second one, but the third one is left "naked",
+#+ with same result as first instance, above.
+
+variable=\\\\
+echo "$variable"        # \\
+                        # Second and fourth escapes escaped.
+                        # This is o.k.
+}
+
+Escaping a space can prevent word splitting in a command's argument
+list.
+
+◊example{
+file_list="/bin/cat /bin/gzip /bin/more /usr/bin/less /usr/bin/emacs-20.7"
+# List of files as argument(s) to a command.
+
+# Add two files to the list, and list all.
+ls -l /usr/X11R6/bin/xsetroot /sbin/dump $file_list
+
+echo "-------------------------------------------------------------------------"
+
+# What happens if we escape a couple of spaces?
+ls -l /usr/X11R6/bin/xsetroot\ /sbin/dump\ $file_list
+# Error: the first three files concatenated into a single argument to 'ls -l'
+#        because the two escaped spaces prevent argument (word) splitting.
+}
+
+The escape also provides a means of writing a multi-line
+command. Normally, each separate line constitutes a different command,
+but an escape at the end of a line escapes the newline character, and
+the command sequence continues on to the next line.
+
+◊example{
+(cd /source/directory && tar cf - . ) | \
+(cd /dest/directory && tar xpvf -)
+# Repeating Alan Cox's directory tree copy command,
+# but split into two lines for increased legibility.
+
+# As an alternative:
+tar cf - -C /source/directory . |
+tar xpvf - -C /dest/directory
+# See note below.
+# (Thanks, Stéphane Chazelas.)
+}
+
+Note: If a script line ends with a |, a pipe character, then a \, an
+escape, is not strictly necessary. It is, however, good programming
+practice to always escape the end of a line of code that continues to
+the following line.
+
+◊example{
+echo "foo
+bar"
+#foo
+#bar
+
+echo
+
+echo 'foo
+bar'    # No difference yet.
+#foo
+#bar
+
+echo
+
+echo foo\
+bar     # Newline escaped.
+#foobar
+
+echo
+
+echo "foo\
+bar"     # Same here, as \ still interpreted as escape within weak quotes.
+#foobar
+
+echo
+
+echo 'foo\
+bar'     # Escape character \ taken literally because of strong quoting.
+#foo\
+#bar
+
+# Examples suggested by Stéphane Chazelas.
+}
+
+}
 
 }
 
