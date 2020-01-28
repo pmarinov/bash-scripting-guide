@@ -24,4 +24,6 @@ pages/legal.poly.pm
   pages/escaping.poly.pm
 }
 
+pages/exit_status.poly.pm
+
 }
