@@ -26,4 +26,8 @@ pages/legal.poly.pm
 
 pages/exit_status.poly.pm
 
+◊pages/tests.poly.pm{
+  pages/test_constructs.poly.pm
+}
+
 }
