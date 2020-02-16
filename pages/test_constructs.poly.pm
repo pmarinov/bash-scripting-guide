@@ -3,6 +3,8 @@
 ◊define-meta[page-title]{Test constructs}
 ◊define-meta[page-description]{Tests constructs}
 
+◊section{Testing values}
+
 ◊list-block[#:type "bullet"]{
 
 ◊list-entry{An ◊code{if/then} construct tests whether the exit status
@@ -237,6 +239,52 @@ echo
 exit 0
 }
 
+Exercise: Explain the behavior of example above.
+
+◊example{
+if [ condition-true ]
+then
+   command 1
+   command 2
+   ...
+else  # Or else ...
+      # Adds default code block executing if original condition tests false.
+   command 3
+   command 4
+   ...
+fi
+}
+
+Note: When ◊code{if} and ◊code{then} are on same line in a condition
+test, a semicolon must terminate the ◊code{if} statement. Both
+◊code{if} and ◊code{then} are keywords. Keywords (or commands) begin
+statements, and before a new statement on the same line begins, the
+old one must terminate.
+
+◊example{
+if [ -x "$filename" ]; then
+}
+
+◊section{Else if and elif}
+
+◊code{elif} is a contraction for else if. The effect is to nest an inner
+if/then construct within an outer one.
+
+◊example{
+if [ condition1 ]
+then
+   command1
+   command2
+   command3
+elif [ condition2 ]
+# Same as else if
+then
+   command4
+   command5
+else
+   default-command
+fi
+}
 
 ◊; emacs:
 ◊; Local Variables:
