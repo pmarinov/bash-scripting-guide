@@ -3,7 +3,7 @@
 ◊define-meta[page-title]{Test constructs}
 ◊define-meta[page-description]{Tests constructs}
 
-◊section{Testing values}
+◊section{Constructs}
 
 ◊list-block[#:type "bullet"]{
 
@@ -284,6 +284,35 @@ then
 else
    default-command
 fi
+}
+
+The ◊code{if test condition-true} construct is the exact equivalent of
+◊code{if [ condition-true ]}. As it happens, the left bracket,
+◊code{[} , is a token ◊footnote{A token is a symbol or short string
+with a special meaning attached to it (a meta-meaning). In Bash,
+certain tokens, such as ◊code{[} and ◊code{. (dot-command)}, may
+expand to keywords and commands.} which invokes the ◊code{test}
+command. The closing right bracket, ◊code{]} , in an if/test should
+not therefore be strictly necessary, however newer versions of Bash
+require it.
+
+Note: The ◊code{test} command is a Bash builtin which tests file types
+and compares strings. Therefore, in a Bash script, ◊code{test} does
+not call the external ◊code{/usr/bin/test} binary, which is part of
+the sh-utils package. Likewise, ◊code{[} does not call
+◊code{/usr/bin/[}, which is linked to ◊code{/usr/bin/test}.
+
+◊example{
+bash$ type test
+test is a shell builtin
+bash$ type '['
+[ is a shell builtin
+bash$ type '[['
+[[ is a shell keyword
+bash$ type ']]'
+]] is a shell keyword
+bash$ type ']'
+bash: type: ]: not found
 }
 
 ◊; emacs:
