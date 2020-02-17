@@ -298,9 +298,9 @@ require it.
 
 Note: The ◊code{test} command is a Bash builtin which tests file types
 and compares strings. Therefore, in a Bash script, ◊code{test} does
-not call the external ◊code{/usr/bin/test} binary, which is part of
+not call the external ◊command{/usr/bin/test} binary, which is part of
 the sh-utils package. Likewise, ◊code{[} does not call
-◊code{/usr/bin/[}, which is linked to ◊code{/usr/bin/test}.
+◊code{/usr/bin/[}, which is linked to ◊command{/usr/bin/test}.
 
 ◊example{
 bash$ type test
@@ -314,6 +314,66 @@ bash$ type ']]'
 bash$ type ']'
 bash: type: ]: not found
 }
+
+If, for some reason, you wish to use ◊command{/usr/bin/test} in a Bash
+script, then specify it by full pathname.
+
+◊section-example[#:anchor "equiv_test"]{Equivalence of test,
+/usr/bin/test, [ ], and /usr/bin/[}
+
+◊example{
+#!/bin/bash
+
+echo
+
+if test -z "$1"
+then
+  echo "No command-line arguments."
+else
+  echo "First command-line argument is $1."
+fi
+
+echo
+
+if /usr/bin/test -z "$1"      # Equivalent to "test" builtin.
+#  ^^^^^^^^^^^^^              # Specifying full pathname.
+then
+  echo "No command-line arguments."
+else
+  echo "First command-line argument is $1."
+fi
+
+echo
+
+if [ -z "$1" ]                # Functionally identical to above code blocks.
+#   if [ -z "$1"                should work, but...
+#+  Bash responds to a missing close-bracket with an error message.
+then
+  echo "No command-line arguments."
+else
+  echo "First command-line argument is $1."
+fi
+
+echo
+
+
+if /usr/bin/[ -z "$1" ]       # Again, functionally identical to above.
+# if /usr/bin/[ -z "$1"       # Works, but gives an error message.
+#                             # Note:
+#                               This has been fixed in Bash, version 3.x.
+then
+  echo "No command-line arguments."
+else
+  echo "First command-line argument is $1."
+fi
+
+echo
+
+exit 0
+}
+
+The ◊code{[[ ]]} construct is the more versatile Bash version of
+◊code{[ ]}. This is the extended test command, adopted from ksh88.
 
 ◊; emacs:
 ◊; Local Variables:
