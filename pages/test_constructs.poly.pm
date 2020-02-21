@@ -375,6 +375,27 @@ exit 0
 The ◊code{[[ ]]} construct is the more versatile Bash version of
 ◊code{[ ]}. This is the extended test command, adopted from ksh88.
 
+No filename expansion or word splitting takes place between ◊code{[[}
+and ◊code{]]}, but there is parameter expansion and command
+substitution.
+
+◊example{
+file=/etc/passwd
+
+if [[ -e $file ]]
+then
+  echo "Password file exists."
+fi
+}
+
+Using the ◊code{[[ ... ]]} test construct, rather than ◊code{[ ... ]}
+can prevent many logic errors in scripts. For example, the ◊code{&&},
+◊code{||}, ◊code{<}, and ◊code{>} operators work within a ◊code{[[ ]]}
+test, despite giving an error within a ◊code{[ ]} construct.
+
+Arithmetic evaluation of octal / hexadecimal constants takes place
+automatically within a ◊code{[[ ... ]]} construct.
+
 ◊; emacs:
 ◊; Local Variables:
 ◊; mode: fundamental
