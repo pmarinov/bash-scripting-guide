@@ -396,6 +396,68 @@ test, despite giving an error within a ◊code{[ ]} construct.
 Arithmetic evaluation of octal / hexadecimal constants takes place
 automatically within a ◊code{[[ ... ]]} construct.
 
+◊example{
+# [[ Octal and hexadecimal evaluation ]]
+# Thank you, Moritz Gronbach, for pointing this out.
+
+
+decimal=15
+octal=017   # = 15 (decimal)
+hex=0x0f    # = 15 (decimal)
+
+if [ "$decimal" -eq "$octal" ]
+then
+  echo "$decimal equals $octal"
+else
+  echo "$decimal is not equal to $octal"       # 15 is not equal to 017
+fi      # Doesn't evaluate within [ single brackets ]!
+
+
+if [[ "$decimal" -eq "$octal" ]]
+then
+  echo "$decimal equals $octal"                # 15 equals 017
+else
+  echo "$decimal is not equal to $octal"
+fi      # Evaluates within [[ double brackets ]]!
+
+if [[ "$decimal" -eq "$hex" ]]
+then
+  echo "$decimal equals $hex"                  # 15 equals 0x0f
+else
+  echo "$decimal is not equal to $hex"
+fi      # [[ $hexadecimal ]] also evaluates!
+}
+
+Note: Following an ◊code{if}, neither the ◊code{test} command nor the
+test brackets (◊code{[ ]} or ◊code{[[ ]]}) are strictly necessary.
+
+◊example{
+dir=/home/bozo
+
+if cd "$dir" 2>/dev/null; then   # "2>/dev/null" hides error message.
+  echo "Now in $dir."
+else
+  echo "Can't change to $dir."
+fi
+}
+
+The ◊code{if COMMAND} construct returns the exit status of
+◊code{COMMAND}.
+
+Similarly, a condition within test brackets may stand alone without an
+◊code{if}, when used in combination with a ◊emphasize{list construct}.
+
+◊example{
+var1=20
+var2=22
+[ "$var1" -ne "$var2" ] && echo "$var1 is not equal to $var2"
+
+home=/home/bozo
+[ -d "$home" ] || echo "$home directory does not exist."
+}
+
+
+
 ◊; emacs:
 ◊; Local Variables:
 ◊; mode: fundamental
