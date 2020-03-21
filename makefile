@@ -25,7 +25,8 @@ pages-web := $(pages-web:web/page0.html=)
 
 # The ‘all’ rule references the rules BELOW it (the above are just variable
 # definitions, not rules).
-all: $(pages-sourcelistings) $(pages-html) style.css page0.info $(pages-web) web/index.html web/style.css
+all: $(pages-sourcelistings) $(pages-html) style.css $(pages-web) web/index.html web/style.css \
+    page0.info home/bash-scripting-guide.info home/index.html
 all: ## Re-generate book (HTML and INFO)
 
 style.css: style.css.pp
@@ -46,21 +47,36 @@ web/index.html: pages/page0.html
 	mkdir -p web
 	sed -e 's~../style.css~style.css~' -e 's~page0~index~' $< > $@
 
+# HTML rendering for the web
 $(pages-web): web/%.html: pages/%.html
 	mkdir -p web
 	sed -e 's~../style.css~style.css~' -e 's~page0~index~' $< > $@
 
+# Info pages: First the texi files
 $(pages-texi): $(core-files) template.texi.p
 $(pages-texi): %.texi: %.poly.pm
 	@echo "[" $@ "]"
 	raco pollen render -t texi $<
 
+# Info pages: Compile the texi into info
 page0.info: $(pages-texi)
 	makeinfo pages/page0.texi
+
+# Home page folder on the web
+home/bash-scripting-guide.info: page0.info
+	mkdir -p home
+	cp -v page0.info $@
+
+# The info file will be available from the home page
+home/index.html: home.html
+	mkdir -p home
+	cp -v home.html $@
 
 zap: ## Resets Pollen cache, ereases all generated file (.html, .texi, .info, and .txt files)
 	$(call del,./pages,"*.txt")
 	$(call del,./pages,"*.html")
+	$(call del,./home,"*.html")
+	$(call del,./home,"*.info")
 	$(call del,./web,"*.html")
 	$(call del,./web,"style.css")
 	$(call del,./pages,"*.texi")
