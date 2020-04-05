@@ -425,6 +425,8 @@
         (cond
           [(equal? definitions-type "variables")
             "@table @var"]
+          [(equal? definitions-type "code")
+            "@table @code"]
           [else
             (string-append "ERROR: Unknown definitions-type "
                 definitions-type)]
