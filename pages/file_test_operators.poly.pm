@@ -117,6 +117,62 @@ not necessarily to the group of the user who created the file. This
 may be useful for a directory shared by a workgroup.
 }
 
+◊definition-entry[#:name "-u"]{
+◊strong{set-user-id (suid) } flag set on file
+
+A binary owned by root with ◊code{set-user-id} flag set runs with root
+privileges, even when an ordinary user invokes it. ◊footnote{Be aware
+that suid binaries may open security holes. The suid flag has no
+effect on shell scripts.} This is useful for executables (such as
+◊code{pppd} and ◊code{cdrecord}) that need to access system
+hardware. Lacking the ◊code{suid} flag, these binaries could not be
+invoked by a non-root user.
+
+◊example{
+-rwsr-xr-t    1 root       178236 Oct  2  2000 /usr/sbin/pppd
+}
+
+A file with the ◊code{suid} flag set shows an ◊code{s} in its
+permissions.
+
+}
+
+◊definition-entry[#:name "-k"]{
+file has ◊strong{sticky bit set} set
+
+Commonly known as the sticky bit, the save-text-mode flag is a special
+type of file permission. If a file has this flag set, that file will
+be kept in cache memory, for quicker access. ◊footnote{On Linux
+systems, the sticky bit is no longer used for files, only on
+directories.} If set on a directory, it restricts write
+permission. Setting the sticky bit adds a ◊code{t} to the permissions
+on the file or directory listing. This restricts altering or deleting
+specific files in that directory to the owner of those files.
+
+◊example{
+drwxrwxrwt    7 root         1024 May 19 21:26 tmp/
+}
+
+If a user does not own a directory that has the sticky bit set, but
+has write permission in that directory, she can only delete those
+files that she owns in it. This keeps users from inadvertently
+overwriting or deleting each other's files in a publicly accessible
+directory, such as ◊fname{/tmp}. (The owner of the directory or root
+can, of course, delete or rename files there.)
+
+}
+
+◊definition-entry[#:name "-O"]{
+you are ◊strong{owner} of file
+}
+
+◊definition-entry[#:name "-G"]{
+group-id of file same as yours
+}
+
+◊definition-entry[#:name "-N"]{
+file modified since it was last read
+}
 
 } ◊; definition-block
 
