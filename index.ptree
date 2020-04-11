@@ -29,6 +29,7 @@ pages/exit_status.poly.pm
 ◊pages/tests.poly.pm{
   pages/test_constructs.poly.pm
   pages/file_test_operators.poly.pm
+  pages/other_comparison_operators.poly.pm
 }
 
 }
