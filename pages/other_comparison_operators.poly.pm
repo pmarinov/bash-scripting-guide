@@ -201,7 +201,24 @@ fi     # $String is null.
 }
 }
 
+◊definition-entry[#:name "-n"]{
+String ◊strong{is not null}
+
+Caution: The ◊code{-n} test requires that the string be quoted within
+the test brackets. Using an unquoted string with ◊code{!} ◊code{-z},
+or even just the unquoted string alone within test brackets (see
+Example 7-6) normally works, however, this is an unsafe
+practice. Always quote a tested string. ◊footnote{As S.C. points out,
+in a compound test, even quoting the string variable might not
+suffice. ◊code{[ -n "$string" -o "$a" = "$b" ]} may cause an error
+with some versions of Bash if ◊code{$string} is empty. The safe way is
+to append an extra character to possibly empty variables, ◊code{[
+"x$string" != x -o "x$a" = "x$b" ]} (the "x's" cancel out).}
+
+}
+
 }  ◊; definition-block{}
+
 
 ◊; emacs:
 ◊; Local Variables:
