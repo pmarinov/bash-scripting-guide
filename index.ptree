@@ -31,6 +31,7 @@ pages/exit_status.poly.pm
   pages/file_test_operators.poly.pm
   pages/other_comparison_operators.poly.pm
   pages/nested_if_then.poly.pm
+  pages/testing_your_knowledge_test.poly.pm
 }
 
 }
