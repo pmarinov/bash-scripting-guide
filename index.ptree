@@ -34,4 +34,7 @@ pages/exit_status.poly.pm
   pages/testing_your_knowledge_test.poly.pm
 }
 
+◊pages/operators.poly.pm{
+}
+
 }
