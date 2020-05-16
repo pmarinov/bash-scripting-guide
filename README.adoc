@@ -21,6 +21,12 @@ Motivation for the new edition:
   is a program"]
 * To invite contributions by hosting on GitHub
 
+Advanced Bash-Scripting Guide in HTML:
+https://hangar118.sdf.org/~peter/bash-scripting-guide/
+
+Home page:
+https://hangar118.sdf.org/~peter/bash-scripting-guide-home/
+
 == License ==
 
 Public Domain, see {license}[LICENSE.txt]
