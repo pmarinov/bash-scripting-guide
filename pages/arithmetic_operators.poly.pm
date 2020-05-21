@@ -162,6 +162,105 @@ exit 0
 
 }
 
+◊definition-entry[#:name "+="]{
+Plus-equal (increment variable by a constant) ◊footnote{In a different
+context, += can serve as a string concatenation operator. This can be
+useful for modifying environmental variables.}
+
+◊example{
+let "var += 5"
+}
+
+Results in var being incremented by 5.
+
+}
+
+◊definition-entry[#:name "-="]{
+Minus-equal (decrement variable by a constant)
+
+}
+
+◊definition-entry[#:name "*="]{
+Times-equal (multiply variable by a constant)
+
+◊example{
+let "var *= 4"
+}
+
+Results in var being multiplied by 4.
+
+}
+
+◊definition-entry[#:name "/="]{
+Slash-equal (divide variable by a constant)
+
+}
+
+◊definition-entry[#:name "%="]{
+Mod-equal (remainder of dividing variable by a constant)
+
+Arithmetic operators often occur in an ◊code{expr} or ◊code{let}
+expression.
+
+◊strong{Using Arithmetic Operations}
+
+◊example{
+#!/bin/bash
+# Counting to 11 in 10 different ways.
+
+n=1; echo -n "$n "
+
+let "n = $n + 1"   # let "n = n + 1"  also works.
+echo -n "$n "
+
+
+: $((n = $n + 1))
+#  ":" necessary because otherwise Bash attempts
+#+ to interpret "$((n = $n + 1))" as a command.
+echo -n "$n "
+
+(( n = n + 1 ))
+#  A simpler alternative to the method above.
+#  Thanks, David Lombard, for pointing this out.
+echo -n "$n "
+
+n=$(($n + 1))
+echo -n "$n "
+
+: $[ n = $n + 1 ]
+#  ":" necessary because otherwise Bash attempts
+#+ to interpret "$[ n = $n + 1 ]" as a command.
+#  Works even if "n" was initialized as a string.
+echo -n "$n "
+
+n=$[ $n + 1 ]
+#  Works even if "n" was initialized as a string.
+#* Avoid this type of construct, since it is obsolete and nonportable.
+#  Thanks, Stephane Chazelas.
+echo -n "$n "
+
+# Now for C-style increment operators.
+# Thanks, Frank Wang, for pointing this out.
+
+let "n++"          # let "++n"  also works.
+echo -n "$n "
+
+(( n++ ))          # (( ++n ))  also works.
+echo -n "$n "
+
+: $(( n++ ))       # : $(( ++n )) also works.
+echo -n "$n "
+
+: $[ n++ ]         # : $[ ++n ] also works
+echo -n "$n "
+
+echo
+
+exit 0
+}
+
+}
+
 } ◊; definition-block{}
 
 ◊; emacs:
