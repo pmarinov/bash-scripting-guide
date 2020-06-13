@@ -13,18 +13,27 @@ body {
   font-family: serif;
   line-height: 1.6
 }
+h1, h2, h3 {
+  color: darkgray;
+}
+pre {
+  background-color: #f7f7f8;
+  line-height: 1.45;
+  padding: 10px;
+}
+code {
+  background-color: #f7f7f8;
+}
 </style>
 
 </head>
 
-<h1>Advanced Bash-Scripting Guide</h1>
+<h1 style='text-align: center;'>Advanced Bash-Scripting Guide</h1>
 
 <h2>About</h2>
 
-<p>It is a book (TODO: A more sophisticated introductional paragraph
+<p>(TODO: A more sophisticated introductional paragraph
 here)</p>
-
-<h2>Forked</h2>
 
 <p>The <i>Advanced Bash-Scripting Guide</i> is a book written by
 <b>Mendel Cooper</b> and part of The Linux Documentation Project, page
@@ -32,39 +41,142 @@ here)</p>
 fork</b> of the original work which itself had been (since 2014)
 dedicated to the <b>Public Domain</b>.</p>
 
-<h2>Read on the web</h2>
+<h2>Web</h2>
 
-<a href='../bash-scripting-guide'>Advanced Bash-Scripting Guide</a>
+<p>To read in a <b>browser</b>, follow the link <a
+href='../bash-scripting-guide'>Advanced Bash-Scripting Guide</a><p>
 
-<h2>Read as GNU Info</h2>
+<p>For <b>off-line viewing</b> download and unpack: <a
+href='bash-scripting-guide.zip'>bash-scripting-guide.zip</a> (TODO)</p>
 
-<h3>Read in Emacs</h3>
+<h2>GNU Info format</h2>
 
-<p>The Info directory is shared between Emacs and the standalone GNU
-Info reader.</p>
+<h3>Viewer</h3>
 
-<p>Download <a
-href='bash-scripting-guide.info'>bash-scripting-guide.info</a>
-(300k)</p>
+<p><b>What</b> is GNU Info?</p>
 
-<h3>Read with GNU Info</h3>
+<p>GNU Info is a help viewer that operates in a <b>hypertext
+format</b> for easy navigation of multi-page documentation. It is
+useful in the conditions of a terminal session.</p>
 
-<p>What is GNU Info?</p>
+<p><b>Example</b> page from the book displayed in Info:</p>
 
-<a href='https://www.gnu.org/software/texinfo/'>Home page of GNU
-Info</a>
+<pre style='background: linen; font-size: 80%;'>
+Next: Special Characters,  Prev: Invoking the script,  Up: Top
 
-<p>Enable colors in Info</p>
+6 Special chars, variables
+**************************
+
+Together with the &quot;keywords&quot;, the &quot;special characters&quot; and the
+&quot;variables&quot; are the building block of scripts.
+
+   _Special characters_ have meta-meaning.  _Variables_ are how
+programming and scripting languages represent data.
+
+* Menu:
+
+<span style="background-color:#C4A000"><font color="#300A24">* Special Characters</font></span>::  Special Characters
+<font color="#729FCF"><b>* Variable Substitution</b></font>::       Retrieving values of variables
+<font color="#729FCF"><b>* Variable Assignment</b></font>:: The assignment operator
+<font color="#729FCF"><b>* Untyped variables</b></font>::   Bash Variables Are Untyped
+<font color="#729FCF"><b>* Variable Types</b></font>::      Special Variable Types
+
+
+
+
+<span style="background-color:#FFFFFF"><font color="#300A24">-----Info: (bash-scripting-guide)Basics, 19 lines --All-------------------------</font></span>
+
+</pre>
+
+<p><b>Enable colors</b> in Info</p>
+
+<p>The default configuration of Info in the terminal might be too
+austere, for easier visual navigation it can be configured to display
+the hypertext links with colors</p>
 
 <pre>
 $ info -v link-style=blue -v active-link-style=yellow -f bash-scripting-guide.info
+</pre>
 
+To set permanently create a config like this:
+
+<pre>
 $ cat ~/.infokey
 #var
 link-style=blue,bold
 active-link-style=yellow,standout
 match-style=bold
 </pre>
+
+<h3>Download and Install</h3>
+
+<p>Your OS already comes with documentation in Info format, it resides
+in <code>/usr/share/info</code>.<p>
+
+<p>Common convention for all <b>external manuals</b> would be to be
+kept in <b>a separate directory</b>, for example
+<code>~/.local/share/info</code>. There a special file, named
+<code>dir</code>, lists the documentation installed in it. To add to it
+invoke <code>install-info</code>.</p>
+
+<p>Download via URL:
+<a href='bash-scripting-guide.info'>bash-scripting-guide.info</a>
+(300k)</p>
+
+<pre>
+$ mkdir -p ~/.local/share/info
+$ cd -p ~/.local/share/info
+$ wget https://hangar118.sdf.org/~peter/bash-scripting-guide-home/bash-scripting-guide.info
+$ install-info --add-once bash-scripting-guide.info dir
+</pre>
+
+To inform Info about the custom folder, invoke via option
+<code>--dir</code>
+
+<pre>
+$ info --dir ~/.local/share/info
+</pre>
+
+Or set <code>INFOPATH</code>
+
+<pre>
+$ export INFOPATH=~/.local/share/info
+</pre>
+
+To go directly to the manual bypassing the Dir page of Info do:
+
+<pre>
+$ info -f bash-scripting-guide
+</pre>
+
+<h3>Emacs</h3>
+
+<p><b>Emacs</b> has a <b>built-in viewer</b> of Info documentation,
+the Info directory is shared between Emacs and the standalone GNU Info
+reader.</p>
+
+To make this custom directory available to Emacs add this snippet to
+your <code>init.el</code>:
+
+<pre>
+(add-to-list 'Info-default-directory-list "~/.local/share/info")
+</pre>
+
+<h3>Resources on GNU Info</h3>
+
+<ul>
+<li>
+Official <a href='https://www.gnu.org/software/texinfo/'>project page</a> of GNU Info
+</li>
+<li>
+<a href='https://en.wikipedia.org/wiki/Info_(Unix)'>Page</a> on Wikipedia
+</li>
+<li>
+Other <a
+href='https://www.emacswiki.org/emacs/ExternalDocumentation'>documentation
+in Info</a> format available for download and install
+</li>
+</ul>
 
 <body>
 </body>
