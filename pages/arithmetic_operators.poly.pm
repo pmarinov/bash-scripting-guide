@@ -259,9 +259,57 @@ echo
 exit 0
 }
 
+Note: Integer variables in older versions of Bash were signed long
+(32-bit) integers, in the range of -2147483648 to 2147483647. An
+operation that took a variable outside these limits gave an erroneous
+result.
+
+Example:
+◊example{
+echo $BASH_VERSION   # 1.14
+
+a=2147483646
+echo "a = $a"        # a = 2147483646
+let "a+=1"           # Increment "a".
+echo "a = $a"        # a = 2147483647
+let "a+=1"           # increment "a" again, past the limit.
+echo "a = $a"        # a = -2147483648
+                     #      ERROR: out of range,
+                     # +    and the leftmost bit, the sign bit,
+                     # +    has been set, making the result negative.
+}
+
+As of version >= 2.05b, Bash supports 64-bit integers.
+
+Caution: Bash does not understand floating point arithmetic. It treats
+numbers containing a decimal point as strings.
+
+Example:
+◊example{
+a=1.5
+
+let "b = $a + 1.3"  # Error.
+# t2.sh: let: b = 1.5 + 1.3: syntax error in expression
+#                            (error token is ".5 + 1.3")
+
+echo "b = $b"       # b=1
+}
+
+Use ◊fname{bc} in scripts that that need floating point calculations
+or math library functions.
+
 }
 
 } ◊; definition-block{}
+
+◊section{Bitwise operators}
+
+◊definition-block[#:type "code"]{
+◊definition-entry[#:name "<<"]{
+bitwise left shift (multiplies by 2 for each shift position)
+
+}
+}
 
 ◊; emacs:
 ◊; Local Variables:
