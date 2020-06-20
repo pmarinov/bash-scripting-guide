@@ -36,6 +36,7 @@ pages/exit_status.poly.pm
 
 ◊pages/operators.poly.pm{
   pages/arithmetic_operators.poly.pm
+  pages/numerical_constants.poly.pm
 }
 
 }
