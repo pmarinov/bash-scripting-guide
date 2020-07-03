@@ -7,7 +7,7 @@ Similar to the let command, the ◊code{(( ... ))} construct permits
 arithmetic expansion and evaluation. In its simplest form, ◊code{a=$((
 5 + 3 ))} would set ◊code{a} to ◊code{5 + 3}, or ◊code{8}. However,
 this double-parentheses construct is also a mechanism for allowing
-C-style manipulation of variables in Bash, for example, ◊coe{(( var++
+C-style manipulation of variables in Bash, for example, ◊code{(( var++
 ))}.
 
 ◊section-example[#:anchor "cstyle_vars1"]{C-style manipulation of variables}
