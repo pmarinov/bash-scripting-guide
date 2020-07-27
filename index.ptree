@@ -41,4 +41,7 @@ pages/exit_status.poly.pm
   pages/operator_precedence.poly.pm
 }
 
+◊pages/beyond_basics.poly.pm{
+}
+
 }
