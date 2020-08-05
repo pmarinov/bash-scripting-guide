@@ -42,6 +42,7 @@ pages/exit_status.poly.pm
 }
 
 ◊pages/beyond_basics.poly.pm{
+  pages/internal_variables.poly.pm
 }
 
 }
