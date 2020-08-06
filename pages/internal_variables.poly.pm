@@ -64,6 +64,69 @@ echo
 
 }
 
+◊definition-entry[#:name "$BASH_VERSINFO[n]"]{
+
+A 6-element array containing version information about the installed
+release of Bash. This is similar to ◊code{$BASH_VERSION}, below, but a
+bit more detailed.
+
+◊example{
+# Bash version info:
+
+for n in 0 1 2 3 4 5
+do
+  echo "BASH_VERSINFO[$n] = ${BASH_VERSINFO[$n]}"
+done
+
+# BASH_VERSINFO[0] = 3                      # Major version no.
+# BASH_VERSINFO[1] = 00                     # Minor version no.
+# BASH_VERSINFO[2] = 14                     # Patch level.
+# BASH_VERSINFO[3] = 1                      # Build version.
+# BASH_VERSINFO[4] = release                # Release status.
+# BASH_VERSINFO[5] = i386-redhat-linux-gnu  # Architecture
+                                            # (same as $MACHTYPE).
+}
+
+}
+
+◊definition-entry[#:name "$BASH_VERSION"]{
+The version of Bash installed on the system
+
+◊example{
+bash$ echo $BASH_VERSION
+3.2.25(1)-release
+}
+
+◊example{
+tcsh% echo $BASH_VERSION
+BASH_VERSION: Undefined variable.
+}
+
+}
+
+◊definition-entry[#:name "$CDPATH"]{
+
+A colon-separated list of search paths available to the cd command,
+similar in function to the ◊code{$PATH} variable for binaries. The
+◊code{$CDPATH} variable may be set in the local ◊fname{~/.bashrc}
+file.
+
+◊example{
+bash$ cd bash-doc
+bash: cd: bash-doc: No such file or directory
+
+
+bash$ CDPATH=/usr/share/doc
+bash$ cd bash-doc
+/usr/share/doc/bash-doc
+
+
+bash$ echo $PWD
+/usr/share/doc/bash-doc
+}
+
+}
+
 
 } ◊; definition-block
 
