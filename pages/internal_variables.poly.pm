@@ -127,6 +127,96 @@ bash$ echo $PWD
 
 }
 
+◊definition-entry[#:name "$DIRSTACK"]{
+The top value in the directory stack (affected by ◊command{pushd} and
+◊command{popd})
+
+This builtin variable corresponds to the ◊command{dirs} command,
+however ◊command{dirs} shows the entire contents of the directory
+stack.
+
+}
+
+◊definition-entry[#:name "$EDITOR"]{
+The default editor invoked by a script, usually ◊command{vi} or
+◊command{emacs}.
+
+}
+
+◊definition-entry[#:name "$EUID"]{
+"Effective" user ID number
+
+Identification number of whatever identity the current user has
+assumed, perhaps by means of ◊command{su}.
+
+Caution: ◊code{$EUID} is not necessarily the same as the ◊code{$UID}.
+
+}
+
+
+◊definition-entry[#:name "$FUNCNAME"]{
+Name of the current function
+
+◊example{
+xyz23 ()
+{
+  echo "$FUNCNAME now executing."  # xyz23 now executing.
+}
+
+xyz23
+
+echo "FUNCNAME = $FUNCNAME"        # FUNCNAME =
+                                   # Null value outside a function.
+}
+
+See also Example A-50 (TODO)
+
+}
+
+◊definition-entry[#:name "$GLOBIGNORE"]{
+A list of filename patterns to be excluded from matching in globbing.
+
+}
+
+
+◊definition-entry[#:name "$GROUPS"]{
+Groups current user belongs to
+
+This is a listing (array) of the group id numbers for current user, as
+recorded in ◊fname{/etc/passwd} and ◊fname{/etc/group}.
+
+◊example{
+root# echo $GROUPS
+0
+
+root# echo ${GROUPS[1]}
+1
+
+root# echo ${GROUPS[5]}
+6
+}
+
+}
+
+◊definition-entry[#:name "$HOME"]{
+Home directory of the user, usually ◊fname{/home/username} (see
+Example 10-7) (TODO)
+
+}
+
+◊definition-entry[#:name "$HOSTNAME"]{
+The ◊command{hostname} command assigns the system host name at bootup
+in an init script. However, the ◊code{gethostname()} function sets the
+Bash internal variable ◊code{$HOSTNAME}. See also Example 10-7 (TODO).
+
+}
+
+◊definition-entry[#:name "$HOSTTYPE"]{
+Host type
+
+Like ◊code{$MACHTYPE}, identifies the system hardware.
+
+}
 
 } ◊; definition-block
 
