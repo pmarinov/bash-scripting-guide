@@ -363,6 +363,106 @@ instructive examples of using ◊code{$IFS}.
 
 }
 
+◊definition-entry[#:name "$IGNOREEOF"]{
+Ignore EOF: how many end-of-files (control-D) the shell will ignore
+before logging out.
+
+}
+
+◊definition-entry[#:name "$LC_COLLATE"]{
+Often set in the ◊fname{.bashrc} or ◊fname{/etc/profile} files, this
+variable controls collation order in filename expansion and pattern
+matching. If mishandled, ◊code{LC_COLLATE} can cause unexpected
+results in filename globbing.
+
+Note: As of version 2.05 of Bash, filename globbing no longer
+distinguishes between lowercase and uppercase letters in a character
+range between brackets. For example, ◊command{ls [A-M]*} would match
+both ◊fname{File1.txt} and ◊fname{file1.txt}. To revert to the
+customary behavior of bracket matching, set ◊code{LC_COLLATE} to
+◊code{C} by an ◊command{export LC_COLLATE=C} in ◊fname{/etc/profile}
+and/or ◊fname{~/.bashrc}.
+
+}
+
+◊definition-entry[#:name "$LC_CTYPE"]{
+This internal variable controls character interpretation in globbing
+and pattern matching.
+
+}
+
+◊definition-entry[#:name "$LINENO"]{
+This variable is the line number of the shell script in which this
+variable appears. It has significance only within the script in which
+it appears, and is chiefly useful for debugging purposes.
+
+◊example{
+# *** BEGIN DEBUG BLOCK ***
+last_cmd_arg=$_  # Save it.
+
+echo "At line number $LINENO, variable \"v1\" = $v1"
+echo "Last command argument processed = $last_cmd_arg"
+# *** END DEBUG BLOCK ***
+}
+
+}
+
+◊definition-entry[#:name "$MACHTYPE"]{
+machine type
+
+Identifies the system hardware.
+
+◊example{
+bash$ echo $MACHTYPE
+i686
+}
+
+}
+
+◊definition-entry[#:name "$OLDPWD"]{
+Old working directory ("OLD-Print-Working-Directory", previous
+directory you were in).
+
+}
+
+◊definition-entry[#:name "$OSTYPE"]{
+
+operating system type
+
+◊example{
+bash$ echo $OSTYPE
+linux
+}
+
+}
+
+◊definition-entry[#:name "$PATH"]{
+Path to binaries, usually ◊fname{/usr/bin/}, ◊fname{/usr/X11R6/bin/},
+◊fname{/usr/local/bin}, etc.
+
+When given a command, the shell automatically does a hash table search
+on the directories listed in the path for the executable. The path is
+stored in the environmental variable, ◊code{$PATH}, a list of
+directories, separated by colons. Normally, the system stores the
+◊code{$PATH} definition in ◊fname{/etc/profile} and/or
+◊fname{~/.bashrc} (see Appendix H). (TODO)
+
+◊example{
+bash$ echo $PATH
+/bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin:/sbin:/usr/sbin
+}
+
+◊code{PATH=$◊escaped{◊"{"}PATH$◊escaped{◊"}"}:/opt/bin} appends the ◊fname{/opt/bin} directory to
+the current path. In a script, it may be expedient to temporarily add
+a directory to the path in this way. When the script exits, this
+restores the original ◊code{$PATH} (a child process, such as a script, may
+not change the environment of the parent process, the shell).
+
+Note: The current "working directory", ◊fname{./}, is usually omitted
+from the ◊code{$PATH} as a security measure.
+
+}
+
 
 } ◊; definition-block
 
