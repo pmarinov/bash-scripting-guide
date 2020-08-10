@@ -452,14 +452,101 @@ bash$ echo $PATH
 /bin:/usr/bin:/usr/local/bin:/usr/X11R6/bin:/sbin:/usr/sbin
 }
 
-◊code{PATH=$◊escaped{◊"{"}PATH$◊escaped{◊"}"}:/opt/bin} appends the ◊fname{/opt/bin} directory to
-the current path. In a script, it may be expedient to temporarily add
-a directory to the path in this way. When the script exits, this
-restores the original ◊code{$PATH} (a child process, such as a script, may
-not change the environment of the parent process, the shell).
+◊code{PATH=$◊escaped{◊"{"}PATH$◊escaped{◊"}"}:/opt/bin} appends the
+◊fname{/opt/bin} directory to the current path. In a script, it may be
+expedient to temporarily add a directory to the path in this way. When
+the script exits, this restores the original ◊code{$PATH} (a child
+process, such as a script, may not change the environment of the
+parent process, the shell).
 
 Note: The current "working directory", ◊fname{./}, is usually omitted
 from the ◊code{$PATH} as a security measure.
+
+}
+
+◊definition-entry[#:name "$PIPESTATUS"]{
+Array variable holding exit status(es) of last executed foreground
+pipe.
+
+◊example{
+bash$ echo $PIPESTATUS
+0
+
+bash$ ls -al | bogus_command
+bash: bogus_command: command not found
+bash$ echo $◊escaped{◊"{"}PIPESTATUS[1]◊escaped{◊"}"}
+127
+
+bash$ ls -al | bogus_command
+bash: bogus_command: command not found
+bash$ echo $?
+127
+}
+
+The members of the ◊code{$PIPESTATUS} array hold the exit status of
+each respective command executed in a pipe. ◊code{$PIPESTATUS[0]}
+holds the exit status of the first command in the pipe,
+◊code{$PIPESTATUS[1]} the exit status of the second command, and so
+on.
+
+
+Caution: The ◊code{$PIPESTATUS} variable may contain an erroneous 0
+value in a login shell (in releases prior to 3.0 of Bash).
+
+◊example{
+tcsh% bash
+
+bash$ who | grep nobody | sort
+bash$ echo $◊escaped{◊"{"}PIPESTATUS[*]◊escaped{◊"}"}
+0
+
+}
+
+The above lines contained in a script would produce the expected
+◊code{0 1 0} output.
+
+Thank you, Wayne Pollock for pointing this out and supplying the above
+example.
+
+Note: The ◊code{$PIPESTATUS} variable gives unexpected results in some
+contexts.
+
+◊example{
+bash$ echo $BASH_VERSION
+3.00.14(1)-release
+
+bash$ $ ls | bogus_command | wc
+bash: bogus_command: command not found
+ 0       0       0
+
+bash$ echo $◊escaped{◊"{"}PIPESTATUS[@]◊escaped{◊"}"}
+141 127 0
+}
+
+Chet Ramey attributes the above output to the behavior of
+◊code{ls}. If ◊code{ls} writes to a pipe whose output is not read,
+then ◊code{SIGPIPE} kills it, and its exit status is 141. Otherwise
+its exit status is 0, as expected. This likewise is the case for
+◊code{tr}.
+
+Note: ◊code{$PIPESTATUS} is a "volatile" variable. It needs to be
+captured immediately after the pipe in question, before any other
+command intervenes.
+
+◊example{
+bash$ $ ls | bogus_command | wc
+bash: bogus_command: command not found
+ 0       0       0
+
+bash$ echo $◊escaped{◊"{"}PIPESTATUS[◊escaped{◊"@"}]◊escaped{◊"}"}
+0 127 0
+
+bash$ echo $◊escaped{◊"{"}PIPESTATUS[◊escaped{◊"@"}]◊escaped{◊"}"}
+0
+}
+
+Note: The ◊code{pipefail} option may be useful in cases where
+◊code{$PIPESTATUS} does not give the desired information.
 
 }
 
