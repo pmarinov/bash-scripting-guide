@@ -1,7 +1,7 @@
 #lang pollen
 
 ◊define-meta[page-title]{Internal Variables}
-◊define-meta[page-description]{Internal variables}
+◊define-meta[page-description]{Internal variables ($HOME, $PATH, etc.)}
 
 Builtin variables: variables affecting bash script behavior
 
@@ -127,9 +127,12 @@ bash$ echo $PWD
 
 }
 
-◊definition-entry[#:name "$DIRSTACK"]{
-The top value in the directory stack (affected by ◊command{pushd} and
-◊command{popd})
+◊definition-entry[#:name "$DIRSTACK"]{ The top value in the directory
+stack (affected by ◊command{pushd} and ◊command{popd}) ◊footnote{A
+stack register is a set of consecutive memory locations, such that the
+values stored (pushed) are retrieved (popped) in reverse order. The
+last value stored is the first retrieved. This is sometimes called a
+LIFO (last-in-first-out) or pushdown stack.}
 
 This builtin variable corresponds to the ◊command{dirs} command,
 however ◊command{dirs} shows the entire contents of the directory
@@ -547,6 +550,137 @@ bash$ echo $◊escaped{◊"{"}PIPESTATUS[◊escaped{◊"@"}]◊escaped{◊"}"}
 
 Note: The ◊code{pipefail} option may be useful in cases where
 ◊code{$PIPESTATUS} does not give the desired information.
+
+}
+
+◊definition-entry[#:name "$PPID"]{
+The ◊code{$PPID} of a process is the process ID (pid) of its parent
+process. ◊footnote{The PID of the currently running script is
+◊code{$$}, of course.}
+
+Compare this with the ◊command{pidof} command.
+
+}
+
+◊definition-entry[#:name "$PROMPT_COMMAND"]{
+A variable holding a command to be executed just before the primary
+prompt, ◊code{$PS1} is to be displayed.
+
+}
+
+◊definition-entry[#:name "$PS1"]{
+This is the main prompt, seen at the command-line.
+
+}
+
+◊definition-entry[#:name "$PS2"]{
+The secondary prompt, seen when additional input is expected. It
+displays as ◊command{">"}.
+
+}
+
+◊definition-entry[#:name "$PS3"]{
+
+The quartenary prompt, shown at the beginning of each line of output
+when invoking a script with the ◊code{-x} [verbose trace] option. It
+displays as ◊code{"+"}.
+
+As a debugging aid, it may be useful to embed diagnostic information
+in ◊code{$PS4}.
+
+◊example{
+P4='$(read time junk < /proc/$$/schedstat; echo "@@@ $time @@@ " )'
+# Per suggestion by Erik Brandsberg.
+set -x
+# Various commands follow ...
+}
+
+}
+
+◊definition-entry[#:name "$PWD"]{
+Working directory (directory you are in at the time)
+
+This is the analog to the ◊command{pwd} builtin command.
+
+◊example{
+#!/bin/bash
+
+E_WRONG_DIRECTORY=85
+
+clear # Clear the screen.
+
+TargetDirectory=/home/bozo/projects/GreatAmericanNovel
+
+cd $TargetDirectory
+echo "Deleting stale files in $TargetDirectory."
+
+if [ "$PWD" != "$TargetDirectory" ]
+then    # Keep from wiping out wrong directory by accident.
+  echo "Wrong directory!"
+  echo "In $PWD, rather than $TargetDirectory!"
+  echo "Bailing out!"
+  exit $E_WRONG_DIRECTORY
+fi  
+
+rm -rf *
+rm .[A-Za-z0-9]*    # Delete dotfiles.
+# rm -f .[^.]* ..?*   to remove filenames beginning with multiple dots.
+# (shopt -s dotglob; rm -f *)   will also work.
+# Thanks, S.C. for pointing this out.
+
+#  A filename (`basename`) may contain all characters in the 0 - 255 range,
+#+ except "/".
+#  Deleting files beginning with weird characters, such as -
+#+ is left as an exercise. (Hint: rm ./-weirdname or rm -- -weirdname)
+result=$?   # Result of delete operations. If successful = 0.
+
+echo
+ls -al              # Any files left?
+echo "Done."
+echo "Old files deleted in $TargetDirectory."
+echo
+
+# Various other operations here, as necessary.
+
+exit $result
+}
+
+}
+
+◊definition-entry[#:name "$REPLY"]{
+The default value when a variable is not supplied to
+◊command{read}. Also applicable to ◊command{select} menus, but only
+supplies the item number of the variable chosen, not the value of the
+variable itself.
+
+◊example{
+#!/bin/bash
+# reply.sh
+
+# REPLY is the default value for a 'read' command.
+
+echo
+echo -n "What is your favorite vegetable? "
+read
+
+echo "Your favorite vegetable is $REPLY."
+#  REPLY holds the value of last "read" if and only if
+#+ no variable supplied.
+
+echo
+echo -n "What is your favorite fruit? "
+read fruit
+echo "Your favorite fruit is $fruit."
+echo "but..."
+echo "Value of \$REPLY is still $REPLY."
+#  $REPLY is still set to its previous value because
+#+ the variable $fruit absorbed the new "read" value.
+
+echo
+
+exit 0
+}
+
 
 }
 
