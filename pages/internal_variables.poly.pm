@@ -916,7 +916,100 @@ exit 0
 
 }
 
+◊definition-entry[#:name "$UID"]{
+User ID number
 
+Current user's user identification number, as recorded in
+◊fname{/etc/passwd}
+
+This is the current user's real id, even if she has temporarily
+assumed another identity through ◊command{su}. ◊code{$UID} is a
+read-only variable, not subject to change from the command line or
+within a script, and is the counterpart to the ◊command{id} builtin.
+
+◊anchored-example[#:anchor "is_root1"]{Am I root?}
+
+◊example{
+#!/bin/bash
+# am-i-root.sh:   Am I root or not?
+
+ROOT_UID=0   # Root has $UID 0.
+
+if [ "$UID" -eq "$ROOT_UID" ]  # Will the real "root" please stand up?
+then
+  echo "You are root."
+else
+  echo "You are just an ordinary user (but mom loves you just the same)."
+fi
+
+exit 0
+
+
+# ============================================================= #
+# Code below will not execute, because the script already exited.
+
+# An alternate method of getting to the root of matters:
+
+ROOTUSER_NAME=root
+
+username=`id -nu`              # Or...   username=`whoami`
+if [ "$username" = "$ROOTUSER_NAME" ]
+then
+  echo "Rooty, toot, toot. You are root."
+else
+  echo "You are just a regular fella."
+fi
+}
+
+See also Example 2-3. (TODO)
+
+Note: The variables ◊code{$ENV}, ◊code{$LOGNAME}, ◊code{$MAIL},
+◊code{$TERM}, ◊code{$USER}, and ◊code{$USERNAME} are not Bash
+builtins. These are, however, often set as environmental variables in
+one of the Bash or login startup files. ◊code{$SHELL}, the name of the
+user's login shell, may be set from ◊fname{/etc/passwd} or in an
+"init" script, and it is likewise not a Bash builtin.
+
+◊example{
+tcsh% echo $LOGNAME
+bozo
+tcsh% echo $SHELL
+/bin/tcsh
+tcsh% echo $TERM
+rxvt
+
+bash$ echo $LOGNAME
+bozo
+bash$ echo $SHELL
+/bin/tcsh
+bash$ echo $TERM
+rxvt
+}
+
+}
+
+◊definition-entry[#:name "$0, $1, $2, etc."]{
+Positional parameters, passed from command line to script, passed to a
+function, or ◊command{set} to a variable (see Example 4-5 and Example
+15-16) (TODO)
+
+}
+
+◊definition-entry[#:name "$#"]{
+Number of command-line arguments or positional parameters (see
+Example 36-2) (TODO) ◊footnote{The words "argument" and "parameter"
+are often used interchangeably. In the context of this document, they
+have the same precise meaning: a variable passed to a script or
+function.}
+
+}
+
+◊definition-entry[#:name "$*"]{
+All of the positional parameters, seen as a single word
+
+Note: ◊code{"$*"} must be quoted.
+
+}
 
 } ◊; definition-block
 
