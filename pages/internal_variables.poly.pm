@@ -1011,6 +1011,283 @@ Note: ◊code{"$*"} must be quoted.
 
 }
 
+◊definition-entry[#:name "$@"]{
+
+Same as ◊code{$*}, but each parameter is a quoted string, that is, the
+parameters are passed on intact, without interpretation or
+expansion. This means, among other things, that each parameter in the
+argument list is seen as a separate word.
+
+Note: Of course, ◊code{"$◊escaped{◊"@"}"} should be quoted.
+
+◊anchored-example[#:anchor "arglist1"]{arglist: Listing arguments with
+$* and $◊escaped{◊"@"}}
+
+◊example{
+#!/bin/bash
+# arglist.sh
+# Invoke this script with several arguments, such as "one two three" ...
+
+E_BADARGS=85
+
+if [ ! -n "$1" ]
+then
+  echo "Usage: `basename $0` argument1 argument2 etc."
+  exit $E_BADARGS
+fi
+
+echo
+
+index=1          # Initialize count.
+
+echo "Listing args with \"\$*\":"
+for arg in "$*"  # Doesn't work properly if "$*" isn't quoted.
+do
+  echo "Arg #$index = $arg"
+  let "index+=1"
+done             # $* sees all arguments as single word.
+echo "Entire arg list seen as single word."
+
+echo
+
+index=1          # Reset count.
+                 # What happens if you forget to do this?
+
+echo "Listing args with \"\$@\":"
+for arg in "$@"
+do
+  echo "Arg #$index = $arg"
+  let "index+=1"
+done             # $@ sees arguments as separate words.
+echo "Arg list seen as separate words."
+
+echo
+
+index=1          # Reset count.
+
+echo "Listing args with \$* (unquoted):"
+for arg in $*
+do
+  echo "Arg #$index = $arg"
+  let "index+=1"
+done             # Unquoted $* sees arguments as separate words.
+echo "Arg list seen as separate words."
+
+exit 0
+}
+
+Following a ◊code{shift}, the ◊code{$◊escaped{◊"@"}} holds the
+remaining command-line parameters, lacking the previous ◊code{$1},
+which was lost.
+
+◊example{
+#!/bin/bash
+# Invoke with ./scriptname 1 2 3 4 5
+
+echo "$@"    # 1 2 3 4 5
+shift
+echo "$@"    # 2 3 4 5
+shift
+echo "$@"    # 3 4 5
+
+# Each "shift" loses parameter $1.
+# "$@" then contains the remaining parameters.
+}
+
+The ◊code{$◊escaped{◊"@"}} special parameter finds use as a tool for
+filtering input into shell scripts. The ◊command{cat
+"$◊escaped{◊"@"}"} construction accepts input to a script either from
+◊fname{stdin} or from files given as parameters to the script. See
+Example 16-24 and Example 16-25 (TODO).
+
+Caution: The ◊code{$*} and ◊code{$◊escaped{◊"@"}} parameters sometimes
+display inconsistent and puzzling behavior, depending on the setting
+of ◊code{$IFS}.
+
+◊anchored-example[#:anchor "arglist2"]{Inconsistent $* and
+$◊escaped{◊"@"} behavior}
+
+◊example{
+#!/bin/bash
+
+#  Erratic behavior of the "$*" and "$@" internal Bash variables,
+#+ depending on whether or not they are quoted.
+#  Demonstrates inconsistent handling of word splitting and linefeeds.
+
+
+set -- "First one" "second" "third:one" "" "Fifth: :one"
+# Setting the script arguments, $1, $2, $3, etc.
+
+echo
+
+echo 'IFS unchanged, using "$*"'
+c=0
+for i in "$*"               # quoted
+do echo "$((c+=1)): [$i]"   # This line remains the same in every instance.
+                            # Echo args.
+done
+echo ---
+
+echo 'IFS unchanged, using $*'
+c=0
+for i in $*                 # unquoted
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+echo 'IFS unchanged, using "$@"'
+c=0
+for i in "$@"
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+echo 'IFS unchanged, using $@'
+c=0
+for i in $@
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+IFS=:
+echo 'IFS=":", using "$*"'
+c=0
+for i in "$*"
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+echo 'IFS=":", using $*'
+c=0
+for i in $*
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+var=$*
+echo 'IFS=":", using "$var" (var=$*)'
+c=0
+for i in "$var"
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+echo 'IFS=":", using $var (var=$*)'
+c=0
+for i in $var
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+var="$*"
+echo 'IFS=":", using $var (var="$*")'
+c=0
+for i in $var
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+echo 'IFS=":", using "$var" (var="$*")'
+c=0
+for i in "$var"
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+echo 'IFS=":", using "$@"'
+c=0
+for i in "$@"
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+echo 'IFS=":", using $@'
+c=0
+for i in $@
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+var=$@
+echo 'IFS=":", using $var (var=$@)'
+c=0
+for i in $var
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+echo 'IFS=":", using "$var" (var=$@)'
+c=0
+for i in "$var"
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+var="$@"
+echo 'IFS=":", using "$var" (var="$@")'
+c=0
+for i in "$var"
+do echo "$((c+=1)): [$i]"
+done
+echo ---
+
+echo 'IFS=":", using $var (var="$@")'
+c=0
+for i in $var
+do echo "$((c+=1)): [$i]"
+done
+
+echo
+
+# Try this script with ksh or zsh -y.
+
+exit 0
+
+#  This example script written by Stephane Chazelas,
+#+ and slightly modified by the document author.
+}
+
+Note: The ◊code{$◊escaped{◊"@"}} and ◊code{$*} parameters differ only when between
+double quotes.
+
+◊anchored-example[#:anchor "arglist3"]{$* and $◊escaped{◊"@"} when
+$IFS is empty}
+
+◊example{
+#!/bin/bash
+
+#  If $IFS set, but empty,
+#+ then "$*" and "$@" do not echo positional params as expected.
+
+mecho ()       # Echo positional parameters.
+{
+echo "$1,$2,$3";
+}
+
+
+IFS=""         # Set, but empty.
+set a b c      # Positional parameters.
+
+mecho "$*"     # abc,,
+#                   ^^
+mecho $*       # a,b,c
+
+mecho $@       # a,b,c
+mecho "$@"     # a,b,c
+
+#  The behavior of $* and $@ when $IFS is empty depends
+#+ on which Bash or sh version being run.
+#  It is therefore inadvisable to depend on this "feature" in a script.
+
+
+# Thanks, Stephane Chazelas.
+
+exit
+}
+
+}
+
+
 } ◊; definition-block
 
 ◊; emacs:
