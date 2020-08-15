@@ -3,6 +3,8 @@
 ◊define-meta[page-title]{Internal Variables}
 ◊define-meta[page-description]{Internal variables ($HOME, $PATH, etc.)}
 
+◊section{Build in variables}
+
 Builtin variables: variables affecting bash script behavior
 
 ◊definition-block[#:type "code"]{
@@ -1247,8 +1249,8 @@ exit 0
 #+ and slightly modified by the document author.
 }
 
-Note: The ◊code{$◊escaped{◊"@"}} and ◊code{$*} parameters differ only when between
-double quotes.
+Note: The ◊code{$◊escaped{◊"@"}} and ◊code{$*} parameters differ only
+when between double quotes.
 
 ◊anchored-example[#:anchor "arglist3"]{$* and $◊escaped{◊"@"} when
 $IFS is empty}
@@ -1287,6 +1289,127 @@ exit
 
 }
 
+
+} ◊; definition-block
+
+
+◊section{Other special parameters}
+
+◊definition-block[#:type "code"]{
+◊definition-entry[#:name "$-"]{
+Flags passed to script (using set). See Example 15-16. (TODO)
+
+Caution: This was originally a ksh construct adopted into Bash, and
+unfortunately it does not seem to work reliably in Bash scripts. One
+possible use for it is to have a script self-test whether it is
+interactive.
+}
+
+◊definition-entry[#:name "$!"]{
+PID (process ID) of last job run in background
+
+◊example{
+LOG=$0.log
+
+COMMAND1="sleep 100"
+
+echo "Logging PIDs background commands for script: $0" >> "$LOG"
+# So they can be monitored, and killed as necessary.
+echo >> "$LOG"
+
+# Logging commands.
+
+echo -n "PID of \"$COMMAND1\":  " >> "$LOG"
+${COMMAND1} &
+echo $! >> "$LOG"
+# PID of "sleep 100":  1506
+
+# Thank you, Jacques Lederer, for suggesting this.
+}
+
+Using $! for job control:
+
+◊example{
+possibly_hanging_job & { sleep ${TIMEOUT}; eval 'kill -9 $!' &> /dev/null; }
+# Forces completion of an ill-behaved program.
+# Useful, for example, in init scripts.
+
+# Thank you, Sylvain Fourmanoit, for this creative use of the "!" variable.
+}
+
+Or, alternately:
+
+◊example{
+# This example by Matthew Sage.
+# Used with permission.
+
+TIMEOUT=30   # Timeout value in seconds
+count=0
+
+possibly_hanging_job & {
+        while ((count < TIMEOUT )); do
+                eval '[ ! -d "/proc/$!" ] && ((count = TIMEOUT))'
+                # /proc is where information about running processes is found.
+                # "-d" tests whether it exists (whether directory exists).
+                # So, we're waiting for the job in question to show up.
+                ((count++))
+                sleep 1
+        done
+        eval '[ -d "/proc/$!" ] && kill -15 $!'
+        # If the hanging job is running, kill it.
+}
+
+#  -------------------------------------------------------------- #
+
+#  However, this may not not work as specified if another process
+#+ begins to run after the "hanging_job" . . .
+#  In such a case, the wrong job may be killed.
+#  Ariel Meragelman suggests the following fix.
+
+TIMEOUT=30
+count=0
+# Timeout value in seconds
+possibly_hanging_job & {
+
+while ((count < TIMEOUT )); do
+  eval '[ ! -d "/proc/$lastjob" ] && ((count = TIMEOUT))'
+  lastjob=$!
+  ((count++))
+  sleep 1
+done
+eval '[ -d "/proc/$lastjob" ] && kill -15 $lastjob'
+
+}
+
+exit
+}
+
+}
+
+◊definition-entry[#:name "$_"]{
+Special variable set to final argument of previous command executed.
+
+◊anchored-example[#:anchor "undersc1"]{Underscore variable}
+
+◊example{
+#!/bin/bash
+
+echo $_              #  /bin/bash
+                     #  Just called /bin/bash to run the script.
+                     #  Note that this will vary according to
+                     #+ how the script is invoked.
+
+du >/dev/null        #  So no output from command.
+echo $_              #  du
+
+ls -al >/dev/null    #  So no output from command.
+echo $_              #  -al  (last argument)
+
+:
+echo $_              #  :
+}
+
+}
 
 } ◊; definition-block
 
