@@ -1411,6 +1411,24 @@ echo $_              #  :
 
 }
 
+◊definition-entry[#:name "$?"]{
+Exit status of a command, function, or the script itself (see Example
+24-7) (TODO)
+
+}
+
+◊definition-entry[#:name "$$"]{
+Process ID (PID) of the script itself. [5] The ◊code{$$} variable
+often finds use in scripts to construct "unique" temp file names (see
+Example 32-6, Example 16-31, and Example 15-27). This is usually
+simpler than invoking ◊command{mktemp}.
+
+Note: Within a script, inside a subshell, ◊code{$$} returns the PID of
+the script, not the subshell.
+
+}
+
+
 } ◊; definition-block
 
 ◊; emacs:
