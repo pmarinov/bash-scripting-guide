@@ -1,7 +1,7 @@
 #lang pollen
 
 ◊define-meta[page-title]{Variable types}
-◊define-meta[page-description]{Variable types: declare ot typeset}
+◊define-meta[page-description]{Variable types: declare or typeset}
 
 The ◊code{declare} or ◊code{typeset} builtins, which are exact
 synonyms, permit modifying the properties of variables. This is a very
@@ -73,8 +73,135 @@ echo "n = $n"       # n = 2
 
 }
 
+◊definition-entry[#:name "-a"]{
+array
+
+◊example{
+declare -a indices
+}
+
+The variable ◊code{indices} will be treated as an array.
+
+}
+
+◊definition-entry[#:name "-f"]{
+function
+
+◊example{
+declare -f
+}
+
+A ◊code{declare -f} line with no arguments in a script causes a
+listing of all the functions previously defined in that script.
+
+◊example{
+declare -f function_name
+}
+
+A ◊code{declare -f function_name} in a script lists just the function
+named.
+
+}
+
+◊definition-entry[#:name "-x"]{
+export
+
+◊example{
+declare -x var3
+}
+
+This declares a variable as available for exporting outside the
+environment of the script itself.
+
+}
+
+◊definition-entry[#:name "-x"]{
+var=$value
+
+◊example{
+declare -x var3=373
+}
+
+The ◊code{declare} command permits assigning a value to a variable in
+the same statement as setting its properties.
+
+}
 
 } ◊; definition-block
+
+◊section-example[#:anchor "decl_vars1"]{Using declare to type variables}
+
+◊example{
+#!/bin/bash
+
+func1 ()
+{
+  echo This is a function.
+}
+
+declare -f        # Lists the function above.
+
+echo
+
+declare -i var1   # var1 is an integer.
+var1=2367
+echo "var1 declared as $var1"
+var1=var1+1       # Integer declaration eliminates the need for 'let'.
+echo "var1 incremented by 1 is $var1."
+# Attempt to change variable declared as integer.
+echo "Attempting to change var1 to floating point value, 2367.1."
+var1=2367.1       # Results in error message, with no change to variable.
+echo "var1 is still $var1"
+
+echo
+
+declare -r var2=13.36         # 'declare' permits setting a variable property
+                              #+ and simultaneously assigning it a value.
+echo "var2 declared as $var2" # Attempt to change readonly variable.
+var2=13.37                    # Generates error message, and exit from script.
+
+echo "var2 is still $var2"    # This line will not execute.
+
+exit 0                        # Script will not exit here.
+}
+
+Caution: Using the ◊code{declare} builtin restricts the scope of a variable.
+
+◊example{
+foo ()
+{
+FOO="bar"
+}
+
+bar ()
+{
+foo
+echo $FOO
+}
+
+bar   # Prints bar.
+}
+
+However . . .
+
+◊example{
+foo (){
+declare FOO="bar"
+}
+
+bar ()
+{
+foo
+echo $FOO
+}
+
+bar  # Prints nothing.
+
+
+# Thank you, Michael Iatrou, for pointing this out.
+}
+
+◊section{Another use for declare}
 
 ◊; emacs:
 ◊; Local Variables:
