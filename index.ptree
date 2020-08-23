@@ -45,6 +45,7 @@ pages/exit_status.poly.pm
   pages/internal_variables.poly.pm
   pages/variable_types.poly.pm
   pages/random_generator.poly.pm
+  pages/manipulating_strings.poly.pm
 }
 
 }
