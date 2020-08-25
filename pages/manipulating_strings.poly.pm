@@ -12,6 +12,8 @@ mention confusion.
 
 ◊section{String Length}
 
+The expressions:
+
 ◊code{$◊escaped{◊"{"}#string◊escaped{◊"}"}}
 
 ◊code{expr length $string}
@@ -71,6 +73,8 @@ exit
 
 ◊section{Length of Matching Substring at Beginning of String}
 
+The expressions:
+
 ◊code{expr match "$string" '$substring'}
 
 ◊code{expr "$string" : '$substring'}
@@ -85,6 +89,40 @@ stringZ=abcABC123ABCabc
 echo `expr match "$stringZ" 'abc[A-Z]*.2'`   # 8
 echo `expr "$stringZ" : 'abc[A-Z]*.2'`       # 8
 }
+
+◊section{Index}
+
+The expression:
+
+◊code{expr index $string $substring}
+
+Numerical position in ◊code{$string} of first character in
+◊code{$substring} that matches.
+
+◊example{
+stringZ=abcABC123ABCabc
+#       123456 ...
+echo `expr index "$stringZ" C12`             # 6
+                                             # C position.
+
+echo `expr index "$stringZ" 1c`              # 3
+# 'c' (in #3 position) matches before '1'.
+}
+
+This is the near equivalent of ◊code{strchr()} in C.
+
+◊section{Substring Extraction}
+
+The expression:
+
+◊code{$◊escaped{◊"{"}string:position◊escaped{◊"}"}}
+
+Extracts substring from ◊code{$string} at ◊code{$position}.
+
+If the ◊code{$string} parameter is "*" or "@", then this extracts the
+positional parameters, [1] starting at
+◊code{$position}. ◊footnote{This applies to either command-line
+arguments or parameters passed to a function.}
 
 ◊; emacs:
 ◊; Local Variables:
