@@ -124,6 +124,102 @@ positional parameters, [1] starting at
 ◊code{$position}. ◊footnote{This applies to either command-line
 arguments or parameters passed to a function.}
 
+◊code{$◊escaped{◊"{"}string:position:length◊escaped{◊"}"}}
+
+Extracts ◊code{$length} characters of substring from ◊code{$string} at
+◊code{$position}.
+
+◊example{
+stringZ=abcABC123ABCabc
+#       0123456789.....
+#       0-based indexing.
+
+echo ${stringZ:0}                            # abcABC123ABCabc
+echo ${stringZ:1}                            # bcABC123ABCabc
+echo ${stringZ:7}                            # 23ABCabc
+
+echo ${stringZ:7:3}                          # 23A
+                                             # Three characters of substring.
+
+
+# Is it possible to index from the right end of the string?
+
+echo ${stringZ:-4}                           # abcABC123ABCabc
+# Defaults to full string, as in ${parameter:-default}.
+# However . . .
+
+echo ${stringZ:(-4)}                         # Cabc
+echo ${stringZ: -4}                          # Cabc
+# Now, it works.
+# Parentheses or added space "escape" the position parameter.
+
+# Thank you, Dan Jacobson, for pointing this out.
+}
+
+The position and length arguments can be "parameterized," that is,
+represented as a variable, rather than as a numerical constant.
+
+◊section-example[#:anchor "rand8_str1"]{Generating an 8-character
+"random" string}
+
+◊example{
+#!/bin/bash
+# rand-string.sh
+# Generating an 8-character "random" string.
+
+if [ -n "$1" ]  #  If command-line argument present,
+then            #+ then set start-string to it.
+  str0="$1"
+else            #  Else use PID of script as start-string.
+  str0="$$"
+fi
+
+POS=2  # Starting from position 2 in the string.
+LEN=8  # Extract eight characters.
+
+str1=$( echo "$str0" | md5sum | md5sum )
+#  Doubly scramble     ^^^^^^   ^^^^^^
+#+ by piping and repiping to md5sum.
+
+randstring="${str1:$POS:$LEN}"
+# Can parameterize ^^^^ ^^^^
+
+echo "$randstring"
+
+exit $?
+
+# bozo$ ./rand-string.sh my-password
+# 1bdd88c4
+
+#  No, this is is not recommended
+#+ as a method of generating hack-proof passwords.
+}
+
+If the ◊code{$string} parameter is "*" or "@", then this extracts a
+maximum of ◊code{$length} positional parameters, starting at
+◊code{$position}.
+
+◊example{
+echo ${*:2}          # Echoes second and following positional parameters.
+echo ${@:2}          # Same as above.
+
+echo ${*:2:3}        # Echoes three positional parameters, starting at second.
+}
+
+◊code{expr substr $string $position $length}
+
+Extracts ◊code{$length} characters from ◊code{$string} starting at
+◊code{$position}.
+
+◊example{
+stringZ=abcABC123ABCabc
+#       123456789......
+#       1-based indexing.
+
+echo `expr substr $stringZ 1 2`              # ab
+echo `expr substr $stringZ 4 3`              # ABC
+}
+
 ◊; emacs:
 ◊; Local Variables:
 ◊; mode: fundamental
