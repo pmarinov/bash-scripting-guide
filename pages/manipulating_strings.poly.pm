@@ -206,6 +206,8 @@ echo ${@:2}          # Same as above.
 echo ${*:2:3}        # Echoes three positional parameters, starting at second.
 }
 
+◊section{Substring Extraction Using expr}
+
 ◊code{expr substr $string $position $length}
 
 Extracts ◊code{$length} characters from ◊code{$string} starting at
@@ -219,6 +221,46 @@ stringZ=abcABC123ABCabc
 echo `expr substr $stringZ 1 2`              # ab
 echo `expr substr $stringZ 4 3`              # ABC
 }
+
+◊code{expr match "$string" '\($substring\)'}
+
+Extracts ◊code{$substring} at beginning of ◊code{$string}, where
+◊code{$substring} is a regular expression.
+
+◊code{expr "$string" : '\($substring\)'}
+
+Extracts ◊code{$substring} at beginning of ◊code{$string}, where
+◊code{$substring} is a regular expression.
+
+◊example{
+stringZ=abcABC123ABCabc
+#       =======	    
+
+echo `expr match "$stringZ" '\(.[b-c]*[A-Z]..[0-9]\)'`   # abcABC1
+echo `expr "$stringZ" : '\(.[b-c]*[A-Z]..[0-9]\)'`       # abcABC1
+echo `expr "$stringZ" : '\(.......\)'`                   # abcABC1
+# All of the above forms give an identical result.
+}
+
+◊code{expr match "$string" '.*\($substring\)'}
+
+Extracts ◊code{$substring} at end of ◊code{$string}, where
+◊code{$substring} is a regular expression.
+
+◊code{expr "$string" : '.*\($substring\)'}
+
+Extracts ◊code{$substring} at end of $string, where ◊code{$substring}
+is a regular expression.
+
+◊example{
+stringZ=abcABC123ABCabc
+#                ======
+
+echo `expr match "$stringZ" '.*\([A-C][A-C][A-C][a-c]*\)'`    # ABCabc
+echo `expr "$stringZ" : '.*\(......\)'`                       # ABCabc
+}
+
+◊section{Substring Removal}
 
 ◊; emacs:
 ◊; Local Variables:
