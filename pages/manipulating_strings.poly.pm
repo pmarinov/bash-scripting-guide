@@ -208,6 +208,8 @@ echo ${*:2:3}        # Echoes three positional parameters, starting at second.
 
 ◊section{Substring Extraction Using expr}
 
+The expression:
+
 ◊code{expr substr $string $position $length}
 
 Extracts ◊code{$length} characters from ◊code{$string} starting at
@@ -261,6 +263,63 @@ echo `expr "$stringZ" : '.*\(......\)'`                       # ABCabc
 }
 
 ◊section{Substring Removal}
+
+The expression:
+
+◊code{$◊escaped{◊"{"}string#substring◊escaped{◊"}"}}
+
+Deletes shortest match of ◊code{$substring} from front of
+◊code{$string.}
+
+◊code{$◊escaped{◊"{"}string##substring◊escaped{◊"}"}}
+
+Deletes longest match of ◊code{$substring} from front of
+◊code{$string}.
+
+◊example{
+stringZ=abcABC123ABCabc
+#       |----|          shortest
+#       |----------|    longest
+
+echo ${stringZ#a*C}      # 123ABCabc
+# Strip out shortest match between 'a' and 'C'.
+
+echo ${stringZ##a*C}     # abc
+# Strip out longest match between 'a' and 'C'.
+
+
+
+# You can parameterize the substrings.
+
+X='a*C'
+
+echo ${stringZ#$X}      # 123ABCabc
+echo ${stringZ##$X}     # abc
+                        # As above.
+}
+
+◊code{$◊escaped{◊"{"}string%substring◊escaped{◊"}"}}
+
+Deletes shortest match of ◊code{$substring} from back of
+◊code{$string}.
+
+◊example{
+# Rename all filenames in $PWD with "TXT" suffix to a "txt" suffix.
+# For example, "file1.TXT" becomes "file1.txt" . . .
+
+SUFF=TXT
+suff=txt
+
+for i in $(ls *.$SUFF)
+do
+  mv -f $i ${i%.$SUFF}.$suff
+  #  Leave unchanged everything *except* the shortest pattern match
+  #+ starting from the right-hand-side of the variable $i . . .
+done ### This could be condensed into a "one-liner" if desired.
+
+# Thank you, Rory Winston.
+}
+
 
 ◊; emacs:
 ◊; Local Variables:
