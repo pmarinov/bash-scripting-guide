@@ -236,7 +236,7 @@ Extracts ◊code{$substring} at beginning of ◊code{$string}, where
 
 ◊example{
 stringZ=abcABC123ABCabc
-#       =======	    
+#       =======
 
 echo `expr match "$stringZ" '\(.[b-c]*[A-Z]..[0-9]\)'`   # abcABC1
 echo `expr "$stringZ" : '\(.[b-c]*[A-Z]..[0-9]\)'`       # abcABC1
@@ -320,6 +320,200 @@ done ### This could be condensed into a "one-liner" if desired.
 # Thank you, Rory Winston.
 }
 
+◊code{$◊escaped{◊"{"}string%%substring◊escaped{◊"}"}}
+
+Deletes longest match of ◊code{$substring} from back of
+◊code{$string}.
+
+◊example{
+stringZ=abcABC123ABCabc
+#                    ||     shortest
+#        |------------|     longest
+
+echo ${stringZ%b*c}      # abcABC123ABCa
+# Strip out shortest match between 'b' and 'c', from back of $stringZ.
+
+echo ${stringZ%%b*c}     # a
+# Strip out longest match between 'b' and 'c', from back of $stringZ.
+}
+
+This operator is useful for generating filenames.
+
+◊section-example[#:anchor "conf_graph1"]{ Converting graphic file
+formats, with filename change}
+
+◊example{
+#!/bin/bash
+#  cvt.sh:
+#  Converts all the MacPaint image files in a directory to "pbm" format.
+
+#  Uses the "macptopbm" binary from the "netpbm" package,
+#+ which is maintained by Brian Henderson (bryanh@giraffe-data.com).
+#  Netpbm is a standard part of most Linux distros.
+
+OPERATION=macptopbm
+SUFFIX=pbm          # New filename suffix.
+
+if [ -n "$1" ]
+then
+  directory=$1      # If directory name given as a script argument...
+else
+  directory=$PWD    # Otherwise use current working directory.
+fi
+
+#  Assumes all files in the target directory are MacPaint image files,
+#+ with a ".mac" filename suffix.
+
+for file in $directory/*    # Filename globbing.
+do
+  filename=${file%.*c}      #  Strip ".mac" suffix off filename
+                            #+ ('.*c' matches everything
+                            #+ between '.' and 'c', inclusive).
+  $OPERATION $file > "$filename.$SUFFIX"
+                            # Redirect conversion to new filename.
+  rm -f $file               # Delete original files after converting.
+  echo "$filename.$SUFFIX"  # Log what is happening to stdout.
+done
+
+exit 0
+
+# Exercise:
+# --------
+#  As it stands, this script converts *all* the files in the current
+#+ working directory.
+#  Modify it to work *only* on files with a ".mac" suffix.
+
+
+
+# *** And here's another way to do it. *** #
+
+#!/bin/bash
+# Batch convert into different graphic formats.
+# Assumes imagemagick installed (standard in most Linux distros).
+
+INFMT=png   # Can be tif, jpg, gif, etc.
+OUTFMT=pdf  # Can be tif, jpg, gif, pdf, etc.
+
+for pic in *"$INFMT"
+do
+  p2=$(ls "$pic" | sed -e s/\.$INFMT//)
+  # echo $p2
+    convert "$pic" $p2.$OUTFMT
+    done
+
+exit $?
+}
+
+◊section-example[#:anchor "stream_2ogg1"]{Converting streaming audio
+files to ogg}
+
+◊example{
+#!/bin/bash
+# ra2ogg.sh: Convert streaming audio files (*.ra) to ogg.
+
+# Uses the "mplayer" media player program:
+#      http://www.mplayerhq.hu/homepage
+# Uses the "ogg" library and "oggenc":
+#      http://www.xiph.org/
+#
+# This script may need appropriate codecs installed, such as sipr.so ...
+# Possibly also the compat-libstdc++ package.
+
+
+OFILEPREF=${1%%ra}      # Strip off the "ra" suffix.
+OFILESUFF=wav           # Suffix for wav file.
+OUTFILE="$OFILEPREF""$OFILESUFF"
+E_NOARGS=85
+
+if [ -z "$1" ]          # Must specify a filename to convert.
+then
+  echo "Usage: `basename $0` [filename]"
+  exit $E_NOARGS
+fi
+
+
+##########################################################################
+mplayer "$1" -ao pcm:file=$OUTFILE
+oggenc "$OUTFILE"  # Correct file extension automatically added by oggenc.
+##########################################################################
+
+rm "$OUTFILE"      # Delete intermediate *.wav file.
+                   # If you want to keep it, comment out above line.
+
+exit $?
+
+#  Note:
+#  ----
+#  On a Website, simply clicking on a *.ram streaming audio file
+#+ usually only downloads the URL of the actual *.ra audio file.
+#  You can then use "wget" or something similar
+#+ to download the *.ra file itself.
+
+
+#  Exercises:
+#  ---------
+#  As is, this script converts only *.ra filenames.
+#  Add flexibility by permitting use of *.ram and other filenames.
+#
+#  If you're really ambitious, expand the script
+#+ to do automatic downloads and conversions of streaming audio files.
+#  Given a URL, batch download streaming audio files (using "wget")
+#+ and convert them on the fly.
+}
+
+A simple emulation of ◊code{getopt} using substring-extraction
+constructs.
+
+◊section-example[#:anchor "getopt1"]{Emulating getopt}
+
+◊example{
+#!/bin/bash
+# getopt-simple.sh
+# Author: Chris Morgan
+# Used in the ABS Guide with permission.
+
+
+getopt_simple()
+{
+    echo "getopt_simple()"
+    echo "Parameters are '$*'"
+    until [ -z "$1" ]
+    do
+      echo "Processing parameter of: '$1'"
+      if [ ${1:0:1} = '/' ]
+      then
+          tmp=${1:1}               # Strip off leading '/' . . .
+          parameter=${tmp%%=*}     # Extract name.
+          value=${tmp##*=}         # Extract value.
+          echo "Parameter: '$parameter', value: '$value'"
+          eval $parameter=$value
+      fi
+      shift
+    done
+}
+
+# Pass all options to getopt_simple().
+getopt_simple $*
+
+echo "test is '$test'"
+echo "test2 is '$test2'"
+
+exit 0  # See also, UseGetOpt.sh, a modified version of this script.
+
+---
+
+sh getopt_example.sh /test=value1 /test2=value2
+
+Parameters are '/test=value1 /test2=value2'
+Processing parameter of: '/test=value1'
+Parameter: 'test', value: 'value1'
+Processing parameter of: '/test2=value2'
+Parameter: 'test2', value: 'value2'
+test is 'value1'
+test2 is 'value2'
+}
+
+◊section{Substring Replacement}
 
 ◊; emacs:
 ◊; Local Variables:
