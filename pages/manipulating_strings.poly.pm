@@ -515,6 +515,71 @@ test2 is 'value2'
 
 ◊section{Substring Replacement}
 
+The expression:
+
+◊code{$◊escaped{◊"{"}string/substring/replacement◊escaped{◊"}"}}
+
+Replace first match of ◊code{$substring} with ◊code{$replacement}.
+
+Note that ◊code{$substring} and ◊code{$replacement} may refer to
+either literal strings or variables, depending on context.
+
+◊code{$◊escaped{◊"{"}string//substring/replacement◊escaped{◊"}"}}
+
+Replace all matches of ◊code{$substring} with ◊code{$replacement}.
+
+◊example{
+stringZ=abcABC123ABCabc
+
+echo ${stringZ/abc/xyz}       # xyzABC123ABCabc
+                              # Replaces first match of 'abc' with 'xyz'.
+
+echo ${stringZ//abc/xyz}      # xyzABC123ABCxyz
+                              # Replaces all matches of 'abc' with # 'xyz'.
+
+echo  ---------------
+echo "$stringZ"               # abcABC123ABCabc
+echo  ---------------
+                              # The string itself is not altered!
+
+# Can the match and replacement strings be parameterized?
+match=abc
+repl=000
+echo ${stringZ/$match/$repl}  # 000ABC123ABCabc
+#              ^      ^         ^^^
+echo ${stringZ//$match/$repl} # 000ABC123ABC000
+# Yes!          ^      ^        ^^^         ^^^
+
+echo
+
+# What happens if no $replacement string is supplied?
+echo ${stringZ/abc}           # ABC123ABCabc
+echo ${stringZ//abc}          # ABC123ABC
+# A simple deletion takes place.
+}
+
+◊code{$◊escaped{◊"{"}string/#substring/replacement◊escaped{◊"}"}}
+
+If ◊code{$substring} matches front end of ◊code{$string}, substitute
+◊code{$replacement} for ◊code{$substring}.
+
+◊code{$◊escaped{◊"{"}string/%substring/replacement◊escaped{◊"{"}}
+
+If ◊code{$substring} matches back end of ◊code{$string}, substitute
+◊code{$replacement} for ◊code{$substring}.
+
+◊example{
+stringZ=abcABC123ABCabc
+
+echo ${stringZ/#abc/XYZ}          # XYZABC123ABCabc
+                                  # Replaces front-end match of 'abc' with 'XYZ'.
+
+echo ${stringZ/%abc/XYZ}          # abcABC123ABCXYZ
+                                  # Replaces back-end match of 'abc' with 'XYZ'.
+}
+
+◊section{Manipulating strings using awk}
+
 ◊; emacs:
 ◊; Local Variables:
 ◊; mode: fundamental
