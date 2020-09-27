@@ -580,6 +580,62 @@ echo ${stringZ/%abc/XYZ}          # abcABC123ABCXYZ
 
 ◊section{Manipulating strings using awk}
 
+A Bash script may invoke the string manipulation facilities of
+◊command{awk} as an alternative to using its built-in operations.
+
+◊section-example[#:anchor "alt_str1"]{Alternate ways of extracting and
+locating substrings}
+
+◊example{
+#!/bin/bash
+# substring-extraction.sh
+
+String=23skidoo1
+#      012345678    Bash
+#      123456789    awk
+# Note different string indexing system:
+# Bash numbers first character of string as 0.
+# Awk  numbers first character of string as 1.
+
+echo ${String:2:4} # position 3 (0-1-2), 4 characters long
+                                         # skid
+
+# The awk equivalent of ${string:pos:length} is substr(string,pos,length).
+echo | awk '
+{ print substr("'"${String}"'",3,4)      # skid
+}
+'
+#  Piping an empty "echo" to awk gives it dummy input,
+#+ and thus makes it unnecessary to supply a filename.
+
+echo "----"
+
+# And likewise:
+
+echo | awk '
+{ print index("'"${String}"'", "skid")      # 3
+}                                           # (skid starts at position 3)
+'   # The awk equivalent of "expr index" ...
+
+exit 0
+}
+
+◊section{Further Reference}
+
+TODO:
+
+For more on string manipulation in scripts, refer to Section 10.2 and
+the relevant section of the expr command listing.
+
+Script examples:
+Example 16-9
+Example 10-9
+Example 10-10
+Example 10-11
+Example 10-13
+Example A-36
+Example A-41
+
 ◊; emacs:
 ◊; Local Variables:
 ◊; mode: fundamental
