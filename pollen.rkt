@@ -9,7 +9,9 @@
   pollen/decode
   pollen/setup
   pollen/pagetree
-  txexpr)
+  txexpr
+  threading
+)
 
 (provide (all-defined-out))
 
@@ -443,7 +445,12 @@
   (case (current-poly-target)
     [(texi)
       (string-append
-          "@item " definition-name "\n"
+          "@item "
+          ;; Texinfo escaping for curly braces
+          (~> definition-name
+            (string-replace "{" "@{")
+            (string-replace "}" "@}"))
+          "\n"
           (string-append* elements))]
     [(html)
       `(@

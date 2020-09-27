@@ -517,11 +517,7 @@ Array=(element1 element2 element3)
 }
 
 
-◊; TODO: Not yet clear how to produce the escaped sequence @{ and @}
-◊; inside a string, probably have a function that escape all braces in
-◊; a string
-
-◊definition-entry[#:name "@{xxx,yyy,zzz,...@}"]{
+◊definition-entry[#:name "{xxx,yyy,zzz,...}"]{
 ◊strong{Brace expansion.}
 
 ◊example{
@@ -551,7 +547,7 @@ file1 : A file1 : B file1 : C file2 : A file2 : B file2 : C
 }
 }
 
-◊definition-entry[#:name "@{a..z@}"]{
+◊definition-entry[#:name "{a..z}"]{
 ◊strong{Extended Brace expansion.}
 
 ◊example{
@@ -572,7 +568,7 @@ expansion} construction is a feature introduced in version 3 of Bash.
 
 }
 
-◊definition-entry[#:name "@{@}"]{
+◊definition-entry[#:name "{}"]{
 ◊strong{Block of code [curly brackets]}. Also referred to as an
 ◊emphasize{inline group}, this construct, in effect, creates an
 ◊emphasize{anonymous function} (a function without a name). However,
@@ -691,7 +687,7 @@ It is possible to iterate a code block using a ◊emphasize{non-standard for-loo
 
 }
 
-◊definition-entry[#:name "@{@}"]{
+◊definition-entry[#:name "{}"]{
 ◊strong{placeholder for text.} Used after ◊command{xargs -i} (replace
 strings option). The ◊emphasize{◊escaped{◊"{"}◊escaped{◊"}"}} double
 curly brackets are a placeholder for output text.
@@ -704,7 +700,7 @@ ls . | xargs -i -t cp ./{} $1
 }
 }
 
-◊definition-entry[#:name "@{@} \\;"]{
+◊definition-entry[#:name "{} \\;"]{
 ◊strong{pathname}. Mostly used in ◊code{find} constructs. This is
 not a shell ◊emphasize{builtin}.
 
