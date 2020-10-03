@@ -25,7 +25,7 @@ echo "New \$PATH = $PATH"
 }
 
 ◊definition-entry[#:name "${parameter-default}, ${parameter:-default}"]{
-If parameter not set, use default.
+If ◊code{parameter} not set, use default.
 
 ◊example{
 var1=1
@@ -121,8 +121,139 @@ default command-line argument.
 
 }
 
+◊definition-entry[#:name "${parameter=default}, ${parameter:=default}"]{
+If parameter not set, set it to default.
+
+Both forms nearly equivalent. The ◊code{:} makes a difference only
+when ◊code{$parameter} has been declared and is null, as above.
+
+Note: If ◊code{$parameter} is null in a non-interactive script, it
+will terminate with a 127 exit status (the Bash error code for
+"command not found").
+
+◊example{
+echo ${var=abc}   # abc
+echo ${var=xyz}   # abc
+# $var had already been set to abc, so it did not change.
+}
+
+}
+
+◊definition-entry[#:name "${parameter+alt_value}, ${parameter:+alt_value}"]{
+If parameter set, use ◊code{alt_value}, else use null string.
+
+Both forms nearly equivalent. The ◊code{:} makes a difference only
+when ◊code{parameter} has been declared and is null, see below.
+
+◊example{
+echo "###### \${parameter+alt_value} ########"
+echo
+
+a=${param1+xyz}
+echo "a = $a"      # a =
+
+param2=
+a=${param2+xyz}
+echo "a = $a"      # a = xyz
+
+param3=123
+a=${param3+xyz}
+echo "a = $a"      # a = xyz
+
+echo
+echo "###### \${parameter:+alt_value} ########"
+echo
+
+a=${param4:+xyz}
+echo "a = $a"      # a =
+
+param5=
+a=${param5:+xyz}
+echo "a = $a"      # a =
+# Different result from   a=${param5+xyz}
+
+param6=123
+a=${param6:+xyz}
+echo "a = $a"      # a = xyz
+}
+
+}
+
+◊definition-entry[#:name "${parameter?err_msg}, ${parameter:?err_msg}"]{
+
+If parameter set, use it, else print ◊code{err_msg} and abort the
+script with an exit status of 1.
+
+Both forms nearly equivalent. The ◊code{:} makes a difference only
+when ◊code{parameter} has been declared and is null, as above.
+
+
+}
 
 } ◊;definition-block
+
+◊section-example[#:anchor "param_subst_err1"]{Using parameter
+substitution and error messages}
+
+◊example{
+#!/bin/bash
+
+#  Check some of the system's environmental variables.
+#  This is good preventative maintenance.
+#  If, for example, $USER, the name of the person at the console, is not set,
+#+ the machine will not recognize you.
+
+: ${HOSTNAME?} ${USER?} ${HOME?} ${MAIL?}
+  echo
+  echo "Name of the machine is $HOSTNAME."
+  echo "You are $USER."
+  echo "Your home directory is $HOME."
+  echo "Your mail INBOX is located in $MAIL."
+  echo
+  echo "If you are reading this message,"
+  echo "critical environmental variables have been set."
+  echo
+  echo
+
+# ------------------------------------------------------
+
+#  The ${variablename?} construction can also check
+#+ for variables set within the script.
+
+ThisVariable=Value-of-ThisVariable
+#  Note, by the way, that string variables may be set
+#+ to characters disallowed in their names.
+: ${ThisVariable?}
+echo "Value of ThisVariable is $ThisVariable".
+
+echo; echo
+
+
+: ${ZZXy23AB?"ZZXy23AB has not been set."}
+#  Since ZZXy23AB has not been set,
+#+ then the script terminates with an error message.
+
+# You can specify the error message.
+# : ${variablename?"ERROR MESSAGE"}
+
+
+# Same result with:   dummy_variable=${ZZXy23AB?}
+#                     dummy_variable=${ZZXy23AB?"ZXy23AB has not been set."}
+#
+#                     echo ${ZZXy23AB?} >/dev/null
+
+#  Compare these methods of checking whether a variable has been set
+#+ with "set -u" . . .
+
+
+
+echo "You will not see this message, because script already terminated."
+
+HERE=0
+exit $HERE   # Will NOT exit here.
+
+# In fact, this script will return an exit status (echo $?) of 1.
+}
 
 ◊; emacs:
 ◊; Local Variables:
