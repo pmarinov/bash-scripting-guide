@@ -255,6 +255,135 @@ exit $HERE   # Will NOT exit here.
 # In fact, this script will return an exit status (echo $?) of 1.
 }
 
+◊section-example[#:anchor "usg_msg1"]{Parameter substitution and
+"usage" messages}
+
+◊example{
+#!/bin/bash
+# usage-message.sh
+
+: ${1?"Usage: $0 ARGUMENT"}
+#  Script exits here if command-line parameter absent,
+#+ with following error message.
+#    usage-message.sh: 1: Usage: usage-message.sh ARGUMENT
+
+echo "These two lines echo only if command-line parameter given."
+echo "command-line parameter = \"$1\""
+
+exit 0  # Will exit here only if command-line parameter present.
+
+# Check the exit status, both with and without command-line parameter.
+# If command-line parameter present, then "$?" is 0.
+# If not, then "$?" is 1.
+}
+
+◊section{Parameter substitution and/or expansion.}
+
+The following expressions are the complement to the ◊command{match} in
+◊command{expr} string operations (TODO see Example 16-9). These
+particular ones are used mostly in parsing file path names.
+
+◊strong{Variable length / Substring removal}
+
+◊definition-block[#:type "variables"]{
+◊definition-entry[#:name "${#var}"]{
+
+String length (number of characters in ◊code{$var}). For an array,
+◊code{$◊escaped{◊"{"}#array◊escaped{◊"}"}} is the length of the first
+element in the array.
+
+Note, exceptions: ◊code{$◊escaped{◊"{"}#*◊escaped{◊"}"}} and
+◊code{$◊escaped{◊"{"}#◊escaped{◊"@"}◊escaped{◊"}"}} give the number of
+positional parameters. For an array,
+◊code{$◊escaped{◊"{"}#array[*]◊escaped{◊"}"}} and
+◊code{$◊escaped{◊"{"}#array[◊escaped{◊"@"}]◊escaped{◊"}"}} give the
+number of elements in the array.
+
+◊strong{Example: Length of a variable}
+
+◊example{
+#!/bin/bash
+# length.sh
+
+E_NO_ARGS=65
+
+if [ $# -eq 0 ]  # Must have command-line args to demo script.
+then
+  echo "Please invoke this script with one or more command-line arguments."
+  exit $E_NO_ARGS
+fi
+
+var01=abcdEFGH28ij
+echo "var01 = ${var01}"
+echo "Length of var01 = ${#var01}"
+# Now, let's try embedding a space.
+var02="abcd EFGH28ij"
+echo "var02 = ${var02}"
+echo "Length of var02 = ${#var02}"
+
+echo "Number of command-line arguments passed to script = ${#@}"
+echo "Number of command-line arguments passed to script = ${#*}"
+
+exit 0
+}
+
+}
+
+◊definition-entry[#:name "${var#Pattern}, ${var##Pattern}"]{
+
+◊code{$◊escaped{◊"{"}var#Pattern◊escaped{◊"}"}} -- remove from
+◊code{$var} the shortest part of ◊code{$Pattern} that matches the
+front end of ◊code{$var}.
+
+◊code{$◊escaped{◊"{"}var##Pattern◊escaped{◊"}"}} -- remove from
+◊code{$var} the longest part of ◊code{$Pattern} that matches the front
+end of ◊code{$var}.
+
+◊example{
+# Function from "days-between.sh" example.
+# Strips leading zero(s) from argument passed.
+
+strip_leading_zero () #  Strip possible leading zero(s)
+{                     #+ from argument passed.
+  return=${1#0}       #  The "1" refers to "$1" -- passed arg.
+}                     #  The "0" is what to remove from "$1" -- strips zeros.
+
+}
+
+More elaborate variation of the above:
+
+◊example{
+strip_leading_zero2 () # Strip possible leading zero(s), since otherwise
+{                      # Bash will interpret such numbers as octal values.
+  shopt -s extglob     # Turn on extended globbing.
+  local val=${1##+(0)} # Use local variable, longest matching series of 0's.
+  shopt -u extglob     # Turn off extended globbing.
+  _strip_leading_zero2=${val:-0}
+                       # If input was 0, return 0 instead of "".
+}
+
+}
+
+Another usage illustration:
+
+◊example{
+echo `basename $PWD`        # Basename of current working directory.
+echo "${PWD##*/}"           # Basename of current working directory.
+echo
+echo `basename $0`          # Name of script.
+echo $0                     # Name of script.
+echo "${0##*/}"             # Name of script.
+echo
+filename=test.data
+echo "${filename##*.}"      # data
+                            # Extension of filename.
+}
+
+
+}
+
+} ◊;definition-entry
+
 ◊; emacs:
 ◊; Local Variables:
 ◊; mode: fundamental
