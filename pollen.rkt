@@ -446,8 +446,11 @@
     [(texi)
       (string-append
           "@item "
-          ;; Texinfo escaping for curly braces
+          ;; Texinfo escaping
           (~> definition-name
+            ;; For "@"
+            (string-replace "@" "@@")
+            ;; For curly braces
             (string-replace "{" "@{")
             (string-replace "}" "@}"))
           "\n"

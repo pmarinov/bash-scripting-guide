@@ -330,7 +330,6 @@ exit 0
 }
 
 ◊definition-entry[#:name "${var#Pattern}, ${var##Pattern}"]{
-
 ◊code{$◊escaped{◊"{"}var#Pattern◊escaped{◊"}"}} -- remove from
 ◊code{$var} the shortest part of ◊code{$Pattern} that matches the
 front end of ◊code{$var}.
@@ -382,7 +381,289 @@ echo "${filename##*.}"      # data
 
 }
 
-} ◊;definition-entry
+◊definition-entry[#:name "${var%Pattern}, ${var%%Pattern}"]{
+
+◊code{$◊escaped{◊"{"}var%Pattern◊escaped{◊"}"}} Remove from
+◊code{$var} the shortest part of ◊code{$Pattern} that matches the back
+end of ◊code{$var}.
+
+◊code{$◊escaped{◊"{"}var%%Pattern◊escaped{◊"}"}} Remove from
+◊code{$var} the longest part of ◊code{$Pattern} that matches the back
+end of ◊code{$var}.
+
+Version 2 of Bash added additional options.
+
+}
+
+} ◊;definition-block
+
+◊section-example[#:anchor "patt_match1"]{Pattern matching in parameter
+substitution}
+
+◊example{
+#!/bin/bash
+# patt-matching.sh
+
+# Pattern matching  using the # ## % %% parameter substitution operators.
+
+var1=abcd12345abc6789
+pattern1=a*c  # * (wild card) matches everything between a - c.
+
+echo
+echo "var1 = $var1"           # abcd12345abc6789
+echo "var1 = ${var1}"         # abcd12345abc6789
+                              # (alternate form)
+echo "Number of characters in ${var1} = ${#var1}"
+echo
+
+echo "pattern1 = $pattern1"   # a*c  (everything between 'a' and 'c')
+echo "--------------"
+echo '${var1#$pattern1}  =' "${var1#$pattern1}"    #         d12345abc6789
+# Shortest possible match, strips out first 3 characters  abcd12345abc6789
+#                                     ^^^^^               |-|
+echo '${var1##$pattern1} =' "${var1##$pattern1}"   #                  6789
+# Longest possible match, strips out first 12 characters  abcd12345abc6789
+#                                    ^^^^^                |----------|
+
+echo; echo; echo
+
+pattern2=b*9            # everything between 'b' and '9'
+echo "var1 = $var1"     # Still  abcd12345abc6789
+echo
+echo "pattern2 = $pattern2"
+echo "--------------"
+echo '${var1%pattern2}  =' "${var1%$pattern2}"     #     abcd12345a
+# Shortest possible match, strips out last 6 characters  abcd12345abc6789
+#                                     ^^^^                         |----|
+echo '${var1%%pattern2} =' "${var1%%$pattern2}"    #     a
+# Longest possible match, strips out last 12 characters  abcd12345abc6789
+#                                    ^^^^                 |-------------|
+
+# Remember, # and ## work from the left end (beginning) of string,
+#           % and %% work from the right end.
+
+echo
+
+exit 0
+}
+
+◊section-example[#:anchor "ren_file1"]{Renaming file extensions}
+
+◊example{
+#!/bin/bash
+# rfe.sh: Renaming file extensions.
+#
+#         rfe old_extension new_extension
+#
+# Example:
+# To rename all *.gif files in working directory to *.jpg,
+#          rfe gif jpg
+
+
+E_BADARGS=65
+
+case $# in
+  0|1)             # The vertical bar means "or" in this context.
+  echo "Usage: `basename $0` old_file_suffix new_file_suffix"
+  exit $E_BADARGS  # If 0 or 1 arg, then bail out.
+  ;;
+esac
+
+
+for filename in *.$1
+# Traverse list of files ending with 1st argument.
+do
+  mv $filename ${filename%$1}$2
+  #  Strip off part of filename matching 1st argument,
+  #+ then append 2nd argument.
+done
+
+exit 0
+}
+
+◊section{Variable expansion / Substring replacement}
+
+These constructs have been adopted from ◊command{ksh}.
+
+◊definition-block[#:type "variables"]{
+◊definition-entry[#:name "${var:pos}"]{
+Variable ◊code{var} expanded, starting from offset ◊code{pos}.
+
+}
+
+◊definition-entry[#:name "${var:pos:len}"]{
+Expansion to a max of ◊code{len} characters of variable ◊code{var},
+from offset ◊code{pos}. See TODO Example A-13 for an example of the
+creative use of this operator.
+
+}
+
+◊definition-entry[#:name "${var/Pattern/Replacement}"]{
+First match of ◊code{Pattern}, within ◊code{var} replaced with
+◊code{Replacement}.
+
+If ◊code{Replacement} is omitted, then the first match of
+◊code{Pattern} is replaced by nothing, that is, deleted.
+
+}
+
+◊definition-entry[#:name "${var//Pattern/Replacement}"]{
+Global replacement. All matches of ◊code{Pattern}, within var replaced
+with ◊code{Replacement}.
+
+As above, if ◊code{Replacement} is omitted, then all occurrences of
+◊code{Pattern} are replaced by nothing, that is, deleted.
+
+}
+
+◊definition-entry[#:name "${var/#Pattern/Replacement}"]{
+If prefix of ◊code{var} matches ◊code{Pattern}, then substitute
+◊code{Replacement} for ◊code{Pattern}.
+
+}
+
+◊definition-entry[#:name "${var/%Pattern/Replacement}"]{
+If suffix of ◊code{var} matches ◊code{Pattern}, then substitute
+◊code{Replacement} for ◊code{Pattern}.
+
+}
+
+◊definition-entry[#:name "${!varprefix*}, ${!varprefix@}"]{
+Matches names of all previously declared variables beginning with
+◊code{varprefix}.
+
+◊example{
+# This is a variation on indirect reference, but with a * or @.
+# Bash, version 2.04, adds this feature.
+
+xyz23=whatever
+xyz24=
+
+a=${!xyz*}         #  Expands to *names* of declared variables
+# ^ ^   ^           + beginning with "xyz".
+echo "a = $a"      #  a = xyz23 xyz24
+a=${!xyz@}         #  Same as above.
+echo "a = $a"      #  a = xyz23 xyz24
+
+echo "---"
+
+abc23=something_else
+b=${!abc*}
+echo "b = $b"      #  b = abc23
+c=${!b}            #  Now, the more familiar type of indirect reference.
+echo $c            #  something_else
+}
+
+}
+
+} ◊;definition-block
+
+◊section-example[#:anchor "glob_parse1"]{Using pattern matching to
+parse arbitrary strings}
+
+◊example{
+#!/bin/bash
+
+var1=abcd-1234-defg
+echo "var1 = $var1"
+
+t=${var1#*-*}
+echo "var1 (with everything, up to and including first - stripped out) = $t"
+#  t=${var1#*-}  works just the same,
+#+ since # matches the shortest string,
+#+ and * matches everything preceding, including an empty string.
+# (Thanks, Stephane Chazelas, for pointing this out.)
+
+t=${var1##*-*}
+echo "If var1 contains a \"-\", returns empty string...   var1 = $t"
+
+
+t=${var1%*-*}
+echo "var1 (with everything from the last - on stripped out) = $t"
+
+echo
+
+# -------------------------------------------
+path_name=/home/bozo/ideas/thoughts.for.today
+# -------------------------------------------
+echo "path_name = $path_name"
+t=${path_name##/*/}
+echo "path_name, stripped of prefixes = $t"
+# Same effect as   t=`basename $path_name` in this particular case.
+#  t=${path_name%/}; t=${t##*/}   is a more general solution,
+#+ but still fails sometimes.
+#  If $path_name ends with a newline, then `basename $path_name` will not work,
+#+ but the above expression will.
+# (Thanks, S.C.)
+
+t=${path_name%/*.*}
+# Same effect as   t=`dirname $path_name`
+echo "path_name, stripped of suffixes = $t"
+# These will fail in some cases, such as "../", "/foo////", # "foo/", "/".
+#  Removing suffixes, especially when the basename has no suffix,
+#+ but the dirname does, also complicates matters.
+# (Thanks, S.C.)
+
+echo
+
+t=${path_name:11}
+echo "$path_name, with first 11 chars stripped off = $t"
+t=${path_name:11:5}
+echo "$path_name, with first 11 chars stripped off, length 5 = $t"
+
+echo
+
+t=${path_name/bozo/clown}
+echo "$path_name with \"bozo\" replaced  by \"clown\" = $t"
+t=${path_name/today/}
+echo "$path_name with \"today\" deleted = $t"
+t=${path_name//o/O}
+echo "$path_name with all o's capitalized = $t"
+t=${path_name//o/}
+echo "$path_name with all o's deleted = $t"
+
+exit 0
+}
+
+◊section-example[#:anchor "ma_pref_suf1"]{Matching patterns at prefix
+or suffix of string}
+
+◊example{
+#!/bin/bash
+# var-match.sh:
+# Demo of pattern replacement at prefix / suffix of string.
+
+v0=abc1234zip1234abc    # Original variable.
+echo "v0 = $v0"         # abc1234zip1234abc
+echo
+
+# Match at prefix (beginning) of string.
+v1=${v0/#abc/ABCDEF}    # abc1234zip1234abc
+                        # |-|
+echo "v1 = $v1"         # ABCDEF1234zip1234abc
+                        # |----|
+
+# Match at suffix (end) of string.
+v2=${v0/%abc/ABCDEF}    # abc1234zip123abc
+                        #              |-|
+echo "v2 = $v2"         # abc1234zip1234ABCDEF
+                        #               |----|
+
+echo
+
+#  ----------------------------------------------------
+#  Must match at beginning / end of string,
+#+ otherwise no replacement results.
+#  ----------------------------------------------------
+v3=${v0/#123/000}       # Matches, but not at beginning.
+echo "v3 = $v3"         # abc1234zip1234abc
+                        # NO REPLACEMENT.
+v4=${v0/%123/000}       # Matches, but not at end.
+echo "v4 = $v4"         # abc1234zip1234abc
+                        # NO REPLACEMENT.
+
+exit 0
+}
 
 ◊; emacs:
 ◊; Local Variables:
