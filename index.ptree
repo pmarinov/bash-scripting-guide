@@ -47,6 +47,7 @@ pages/exit_status.poly.pm
   pages/random_generator.poly.pm
   pages/manipulating_strings.poly.pm
   pages/param_substit.poly.pm
+  pages/loops.poly.pm
 }
 
 }
