@@ -646,6 +646,66 @@ do
 done
 }
 
+The bracket construct in a ◊code{while} loop is nothing more than our
+old friend, the test brackets used in an ◊code{if/then} test. In fact,
+a ◊code{while} loop can legally use the more versatile double-brackets
+construct (◊code{while [[ condition ]]}).
+
+As is the case with ◊code{for} loops, placing the ◊code{do} on the
+same line as the condition test requires a semicolon.
+
+◊example{
+while [ condition ] ; do
+}
+
+Note: that the test brackets are not mandatory in a ◊code{while} loop. See,
+for example, the ◊code{getopts} construct.
+
+◊section-example[#:anchor "while_simpl1"]{Simple while loop}
+
+◊example{
+#!/bin/bash
+
+var0=0
+LIMIT=10
+
+while [ "$var0" -lt "$LIMIT" ]
+#      ^                    ^
+# Spaces, because these are "test-brackets" . . .
+do
+  echo -n "$var0 "        # -n suppresses newline.
+  #             ^           Space, to separate printed out numbers.
+
+  var0=`expr $var0 + 1`   # var0=$(($var0+1))  also works.
+                          # var0=$((var0 + 1)) also works.
+                          # let "var0 += 1"    also works.
+done                      # Various other methods also work.
+
+echo
+
+exit 0
+}
+
+Another ◊code{while} loop:
+
+◊example{
+#!/bin/bash
+
+echo
+                               # Equivalent to:
+while [ "$var1" != "end" ]     # while test "$var1" != "end"
+do
+  echo "Input variable #1 (end to exit) "
+  read var1                    # Not 'read $var1' (why?).
+  echo "variable #1 = $var1"   # Need quotes because of "#" . . .
+  # If input is 'end', echoes it here.
+  # Does not test for termination condition until top of loop.
+  echo
+done  
+
+exit 0
+}
+
 ◊; emacs:
 ◊; Local Variables:
 ◊; mode: fundamental
