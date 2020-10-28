@@ -417,7 +417,7 @@ done | sort                                  # Otherwise file list is unsorted.
 #  As Dominik 'Aeneas' Schnitzer points out,
 #+ failing to quote  $( find $directory -type l )
 #+ will choke on filenames with embedded whitespace.
-#  containing whitespace. 
+#  containing whitespace.
 
 exit 0
 
@@ -496,7 +496,7 @@ echo
 for a in 1 2 3 4 5 6 7 8 9 10
 do
   echo -n "$a "
-done  
+done
 
 echo; echo
 
@@ -506,7 +506,7 @@ echo; echo
 for a in `seq 10`
 do
   echo -n "$a "
-done  
+done
 
 echo; echo
 
@@ -517,7 +517,7 @@ echo; echo
 for a in {1..10}
 do
   echo -n "$a "
-done  
+done
 
 echo; echo
 
@@ -577,16 +577,16 @@ then
   #     File is not a regular file, or does not exist.
   exit $E_BADARGS
 fi
-  
+
 
 fax make $2              #  Create fax-formatted files from text files.
 
 for file in $(ls $2.0*)  #  Concatenate the converted files.
                          #  Uses wild card (filename "globbing")
-			 #+ in variable list.
+                         #+ in variable list.
 do
   fil="$fil $file"
-done  
+done
 
 efax -d "$MODEM_PORT"  -t "T$1" $fil   # Finally, do the work.
 # Trying adding  -o1  if above line fails.
@@ -604,7 +604,7 @@ loop command block. However, these may, in certain contexts, be
 omitted by framing the command block within curly brackets
 
 ◊example{
-for((n=1; n<=10; n++)) 
+for((n=1; n<=10; n++))
 # No do!
 {
   echo -n "* $n *"
@@ -701,10 +701,161 @@ do
   # If input is 'end', echoes it here.
   # Does not test for termination condition until top of loop.
   echo
-done  
+done
 
 exit 0
 }
+
+◊section-example[#:anchor "while_multi1"]{while loop with multiple
+conditions}
+
+A ◊code{while} loop may have multiple conditions. Only the final condition
+determines when the loop terminates. This necessitates a slightly
+different loop syntax, however.
+
+◊example{
+#!/bin/bash
+
+var1=unset
+previous=$var1
+
+while echo "previous-variable = $previous"
+      echo
+      previous=$var1
+      [ "$var1" != end ] # Keeps track of what $var1 was previously.
+      # Four conditions on *while*, but only the final one controls loop.
+      # The *last* exit status is the one that counts.
+do
+echo "Input variable #1 (end to exit) "
+  read var1
+  echo "variable #1 = $var1"
+done
+
+# Try to figure out how this all works.
+# It's a wee bit tricky.
+
+exit 0
+}
+
+◊section-example[#:anchor "c_style_while1"]{C-style syntax in a while
+loop}
+
+As with a ◊code{for} loop, a ◊code{while} loop may employ C-style
+syntax by using the double-parentheses construct (see also TODO
+Example 8-5).
+
+◊example{
+#!/bin/bash
+# wh-loopc.sh: Count to 10 in a "while" loop.
+
+LIMIT=10                 # 10 iterations.
+a=1
+
+while [ "$a" -le $LIMIT ]
+do
+  echo -n "$a "
+  let "a+=1"
+done                     # No surprises, so far.
+
+echo; echo
+
+# +=================================================================+
+
+# Now, we'll repeat with C-like syntax.
+
+((a = 1))      # a=1
+# Double parentheses permit space when setting a variable, as in C.
+
+while (( a <= LIMIT ))   #  Double parentheses,
+do                       #+ and no "$" preceding variables.
+  echo -n "$a "
+  ((a += 1))             # let "a+=1"
+  # Yes, indeed.
+  # Double parentheses permit incrementing a variable with C-like syntax.
+done
+
+echo
+
+# C and Java programmers can feel right at home in Bash.
+
+exit 0
+}
+
+Inside its test brackets, a ◊code{while} loop can call a function.
+
+◊example{
+t=0
+
+condition ()
+{
+  ((t++))
+
+  if [ $t -lt 5 ]
+  then
+    return 0  # true
+  else
+    return 1  # false
+  fi
+}
+
+while condition
+#     ^^^^^^^^^
+#     Function call -- four loop iterations.
+do
+  echo "Still going: t = $t"
+done
+
+# Still going: t = 1
+# Still going: t = 2
+# Still going: t = 3
+# Still going: t = 4
+}
+
+Similar to the ◊code{if-test} construct, a ◊code{while} loop can omit
+the test brackets.
+
+◊example{
+while condition
+do
+   command(s) ...
+done
+}
+
+By coupling the power of the ◊code{read} command with a ◊code{while}
+loop, we get the handy while read construct, useful for reading and
+parsing files.
+
+◊example{
+cat $filename |   # Supply input from a file.
+while read line   # As long as there is another line to read ...
+do
+  ...
+done
+
+# =========== Snippet from "sd.sh" example script ========== #
+
+  while read value   # Read one data point at a time.
+  do
+    rt=$(echo "scale=$SC; $rt + $value" | bc)
+    (( ct++ ))
+  done
+
+  am=$(echo "scale=$SC; $rt / $ct" | bc)
+
+  echo $am; return $ct   # This function "returns" TWO values!
+  #  Caution: This little trick will not work if $ct > 255!
+  #  To handle a larger number of data points,
+  #+ simply comment out the "return $ct" above.
+# TODO: Buggy line <"$datafile"   # Feed in data file.
+}
+
+Note: A ◊code{while} loop may have its ◊code{stdin} redirected to a
+file by a ◊code{<} at its end.
+
+Note: A ◊code{while} loop may have its ◊code{stdin} supplied by a
+pipe.
+
+◊section{until}
 
 ◊; emacs:
 ◊; Local Variables:
