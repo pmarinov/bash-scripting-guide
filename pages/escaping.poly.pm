@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Escaping}
 ◊define-meta[page-description]{Quoting single characters}
 

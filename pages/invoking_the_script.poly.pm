@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Invoking the script}
 ◊define-meta[page-description]{Inoking a script from the command line}
 

@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{The Sha-Bang}
 ◊define-meta[page-description]{Starting Off With a Sha-Bang}
 

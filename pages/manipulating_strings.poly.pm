@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Manipulating strings}
 ◊define-meta[page-description]{Manipulating Strings}
 

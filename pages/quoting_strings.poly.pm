@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Quoting strings}
 ◊define-meta[page-description]{Interpretation of strings}
 

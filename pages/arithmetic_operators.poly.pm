@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Arithmetic operators}
 ◊define-meta[page-description]{Operators and expressions}
 

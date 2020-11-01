@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Internal Variables}
 ◊define-meta[page-description]{Internal variables ($HOME, $PATH, etc.)}
 

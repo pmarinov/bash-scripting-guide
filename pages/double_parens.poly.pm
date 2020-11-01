@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Double parens}
 ◊define-meta[page-description]{The Double-Parentheses Construct}
 

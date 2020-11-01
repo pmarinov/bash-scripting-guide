@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Introduction}
 ◊define-meta[page-description]{What is a UNIX shell}
 

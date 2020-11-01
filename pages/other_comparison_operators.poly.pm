@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Other comparison}
 ◊define-meta[page-description]{Other comparison operators}
 

@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Shell Programming!}
 ◊define-meta[page-description]{What is shell scripting}
 

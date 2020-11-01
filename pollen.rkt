@@ -29,6 +29,14 @@
 ;; (Lis of a lists, each note is an x-expression)
 (define footnotes null)
 
+;; Footnotes need to be reset at the beginning of each page
+(define (footnotes-reset)
+  (set! footnotes null))
+
+;; Init entities per page
+(define (page-init)
+  (footnotes-reset))
+
 ;; footnotes-render:
 ;; Render footnotes as an x-expression to be placed at the bottom of
 ;; the page

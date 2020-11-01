@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Precedence}
 ◊define-meta[page-description]{Operator Precedence}
 

@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{$RANDOM}
 ◊define-meta[page-description]{$RANDOM: generate random integer}
 

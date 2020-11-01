@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Variable Assignment}
 ◊define-meta[page-description]{The assignment operator}
 

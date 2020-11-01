@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Nested if/then}
 ◊define-meta[page-description]{Nested if/then Condition Tests}
 

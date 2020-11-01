@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Test constructs}
 ◊define-meta[page-description]{Tests constructs}
 

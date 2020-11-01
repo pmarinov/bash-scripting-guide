@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Legal}
 ◊define-meta[page-description]{License, Changelog, Rev history}
 

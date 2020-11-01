@@ -3,6 +3,7 @@
 ◊(require racket/math)
 ◊(require pollen/pagetree)
 
+◊page-init{}
 ◊define-meta[page-title]{Top}
 ◊define-meta[page-description]{Page0}
 ◊book-title{◊this-book-title}

@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Variable Types}
 ◊define-meta[page-description]{Special Variable Types}
 

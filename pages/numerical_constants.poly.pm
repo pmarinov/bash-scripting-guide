@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Numberical Constants}
 ◊define-meta[page-description]{Numerical Constants}
 

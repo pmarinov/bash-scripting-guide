@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Basics}
 ◊define-meta[page-description]{Special chars, variables}
 

@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Tests}
 ◊define-meta[page-description]{Tests}
 

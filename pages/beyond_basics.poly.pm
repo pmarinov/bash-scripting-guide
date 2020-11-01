@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Beyond Basics}
 ◊define-meta[page-description]{Beyond the Basics of Variables and Loops}
 

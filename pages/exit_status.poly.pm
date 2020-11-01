@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Exit Status}
 ◊define-meta[page-description]{Exiting and Exit Status}
 

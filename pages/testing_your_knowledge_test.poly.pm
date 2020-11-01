@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Test your knowledge}
 ◊define-meta[page-description]{Test Your Knowledge of Tests}
 

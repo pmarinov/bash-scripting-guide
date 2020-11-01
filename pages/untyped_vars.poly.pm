@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Untyped variables}
 ◊define-meta[page-description]{Bash Variables Are Untyped}
 

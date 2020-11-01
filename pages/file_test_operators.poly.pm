@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{File tests}
 ◊define-meta[page-description]{File test operators}
 

@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Special Characters}
 ◊define-meta[page-description]{Special Characters}
 

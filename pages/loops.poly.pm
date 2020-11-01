@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Loops}
 ◊define-meta[page-description]{Loop forms: "for", "while"}
 

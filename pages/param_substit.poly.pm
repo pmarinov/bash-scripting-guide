@@ -1,5 +1,6 @@
 #lang pollen
 
+◊page-init{}
 ◊define-meta[page-title]{Parameter Substitution}
 ◊define-meta[page-description]{Substitution in variables and parameters}
 
