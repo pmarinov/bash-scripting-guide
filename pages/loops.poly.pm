@@ -857,6 +857,73 @@ pipe.
 
 ◊section{until}
 
+This construct tests for a condition at the top of a loop, and keeps
+looping as long as that condition is false (opposite of ◊code{while}
+loop).
+
+◊example{
+until [ condition-is-true ]
+do
+ command(s)...
+done
+}
+
+Note that an ◊code{until} loop tests for the terminating condition at the top
+of the loop, differing from a similar construct in some programming
+languages.
+
+As is the case with ◊code{for} loops, placing the ◊code{do} on the
+same line as the condition test requires a semicolon.
+
+◊example{
+until [ condition-is-true ] ; do
+}
+
+Example
+
+◊example{
+#!/bin/bash
+
+END_CONDITION=end
+
+until [ "$var1" = "$END_CONDITION" ]
+# Tests condition here, at top of loop.
+do
+  echo "Input variable #1 "
+  echo "($END_CONDITION to exit)"
+  read var1
+  echo "variable #1 = $var1"
+  echo
+done
+
+#                     ---                        #
+
+#  As with "for" and "while" loops,
+#+ an "until" loop permits C-like test constructs.
+
+LIMIT=10
+var=0
+
+until (( var > LIMIT ))
+do  # ^^ ^     ^     ^^   No brackets, no $ prefixing variables.
+  echo -n "$var "
+  (( var++ ))
+done    # 0 1 2 3 4 5 6 7 8 9 10
+
+
+exit 0
+}
+
+◊section{Which loop is best}
+
+How to choose between a ◊code{for} loop or a ◊code{while} loop or
+◊code{until} loop? In C, you would typically use a ◊code{for} loop
+when the number of loop iterations is known beforehand. With Bash,
+however, the situation is fuzzier. The Bash ◊code{for} loop is more
+loosely structured and more flexible than its equivalent in other
+languages. Therefore, feel free to use whatever type of loop gets the
+job done in the simplest way.
+
 ◊; emacs:
 ◊; Local Variables:
 ◊; mode: fundamental
