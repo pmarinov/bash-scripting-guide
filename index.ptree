@@ -49,6 +49,7 @@ pages/exit_status.poly.pm
   pages/param_substit.poly.pm
   pages/loops.poly.pm
   pages/loop_control.poly.pm
+  pages/testing_and_branching.poly.pm
 }
 
 }
