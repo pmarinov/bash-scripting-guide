@@ -9,6 +9,8 @@ loops, since they do not iterate the execution of a code block. Like
 loops, however, they direct program flow according to conditions at
 the top or bottom of the block.
 
+◊section{case}
+
 ◊definition-block[#:type "code"]{
 ◊definition-entry[#:name "case (in) / esac"]{
 The ◊code{case} construct is the shell scripting analog to
@@ -399,12 +401,57 @@ exit 0        # Script improved by S.C.
 #+ but adds a test for a mandatory decimal point.
 }
 
+◊section{select}
+
 ◊definition-block[#:type "code"]{
 ◊definition-entry[#:name "select"]{
+The ◊code{select} construct, adopted from the Korn Shell, is yet
+another tool for building menus.
+
+◊example{
+select variable [in list]
+do
+ command...
+ break
+done
+}
 
 }
 
 } ◊;definition-block
+
+◊section-example[#:anchor "select_menu1"]{Creating menus using select}
+
+This prompts the user to enter one of the choices presented in the
+variable list. Note that ◊code{select} uses the ◊code{$PS3} prompt
+(◊code{#? }) by default, but this may be changed.
+
+◊example{
+#!/bin/bash
+
+PS3='Choose your favorite vegetable: ' # Sets the prompt string.
+                                       # Otherwise it defaults to #? .
+
+echo
+
+select vegetable in "beans" "carrots" "potatoes" "onions" "rutabagas"
+do
+  echo
+  echo "Your favorite veggie is $vegetable."
+  echo "Yuck!"
+  echo
+  break  # What happens if there is no 'break' here?
+done
+
+exit
+
+# Exercise:
+# --------
+#  Fix this script to accept user input not specified in
+#+ the "select" statement.
+#  For example, if the user inputs "peas,"
+#+ the script would respond "Sorry. That is not on the menu."
+}
 
 ◊; emacs:
 ◊; Local Variables:
