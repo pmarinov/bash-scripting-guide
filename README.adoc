@@ -27,6 +27,49 @@ Motivation for the new edition:
   is a program"]
 * To invite contributions by hosting on GitHub
 
+== How to build ==
+
+Use `apt` to install `racket`:
+
+....
+$ apt install racket
+
+$ racket --version
+....
+
+Racket v7.0 is minimum
+
+Use `raco pkg` to install Pollen:
+
+....
+$ raco pkg install pollen
+....
+
+Installs in `~/.racket/7.2/pkgs`
+
+To read the documentation:
+
+....
+$ raco docs pollen
+....
+
+Also the book "Pollen: the book is a program" is at:
+`~/.racket/7.2/pkgs/pollen/pollen/doc/pollen/index.html`
+
+One more package:
+
+....
+$ raco pkg install debug
+....
+
+Now build the project via `make`:
+
+....
+$ make all
+....
+
+TODO: Describe output folders
+
 == License ==
 
 Public Domain, see {license}[LICENSE.txt]
