@@ -453,6 +453,45 @@ exit
 #+ the script would respond "Sorry. That is not on the menu."
 }
 
+◊section-example[#:anchor "select_no_list1"]{Creating menus using
+select in a function}
+
+If ◊code{in list} is omitted, then ◊code{select} uses the list of
+command line arguments (◊code{$◊escaped{@}}) passed to the script or the
+function containing the ◊code{select} construct.
+
+Compare this to the behavior of a ◊code{for variable [in list]}
+construct with the ◊code{in list} omitted.
+
+◊example{
+#!/bin/bash
+
+PS3='Choose your favorite vegetable: '
+
+echo
+
+choice_of()
+{
+select vegetable
+# [in list] omitted, so 'select' uses arguments passed to function.
+do
+  echo
+  echo "Your favorite veggie is $vegetable."
+  echo "Yuck!"
+  echo
+  break
+done
+}
+
+choice_of beans rice carrots radishes rutabaga spinach
+#         $1    $2   $3      $4       $5       $6
+#         passed to choice_of() function
+
+exit 0
+}
+
+See also TODO Example 37-3.
+
 ◊; emacs:
 ◊; Local Variables:
 ◊; mode: fundamental
