@@ -60,7 +60,7 @@ $(pages-texi): %.texi: %.poly.pm
 
 # Info pages: Compile the texi into info
 page0.info: $(pages-texi)
-	makeinfo pages/page0.texi
+	makeinfo --no-split pages/page0.texi
 
 # Home page folder on the web
 home/bash-scripting-guide.info: page0.info

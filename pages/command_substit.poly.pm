@@ -5,7 +5,7 @@
 
 ◊page-init{}
 ◊define-meta[page-title]{Command Substitution}
-◊define-meta[page-description]{Command Substitution}
+◊define-meta[page-description]{Command Substitution and Arithmetic Expansion}
 
 Command substitution reassigns the output of a command or even
 multiple commands; it literally plugs the command output into another
@@ -171,6 +171,7 @@ nesting. ◊footnote{In fact, nesting with backticks is also possible,
 but only by escaping the inner backticks, as John Default points
 out. ◊code{word_count=` wc -w \`echo * | awk '◊escaped{"{"}print
 $8◊escaped{"}"}'\` `}}
+◊; TODO: The escaped doesn't work in case of HTML & INFO here
 
 ◊example{
 word_count=$( wc -w $(echo * | awk '{print $8}') )
@@ -329,6 +330,66 @@ echo "string-length of \$dangerous_variable = ${#dangerous_variable}"
 
 exit 0
 }
+
+TODO put long list of examples here
+
+◊section{Arithmetic Expansion}
+
+Arithmetic expansion provides a powerful tool for performing (integer)
+arithmetic operations in scripts. Translating a string into a
+numerical expression is relatively straightforward using backticks,
+double parentheses, or ◊code{let}.
+
+◊definition-block[#:type "variables"]{
+◊definition-entry[#:name "backticks"]{
+Arithmetic expansion with backticks (often used in conjunction with
+◊code{expr})
+
+◊example{
+z=`expr $z + 3`          # The 'expr' command performs the expansion.
+}
+
+}
+
+◊definition-entry[#:name "double parentheses"]{
+Arithmetic expansion with double parentheses, and using ◊code{let}
+
+The use of backticks (backquotes) in arithmetic expansion has been
+superseded by double parentheses -- ◊code{((...))} and ◊code{$((...))}
+-- and also by the very convenient let construction.
+
+◊example{
+z=$(($z+3))
+z=$((z+3))                                  #  Also correct.
+                                            #  Within double parentheses,
+                                            #+ parameter dereferencing
+                                            #+ is optional.
+
+# $((EXPRESSION)) is arithmetic expansion.  #  Not to be confused with
+                                            #+ command substitution.
+
+
+
+# You may also use operations within double parentheses without assignment.
+
+  n=0
+  echo "n = $n"                             # n = 0
+
+  (( n += 1 ))                              # Increment.
+# (( $n += 1 )) is incorrect!
+  echo "n = $n"                             # n = 1
+
+
+let z=z+3
+let "z += 3"  #  Quotes permit the use of spaces in variable assignment.
+              #  The 'let' operator actually performs arithmetic evaluation,
+              #+ rather than expansion.
+}
+}
+
+}
+
+TODO put long list of examples here
 
 ◊; emacs:
 ◊; Local Variables:
