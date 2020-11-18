@@ -53,4 +53,8 @@ pages/exit_status.poly.pm
   pages/command_substit.poly.pm
 }
 
+◊pages/commands.poly.pm{
+  pages/commands_internal.poly.pm
+}
+
 }
