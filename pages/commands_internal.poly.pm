@@ -93,7 +93,7 @@ echo "Why doesn't this string \n split on two lines?"
 # Let's try something else.
 
 echo
-	     
+
 echo $"A line of text containing
 a linefeed."
 # Prints as two distinct lines (embedded linefeed).
@@ -150,7 +150,7 @@ The ◊code{printf}, formatted print, command is an enhanced
 library function, and its syntax is somewhat different.
 
 ◊example{
-printf format-string... parameter... 
+printf format-string... parameter...
 }
 
 This is the Bash builtin version of the ◊fname{/bin/printf} or
@@ -190,7 +190,7 @@ echo
 # Simulation of C function, sprintf().
 # Loading a variable with a formatted string.
 
-echo 
+echo
 
 Pi12=$(printf "%1.12f" $PI)
 echo "Pi to 12 decimal places = $Pi12"      # Roundoff error!
@@ -350,7 +350,7 @@ echo "var2 = $var2"
 
 # Data entry terminates with the first <ENTER>.
 
-echo 
+echo
 
 exit 0
 }
@@ -625,7 +625,7 @@ exit 0  # End of code.
 
 #############################################
 
-./readpipe.sh 
+./readpipe.sh
 
 {#!/bin/sh}
 {last="(null)"}
@@ -662,6 +662,102 @@ Tip: It is possible to paste text into the input field of a
 }
 
 ◊section{Filesystem}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "cd"]{
+The familiar ◊command{cd} change directory command finds use in scripts
+where execution of a command requires being in a specified directory.
+
+◊example{
+(cd /source/directory && tar cf - . ) | (cd /dest/directory && tar xpvf -)
+}
+
+The ◊code{-P} (physical) option to ◊command{cd} causes it to ignore
+symbolic links.
+
+◊command{cd -} changes to ◊code{$OLDPWD}, the previous working
+directory.
+
+Caution: The ◊command{cd} command does not function as expected when
+presented with two forward slashes.
+
+◊example{
+bash$ cd //
+bash$ pwd
+//
+}
+
+The output should, of course, be ◊code{/}. This is a problem both from
+the command-line and in a script.
+
+}
+
+◊definition-entry[#:name "pwd"]{
+Print Working Directory. This gives the user's (or script's) current
+directory (see TODO Example 15-9). The effect is identical to reading
+the value of the builtin variable ◊code{$PWD}.
+
+}
+
+◊definition-entry[#:name "pushd, popd, dirs"]{
+This command set is a mechanism for bookmarking working directories, a
+means of moving back and forth through directories in an orderly
+manner. A pushdown stack is used to keep track of directory
+names. Options allow various manipulations of the directory stack.
+
+◊command{pushd dir-name} pushes the path dir-name onto the directory
+stack (to the top of the stack) and simultaneously changes the current
+working directory to dir-name
+
+◊command{popd} removes (pops) the top directory path name off the
+directory stack and simultaneously changes the current working
+directory to the directory now at the top of the stack.
+
+◊command{dirs} lists the contents of the directory stack (compare this
+with the ◊code{$DIRSTACK} variable). A successful ◊command{pushd} or
+◊command{popd} will automatically invoke ◊command{dirs}.
+
+Scripts that require various changes to the current working directory
+without hard-coding the directory name changes can make good use of
+these commands. Note that the implicit ◊code{$DIRSTACK} array variable,
+accessible from within a script, holds the contents of the directory
+stack.
+
+◊example{
+#!/bin/bash
+
+dir1=/usr/local
+dir2=/var/spool
+
+pushd $dir1
+# Will do an automatic 'dirs' (list directory stack to stdout).
+echo "Now in directory `pwd`." # Uses back-quoted 'pwd'.
+
+# Now, do some stuff in directory 'dir1'.
+pushd $dir2
+echo "Now in directory `pwd`."
+
+# Now, do some stuff in directory 'dir2'.
+echo "The top entry in the DIRSTACK array is $DIRSTACK."
+popd
+echo "Now back in directory `pwd`."
+
+# Now, do some more stuff in directory 'dir1'.
+popd
+echo "Now back in original working directory `pwd`."
+
+exit 0
+
+# What happens if you don't 'popd' -- then exit the script?
+# Which directory do you end up in? Why?
+}
+
+}
+
+}
+
+◊section{Variables}
 
 ◊; emacs:
 ◊; Local Variables:
