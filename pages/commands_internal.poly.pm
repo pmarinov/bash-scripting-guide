@@ -759,6 +759,378 @@ exit 0
 
 ◊section{Variables}
 
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "let"]{
+The ◊code{let} command carries out arithmetic operations on
+variables. In many cases, it functions as a less complex version
+of ◊code{expr}.
+
+Note: ◊code{let} cannot be used for setting string variables.
+
+◊example{
+#!/bin/bash
+
+echo
+
+let a=11            # Same as 'a=11'
+let a=a+5           # Equivalent to  let "a = a + 5"
+                    # (Double quotes and spaces make it more readable.)
+echo "11 + 5 = $a"  # 16
+
+let "a <<= 3"       # Equivalent to  let "a = a << 3"
+echo "\"\$a\" (=16) left-shifted 3 places = $a"
+                    # 128
+
+let "a /= 4"        # Equivalent to  let "a = a / 4"
+echo "128 / 4 = $a" # 32
+
+let "a -= 5"        # Equivalent to  let "a = a - 5"
+echo "32 - 5 = $a"  # 27
+
+let "a *=  10"      # Equivalent to  let "a = a * 10"
+echo "27 * 10 = $a" # 270
+
+let "a %= 8"        # Equivalent to  let "a = a % 8"
+echo "270 modulo 8 = $a  (270 / 8 = 33, remainder $a)"
+                    # 6
+
+
+# Does "let" permit C-style operators?
+# Yes, just as the (( ... )) double-parentheses construct does.
+
+let a++             # C-style (post) increment.
+echo "6++ = $a"     # 6++ = 7
+let a--             # C-style decrement.
+echo "7-- = $a"     # 7-- = 6
+# Of course, ++a, etc., also allowed . . .
+echo
+
+
+# Trinary operator.
+
+# Note that $a is 6, see above.
+let "t = a<7?7:11"   # True
+echo $t  # 7
+
+let a++
+let "t = a<7?7:11"   # False
+echo $t  #     11
+
+exit
+}
+
+Caution: The let command can, in certain contexts, return a surprising exit status.
+
+◊example{
+# Evgeniy Ivanov points out:
+
+var=0
+echo $?     # 0
+            # As expected.
+
+let var++
+echo $?     # 1
+            # The command was successful, so why isn't $?=0 ???
+            # Anomaly!
+
+let var++
+echo $?     # 0
+            # As expected.
+
+
+# Likewise . . .
+
+let var=0
+echo $?     # 1
+            # The command was successful, so why isn't $?=0 ???
+
+#  However, as Jeff Gorak points out,
+#+ this is part of the design spec for 'let' . . .
+# "If the last ARG evaluates to 0, let returns 1;
+#  let returns 0 otherwise." ['help let']
+}
+
+}
+
+◊definition-entry[#:name "eval"]{
+Combines the arguments in an expression or list of expressions and
+evaluates them. Any variables within the expression are expanded. The
+net result is to convert a string into a command.
+
+◊example{
+eval arg1 [arg2] ... [argN]
+}
+
+Tip: The ◊code{eval} command can be used for code generation from the
+command-line or within a script.
+
+◊example{
+bash$ command_string="ps ax"
+bash$ process="ps ax"
+bash$ eval "$command_string" | grep "$process"
+26973 pts/3    R+     0:00 grep --color ps ax
+26974 pts/3    R+     0:00 ps ax
+}
+
+Each invocation of ◊code{eval} forces a re-evaluation of its
+arguments.
+
+◊example{
+a='$b'
+b='$c'
+c=d
+
+echo $a             # $b
+                    # First level.
+eval echo $a        # $c
+                    # Second level.
+eval eval echo $a   # d
+                    # Third level.
+
+# Thank you, E. Choroba.
+}
+
+◊anchored-example[#:anchor "eval_effect1"]{Showing the effect of eval}
+
+◊example{
+#!/bin/bash
+# Exercising "eval" ...
+
+y=`eval ls -l`  #  Similar to y=`ls -l`
+echo $y         #+ but linefeeds removed because "echoed" variable is unquoted.
+echo
+echo "$y"       #  Linefeeds preserved when variable is quoted.
+
+echo; echo
+
+y=`eval df`     #  Similar to y=`df`
+echo $y         #+ but linefeeds removed.
+
+#  When LF's not preserved, it may make it easier to parse output,
+#+ using utilities such as "awk".
+
+echo
+echo "==========================================================="
+echo
+
+eval "`seq 3 | sed -e 's/.*/echo var&=ABCDEFGHIJ/'`"
+# var1=ABCDEFGHIJ
+# var2=ABCDEFGHIJ
+# var3=ABCDEFGHIJ
+
+echo
+echo "==========================================================="
+echo
+
+
+# Now, showing how to do something useful with "eval" . . .
+# (Thank you, E. Choroba!)
+
+version=3.4     #  Can we split the version into major and minor
+                #+ part in one command?
+echo "version = $version"
+eval major=${version/./;minor=}     #  Replaces '.' in version by ';minor='
+                                    #  The substitution yields '3; minor=4'
+                                    #+ so eval does minor=4, major=3
+echo Major: $major, minor: $minor   #  Major: 3, minor: 4
+}
+
+◊anchored-example[#:anchor "eval_selvar1"]{Using eval to select among
+variables}
+
+◊example{
+#!/bin/bash
+# arr-choice.sh
+
+#  Passing arguments to a function to select
+#+ one particular variable out of a group.
+
+arr0=( 10 11 12 13 14 15 )
+arr1=( 20 21 22 23 24 25 )
+arr2=( 30 31 32 33 34 35 )
+#       0  1  2  3  4  5      Element number (zero-indexed)
+
+
+choose_array ()
+{
+  eval array_member=\${arr${array_number}[element_number]}
+  #                 ^       ^^^^^^^^^^^^
+  #  Using eval to construct the name of a variable,
+  #+ in this particular case, an array name.
+
+  echo "Element $element_number of array $array_number is $array_member"
+} #  Function can be rewritten to take parameters.
+
+array_number=0    # First array.
+element_number=3
+choose_array      # 13
+
+array_number=2    # Third array.
+element_number=4
+choose_array      # 34
+
+array_number=3    # Null array (arr3 not allocated).
+element_number=4
+choose_array      # (null)
+
+# Thank you, Antonio Macchi, for pointing this out.
+}
+
+◊anchored-example[#:anchor "eval_echo1"]{Echoing the command-line
+parameters}
+
+◊example{
+#!/bin/bash
+# echo-params.sh
+
+# Call this script with a few command-line parameters.
+# For example:
+#     sh echo-params.sh first second third fourth fifth
+
+params=$#              # Number of command-line parameters.
+param=1                # Start at first command-line param.
+
+while [ "$param" -le "$params" ]
+do
+  echo -n "Command-line parameter "
+  echo -n \$$param     #  Gives only the *name* of variable.
+#         ^^^          #  $1, $2, $3, etc.
+                       #  Why?
+                       #  \$ escapes the first "$"
+                       #+ so it echoes literally,
+                       #+ and $param dereferences "$param" . . .
+                       #+ . . . as expected.
+  echo -n " = "
+  eval echo \$$param   #  Gives the *value* of variable.
+# ^^^^      ^^^        #  The "eval" forces the *evaluation*
+                       #+ of \$$
+                       #+ as an indirect variable reference.
+
+(( param ++ ))         # On to the next.
+done
+
+exit $?
+
+# =================================================
+
+$ sh echo-params.sh first second third fourth fifth
+Command-line parameter $1 = first
+Command-line parameter $2 = second
+Command-line parameter $3 = third
+Command-line parameter $4 = fourth
+Command-line parameter $5 = fifth
+}
+
+◊anchored-example[#:anchor "eval_logoff1"]{Forcing a log-off}
+
+◊example{
+#!/bin/bash
+# Killing ppp to force a log-off.
+# For dialup connection, of course.
+
+# Script should be run as root user.
+
+SERPORT=ttyS3
+#  Depending on the hardware and even the kernel version,
+#+ the modem port on your machine may be different --
+#+ /dev/ttyS1 or /dev/ttyS2.
+
+
+killppp="eval kill -9 `ps ax | awk '/ppp/ { print $1 }'`"
+#                     -------- process ID of ppp -------
+
+$killppp                     # This variable is now a command.
+
+
+# The following operations must be done as root user.
+
+chmod 666 /dev/$SERPORT      # Restore r+w permissions, or else what?
+#  Since doing a SIGKILL on ppp changed the permissions on the serial port,
+#+ we restore permissions to previous state.
+
+rm /var/lock/LCK..$SERPORT   # Remove the serial port lock file. Why?
+
+exit $?
+
+# Exercises:
+# ---------
+# 1) Have script check whether root user is invoking it.
+# 2) Do a check on whether the process to be killed
+#+   is actually running before attempting to kill it.
+# 3) Write an alternate version of this script based on 'fuser':
+#+      if [ fuser -s /dev/modem ]; then . . .
+}
+
+◊anchored-example[#:anchor "eval_rot1"]{A version of rot13}
+
+◊example{
+#!/bin/bash
+# A version of "rot13" using 'eval'.
+# Compare to "rot13.sh" example.
+
+setvar_rot_13()              # "rot13" scrambling
+{
+  local varname=$1 varvalue=$2
+  eval $varname='$(echo "$varvalue" | tr a-z n-za-m)'
+}
+
+
+setvar_rot_13 var "foobar"   # Run "foobar" through rot13.
+echo $var                    # sbbone
+
+setvar_rot_13 var "$var"     # Run "sbbone" through rot13.
+                             # Back to original variable.
+echo $var                    # foobar
+
+# This example by Stephane Chazelas.
+# Modified by document author.
+
+exit 0
+}
+
+Here is another example of using ◊code{eval} to evaluate a complex
+expression, this one from an earlier version of YongYe's Tetris game
+script.
+
+◊example{
+eval ${1}+=\"${x} ${y} \"
+}
+
+TODO Example A-53 uses ◊code{eval} to convert array elements into a
+command list.
+
+The ◊code{eval} command occurs in the older version of indirect
+referencing.
+
+◊example{
+eval var=\$$var
+}
+
+Tip: The ◊code{eval} command can be used to parameterize brace
+expansion.
+
+Caution: The ◊code{eval} command can be risky, and normally should be
+avoided when there exists a reasonable alternative. An ◊code{eval
+$COMMANDS} executes the contents of ◊code{COMMANDS}, which may contain
+such unpleasant surprises as ◊code{rm -rf *}. Running an ◊code{eval}
+on unfamiliar code written by persons unknown is living dangerously.
+
+}
+
+◊definition-entry[#:name "set"]{
+
+The ◊code{set} command changes the value of internal script
+variables/options. One use for this is to toggle option flags which
+help determine the behavior of the script. Another application for it
+is to reset the positional parameters that a script sees as the result
+of a command (◊code{set `command`}). The script can then parse the
+fields of the command output.
+
+}
+
+}
+
 ◊; emacs:
 ◊; Local Variables:
 ◊; mode: fundamental
