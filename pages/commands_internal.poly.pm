@@ -1176,7 +1176,7 @@ More fun with positional parameters.
 
 
 set a\ b c d\ e;
-#     ^      ^     Spaces escaped 
+#     ^      ^     Spaces escaped
 #       ^ ^        Spaces not escaped
 OIFS=$IFS; IFS=:;
 #              ^   Saving old IFS and setting new one.
@@ -1219,7 +1219,7 @@ exit 0
 
 $ ./revposparams.sh
 
-### k0 = 
+### k0 =
 ### k = a b
 
 ### k0 = a b
@@ -1252,8 +1252,99 @@ AUTHORCOPY=/home/bozo/posts
  variable23=xzy
 }
 
+
+◊anchored-example[#:anchor "set_rev1"]{Reassigning the positional parameters}
+
+Using ◊code{set} with the ◊code{--} option explicitly assigns the contents of
+a variable to the positional parameters. If no variable follows the --
+it unsets the positional parameters.
+
+◊example{
+#!/bin/bash
+
+variable="one two three four five"
+
+set -- $variable
+# Sets positional parameters to the contents of "$variable".
+
+first_param=$1
+second_param=$2
+shift; shift        # Shift past first two positional params.
+# shift 2             also works.
+remaining_params="$*"
+
+echo
+echo "first parameter = $first_param"             # one
+echo "second parameter = $second_param"           # two
+echo "remaining parameters = $remaining_params"   # three four five
+
+echo; echo
+
+# Again.
+set -- $variable
+first_param=$1
+second_param=$2
+echo "first parameter = $first_param"             # one
+echo "second parameter = $second_param"           # two
+
+# ======================================================
+
+set --
+# Unsets positional parameters if no variable specified.
+
+first_param=$1
+second_param=$2
+echo "first parameter = $first_param"             # (null value)
+echo "second parameter = $second_param"           # (null value)
+
+exit 0
 }
 
+See also TODO Example 11-2 and Example 16-56.
+
+}
+
+◊definition-entry[#:name "unset"]{
+The unset command deletes a shell variable, effectively setting it to
+null. Note that this command does not affect positional parameters.
+
+◊example{
+bash$ unset PATH
+
+bash$ echo $PATH
+
+
+bash$
+}
+
+"Unsetting" a variable in a script:
+
+◊example{
+#!/bin/bash
+# unset.sh: Unsetting a variable.
+
+variable=hello                       #  Initialized.
+echo "variable = $variable"
+
+unset variable                       #  Unset.
+                                     #  In this particular context,
+                                     #+ same effect as:   variable=
+echo "(unset) variable = $variable"  #  $variable is null.
+
+if [ -z "$variable" ]                #  Try a string-length test.
+then
+  echo "\$variable has zero length."
+fi
+
+exit 0
+}
+
+
+Note: In most contexts, an undeclared variable and one that has been
+unset are equivalent. However, the ◊code{$◊escaped{◊"{"}parameter:-default◊escaped{◊"}"}} parameter
+substitution construct can distinguish between the two.
+
+}
 
 }
 
