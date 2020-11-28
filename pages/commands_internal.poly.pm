@@ -1346,7 +1346,224 @@ substitution construct can distinguish between the two.
 
 }
 
+◊definition-entry[#:name "export"]{
+
+The ◊code{export} command makes available variables to all child
+processes of the running script or shell. One important use of the
+◊code{export} command is in startup files, to initialize and make accessible
+environmental variables to subsequent user processes.
+
+Caution: Unfortunately, there is no way to export variables back to
+the parent process, to the process that called or invoked the script
+or shell.
+
+◊anchored-example[#:anchor "export_awk1"]{Using export to pass a
+variable to an embedded awk script}
+
+◊example{
+#!/bin/bash
+
+#  Yet another version of the "column totaler" script (col-totaler.sh)
+#+ that adds up a specified column (of numbers) in the target file.
+#  This uses the environment to pass a script variable to 'awk' . . .
+#+ and places the awk script in a variable.
+
+
+ARGS=2
+E_WRONGARGS=85
+
+if [ $# -ne "$ARGS" ] # Check for proper number of command-line args.
+then
+   echo "Usage: `basename $0` filename column-number"
+   exit $E_WRONGARGS
+fi
+
+filename=$1
+column_number=$2
+
+#===== Same as original script, up to this point =====#
+
+export column_number
+# Export column number to environment, so it's available for retrieval.
+
+
+# -----------------------------------------------
+awkscript='{ total += $ENVIRON["column_number"] }
+END { print total }'
+# Yes, a variable can hold an awk script.
+# -----------------------------------------------
+
+# Now, run the awk script.
+awk "$awkscript" "$filename"
+
+# Thanks, Stephane Chazelas.
+
+exit 0
 }
+
+Tip: It is possible to initialize and export variables in the same
+operation, as in ◊code{export var1=xxx}.
+
+However, in certain situations this may have a different effect than
+setting a variable, then exporting it.
+
+◊example{
+bash$ export var=(a b); echo ${var[0]}
+(a b)
+
+bash$ var=(a b); export var; echo ${var[0]}
+a
+}
+
+Note: A variable to be exported may require special treatment. See
+TODO Example M-2.
+}
+
+◊definition-entry[#:name "declare, typeset"]{
+
+The ◊code{declare} and ◊code{typeset} commands specify and/or restrict
+properties of variables.
+
+TODO See chapter "Typing variables: declare or typeset"
+}
+
+◊definition-entry[#:name "readonly"]{
+
+Same as ◊code{declare -r}, sets a variable as read-only, or, in effect, as a
+constant. Attempts to change the variable fail with an error
+message. This is the shell analog of the C language ◊code{const} type
+qualifier.
+
+TODO See chapter "Typing variables: declare or typeset"
+}
+
+◊definition-entry[#:name "getopts"]{
+
+This powerful tool parses command-line arguments passed to the
+script. This is the Bash analog of the ◊command{getopt} external
+command and the ◊code{getopt} library function familiar to C
+programmers. It permits passing and concatenating multiple options [5]
+and associated arguments to a script (for example ◊command{scriptname
+-abc -e /usr/local}).
+
+The ◊code{getopts} construct uses two implicit
+variables. ◊code{$OPTIND} is the argument pointer (OPTion INDex) and
+◊code{$OPTARG} (OPTion ARGument) the (optional) argument attached to
+an option. A colon following the option name in the declaration tags
+that option as having an associated argument.
+
+A getopts construct usually comes packaged in a ◊code{while} loop,
+which processes the options and arguments one at a time, then
+increments the implicit ◊code{$OPTIND} variable to point to the next.
+
+Note: The arguments passed from the command-line to the script must be
+preceded by a dash (◊code{-}). It is the prefixed - that lets getopts
+recognize command-line arguments as options. In fact, getopts will not
+process arguments without the prefixed ◊code{-}, and will terminate
+option processing at the first argument encountered lacking them.
+
+Note: The ◊code{getopts} template differs slightly from the standard
+while loop, in that it lacks condition brackets.
+
+Note: The ◊code{getopts} construct is a highly functional replacement
+for the traditional ◊code{getopt} external command.
+
+◊example{
+while getopts ":abcde:fg" Option
+# Initial declaration.
+# a, b, c, d, e, f, and g are the options (flags) expected.
+# The : after option 'e' shows it will have an argument passed with it.
+do
+  case $Option in
+    a ) # Do something with variable 'a'.
+    b ) # Do something with variable 'b'.
+    ...
+    e)  # Do something with 'e', and also with $OPTARG,
+        # which is the associated argument passed with option 'e'.
+    ...
+    g ) # Do something with variable 'g'.
+  esac
+done
+shift $(($OPTIND - 1))
+# Move argument pointer to next.
+
+# All this is not nearly as complicated as it looks <grin>.
+}
+
+◊anchored-example[#:anchor "getopt1"]{Using getopts to read the
+options/arguments passed to a script}
+
+◊example{
+#!/bin/bash
+# ex33.sh: Exercising getopts and OPTIND
+#          Script modified 10/09/03 at the suggestion of Bill Gradwohl.
+
+
+# Here we observe how 'getopts' processes command-line arguments to script.
+# The arguments are parsed as "options" (flags) and associated arguments.
+
+# Try invoking this script with:
+#   'scriptname -mn'
+#   'scriptname -oq qOption' (qOption can be some arbitrary string.)
+#   'scriptname -qXXX -r'
+#
+#   'scriptname -qr'
+#+      - Unexpected result, takes "r" as the argument to option "q"
+#   'scriptname -q -r'
+#+      - Unexpected result, same as above
+#   'scriptname -mnop -mnop'  - Unexpected result
+#   (OPTIND is unreliable at stating where an option came from.)
+#
+#  If an option expects an argument ("flag:"), then it will grab
+#+ whatever is next on the command-line.
+
+NO_ARGS=0
+E_OPTERROR=85
+
+if [ $# -eq "$NO_ARGS" ]    # Script invoked with no command-line args?
+then
+  echo "Usage: `basename $0` options (-mnopqrs)"
+  exit $E_OPTERROR          # Exit and explain usage.
+                            # Usage: scriptname -options
+                            # Note: dash (-) necessary
+fi
+
+
+while getopts ":mnopq:rs" Option
+do
+  case $Option in
+    m     ) echo "Scenario #1: option -m-   [OPTIND=${OPTIND}]";;
+    n | o ) echo "Scenario #2: option -$Option-   [OPTIND=${OPTIND}]";;
+    p     ) echo "Scenario #3: option -p-   [OPTIND=${OPTIND}]";;
+    q     ) echo "Scenario #4: option -q-\
+                  with argument \"$OPTARG\"   [OPTIND=${OPTIND}]";;
+    #  Note that option 'q' must have an associated argument,
+    #+ otherwise it falls through to the default.
+    r | s ) echo "Scenario #5: option -$Option-";;
+    *     ) echo "Unimplemented option chosen.";;   # Default.
+  esac
+done
+
+shift $(($OPTIND - 1))
+#  Decrements the argument pointer so it points to next argument.
+#  $1 now references the first non-option item supplied on the command-line
+#+ if one exists.
+
+exit $?
+
+#   As Bill Gradwohl states,
+#  "The getopts mechanism allows one to specify:  scriptname -mnop -mnop
+#+  but there is no reliable way to differentiate what came
+#+ from where by using OPTIND."
+#  There are, however, workarounds.
+}
+
+}
+
+}
+
+◊section{Script Behavior}
+
 
 ◊; emacs:
 ◊; Local Variables:
