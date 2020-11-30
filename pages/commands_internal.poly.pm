@@ -1564,6 +1564,326 @@ exit $?
 
 ◊section{Script Behavior}
 
+◊definition-block[#:type "code"]{
+◊definition-entry[#:name "surce, . (dot command)"]{
+This command, when invoked from the command-line, executes a
+script. Within a script, a ◊code{source file-name} loads the file
+◊fname{file-name}. Sourcing a file (dot-command) imports code into the
+script, appending to the script (same effect as the ◊code{#include}
+directive in a C program). The net result is the same as if the
+"sourced" lines of code were physically present in the body of the
+script. This is useful in situations when multiple scripts use a
+common data file or function library.
+
+◊example{
+#!/bin/bash
+#  Note that this example must be invoked with bash, i.e., bash ex38.sh
+#+ not  sh ex38.sh !
+
+. data-file    # Load a data file.
+# Same effect as "source data-file", but more portable.
+
+#  The file "data-file" must be present in current working directory,
+#+ since it is referred to by its basename.
+
+# Now, let's reference some data from that file.
+
+echo "variable1 (from data-file) = $variable1"
+echo "variable3 (from data-file) = $variable3"
+
+let "sum = $variable2 + $variable4"
+echo "Sum of variable2 + variable4 (from data-file) = $sum"
+echo "message1 (from data-file) is \"$message1\""
+#                                  Escaped quotes
+echo "message2 (from data-file) is \"$message2\""
+
+print_message This is the message-print function in the data-file.
+
+exit $?
+}
+
+File data-file for example above. Must be present in same directory.
+
+◊example{
+# This is a data file loaded by a script.
+# Files of this type may contain variables, functions, etc.
+# It loads with a 'source' or '.' command from a shell script.
+
+# Let's initialize some variables.
+
+variable1=23
+variable2=474
+variable3=5
+variable4=97
+
+message1="Greetings from *** line $LINENO *** of the data file!"
+message2="Enough for now. Goodbye."
+
+print_message ()
+{   # Echoes any message passed to it.
+
+  if [ -z "$1" ]
+  then
+    return 1 # Error, if argument missing.
+  fi
+
+  echo
+
+  until [ -z "$1" ]
+  do             # Step through arguments passed to function.
+    echo -n "$1" # Echo args one at a time, suppressing line feeds.
+    echo -n " "  # Insert spaces between words.
+    shift        # Next one.
+  done
+
+  echo
+
+  return 0
+}
+}
+
+If the sourced file is itself an executable script, then it will run,
+then return control to the script that called it. A sourced executable
+script may use a ◊code{return} for this purpose.
+
+Arguments may be (optionally) passed to the sourced file as positional
+parameters: ◊code{source $filename $arg1 arg2}
+
+}
+
+◊definition-entry[#:name "exit"]{
+Unconditionally terminates a script. The ◊code{exit} command may
+optionally take an integer argument, which is returned to the shell as
+the exit status of the script. It is good practice to end all but the
+simplest scripts with an ◊code{exit 0}, indicating a successful
+run. ◊footnote{Technically, an exit only terminates the process (or
+shell) in which it is running, not the parent process.}
+
+Note: If a script terminates with an exit lacking an argument, the
+exit status of the script is the exit status of the last command
+executed in the script, not counting the ◊code{exit}. This is
+equivalent to an ◊code{exit $?}.
+
+Note: An ◊code{exit} command may also be used to terminate a subshell.
+
+}
+
+◊definition-entry[#:name "exec"]{ This shell builtin replaces the
+current process with a specified command. Normally, when the shell
+encounters a command, it forks off a child process to actually execute
+the command. Using the ◊code{exec} builtin, the shell does not fork,
+and the command exec'ed replaces the shell. When used in a script,
+therefore, it forces an exit from the script when the exec'ed command
+terminates ◊footnote{Unless the exec is used to reassign file
+descriptors. TODO See I/O redirect}
+
+◊example{
+#!/bin/bash
+
+exec echo "Exiting \"$0\" at line $LINENO."   # Exit from script here.
+# $LINENO is an internal Bash variable set to the line number it's on.
+
+# ----------------------------------
+# The following lines never execute.
+
+echo "This echo fails to echo."
+
+exit 99                       #  This script will not exit here.
+                              #  Check exit value after script terminates
+                              #+ with an 'echo $?'.
+                              #  It will *not* be 99.
+}
+
+An exec also serves to reassign file descriptors. For example,
+◊code{exec <zzz-file} replaces ◊fname{stdin} with the file
+◊fname{zzz-file}.
+
+Note: The ◊code{-exec} option to find is not the same as the
+◊code{exec} shell builtin.
+
+}
+
+◊definition-entry[#:name "shopt"]{
+This command permits changing shell options on the fly (see TODO
+Example 25-1 and Example 25-2). It often appears in the Bash startup
+files, but also has its uses in scripts. Needs version 2 or later of
+Bash.
+
+◊example{
+shopt -s cdspell
+# Allows minor misspelling of directory names with 'cd'
+# Option -s sets, -u unsets.
+
+cd /hpme  # Oops! Mistyped '/home'.
+pwd       # /home
+          # The shell corrected the misspelling.
+}
+
+}
+
+◊definition-entry[#:name "caller"]{
+Putting a ◊code{caller} command inside a function echoes to
+◊fname{stdout} information about the caller of that function.
+
+◊example{
+#!/bin/bash
+
+function1 ()
+{
+  # Inside function1 ().
+  caller 0   # Tell me about it.
+}
+
+function1    # Line 9 of script.
+
+# 9 main test.sh
+# ^                 Line number that the function was called from.
+#   ^^^^            Invoked from "main" part of script.
+#        ^^^^^^^    Name of calling script.
+
+caller 0     # Has no effect because it's not inside a function.
+}
+
+A ◊code{caller} command can also return caller information from a script
+sourced within another script. Analogous to a function, this is a
+"subroutine call."
+
+You may find this command useful in debugging.
+
+}
+
+}
+
+◊section{Commands}
+
+◊definition-block[#:type "code"]{
+◊definition-entry[#:name "true"]{
+A command that returns a successful (zero) exit status, but does
+nothing else.
+
+◊example{
+bash$ true
+bash$ echo $?
+0
+}
+
+◊anchored-example[#:anchor "endless1"]{Endless loop}
+
+◊example{
+while true   # alias for ":"
+do
+   operation-1
+   operation-2
+   ...
+   operation-n
+   # Need a way to break out of loop or script will hang.
+done
+}
+
+}
+
+◊definition-entry[#:name "false"]{
+A command that returns an unsuccessful exit status, but does nothing
+else.
+
+◊example{
+bash$ false
+bash$ echo $?
+1
+}
+
+◊anchored-example[#:anchor "null_loop1"]{Null loop}
+
+◊example{
+# Testing "false"
+if false
+then
+  echo "false evaluates \"true\""
+else
+  echo "false evaluates \"false\""
+fi
+# false evaluates "false"
+
+
+# Looping while "false" (null loop)
+while false
+do
+   # The following code will not execute.
+   operation-1
+   operation-2
+   ...
+   operation-n
+   # Nothing happens!
+done
+}
+
+}
+
+◊definition-entry[#:name "type [cmd]"]{
+Similar to the ◊code{which} external command, ◊code{type} cmd
+identifies "cmd."  Unlike ◊code{which}, ◊code{type} is a Bash
+builtin. The useful ◊code{-a} option to type identifies keywords and
+builtins, and also locates system commands with identical names.
+
+◊example{
+bash$ type '['
+[ is a shell builtin
+bash$ type -a '['
+[ is a shell builtin
+ [ is /usr/bin/[
+
+
+bash$ type type
+type is a shell builtin
+
+bash$ type find
+find is /usr/bin/find
+}
+
+}
+
+◊definition-entry[#:name "hash [cmd]"]{
+Records the path name of specified commands -- in the shell hash table
+-- so the shell or script will not need to search the ◊code{$PATH} on
+subsequent calls to those commands. When ◊code{hash} is called with no
+arguments, it simply lists the commands that have been hashed. The
+◊code{-r} option resets the hash table.
+
+Example output with some recently invoked commands:
+◊example{
+$ hash
+hits	command
+   1	/usr/bin/which
+   1	/bin/stty
+   2	/usr/bin/pulseaudio
+   7	/usr/bin/git
+   6	/usr/bin/info
+}
+
+}
+
+◊definition-entry[#:name "bind"]{
+The bind builtin displays or modifies ◊emphasize{readline} key
+bindings. ◊footnote{The ◊emphasize{readline} library is what Bash uses
+for reading input in an interactive shell.}
+
+}
+
+◊definition-entry[#:name "help"]{
+Gets a short usage summary of a shell builtin. This is the counterpart
+to ◊code{whatis}, but for builtins. The display of help information
+got a much-needed update in the version 4 release of Bash.
+
+◊example{
+bash$ help exit
+exit: exit [n]
+    Exit the shell with a status of N.  If N is omitted, the exit status
+    is that of the last command executed.
+}
+
+}
+
+}
 
 ◊; emacs:
 ◊; Local Variables:
