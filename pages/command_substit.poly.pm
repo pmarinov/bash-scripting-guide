@@ -1,6 +1,6 @@
 #lang pollen
 
-◊; This is free and unencumbered software released into the public domain
+◊; This is free software released into the public domain
 ◊; See LICENSE.txt
 
 ◊page-init{}
