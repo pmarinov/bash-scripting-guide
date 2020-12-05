@@ -55,6 +55,7 @@ pages/exit_status.poly.pm
 
 ◊pages/commands.poly.pm{
   pages/commands_internal.poly.pm
+  pages/commands_job.poly.pm
 }
 
 }
