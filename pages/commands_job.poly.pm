@@ -64,7 +64,6 @@ job.
 }
 
 ◊definition-entry[#:name "wait"]{
-
 Suspend script execution until all jobs running in background have
 terminated, or until the job number or process ID specified as an
 option terminates. Returns the exit status of waited-for command.
@@ -114,6 +113,70 @@ exit 0
 Optionally, ◊command{wait} can take a job identifier (of a child
 process) as an argument, for example, ◊command{wait %1} or
 ◊command{wait $PPID}. See the job id table at the end of this page.
+
+}
+
+◊definition-entry[#:name "suspend"]{
+This has a similar effect to ◊kbd{Control-Z}, but it suspends the
+shell (the shell's parent process should resume it at an appropriate
+time).
+
+}
+
+◊definition-entry[#:name "logout"]{
+Exit a login shell, optionally specifying an exit status.
+
+}
+
+◊definition-entry[#:name "times"]{
+Gives statistics on the system time elapsed when executing commands,
+in the following form:
+
+◊example{
+0m0.011s 0m0.005s
+0m0.046s 0m0.015s
+}
+
+This capability is of relatively limited value, since it is not common
+to profile and benchmark shell scripts.
+
+}
+
+◊definition-entry[#:name "kill"]{
+Forcibly terminate a process by sending it an appropriate terminate
+signal (see TODO Example 17-6).
+
+◊example{
+#!/bin/bash
+# self-destruct.sh
+
+kill $$  # Script kills its own process here.
+         # Recall that "$$" is the script's PID.
+
+echo "This line will not echo."
+# Instead, the shell sends a "Terminated" message to stdout.
+
+exit 0   # Normal exit? No!
+
+#  After this script terminates prematurely,
+#+ what exit status does it return?
+#
+# sh self-destruct.sh
+# echo $?
+# 143
+#
+# 143 = 128 + 15
+#             TERM signal
+}
+
+Note: ◊command{kill -l} lists all the signals (as does the file
+◊fname{/usr/include/asm/signal.h}). A ◊command{kill -9} is a sure
+kill, which will usually terminate a process that stubbornly refuses
+to die with a plain ◊command{kill}. Sometimes, a ◊command{kill -15}
+works. A zombie process, that is, a child process that has terminated,
+but that the parent process has not (yet) killed, cannot be killed by
+a logged-on user -- you can't kill something that is already dead --
+but init will generally clean it up sooner or later.
 
 }
 
