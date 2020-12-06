@@ -49,6 +49,74 @@ bash$ kill 1384
 
 }
 
+◊definition-entry[#:name "disown"]{
+Remove job(s) from the shell's table of active jobs.
+
+}
+
+◊definition-entry[#:name "fg, bg"]{
+The ◊command{fg} command switches a job running in the background into
+the foreground. The ◊command{bg} command restarts a suspended job, and
+runs it in the background. If no job number is specified, then the
+◊command{fg} or ◊command{bg} command acts upon the currently running
+job.
+
+}
+
+◊definition-entry[#:name "wait"]{
+
+Suspend script execution until all jobs running in background have
+terminated, or until the job number or process ID specified as an
+option terminates. Returns the exit status of waited-for command.
+
+You may use the ◊command{wait} command to prevent a script from
+exiting before a background job finishes executing (this would create
+a dreaded orphan process).
+
+◊example{
+#!/bin/bash
+
+ROOT_UID=0   # Only users with $UID 0 have root privileges.
+E_NOTROOT=65
+E_NOPARAMS=66
+
+if [ "$UID" -ne "$ROOT_UID" ]
+then
+  echo "Must be root to run this script."
+  # "Run along kid, it's past your bedtime."
+  exit $E_NOTROOT
+fi
+
+if [ -z "$1" ]
+then
+  echo "Usage: `basename $0` find-string"
+  exit $E_NOPARAMS
+fi
+
+
+echo "Updating 'locate' database..."
+echo "This may take a while."
+updatedb /usr &     # Must be run as root.
+
+wait
+# Don't run the rest of the script until 'updatedb' finished.
+# You want the the database updated before looking up the file name.
+
+locate $1
+
+#  Without the 'wait' command, in the worse case scenario,
+#+ the script would exit while 'updatedb' was still running,
+#+ leaving it as an orphan process.
+
+exit 0
+}
+
+Optionally, ◊command{wait} can take a job identifier (of a child
+process) as an argument, for example, ◊command{wait %1} or
+◊command{wait $PPID}. See the job id table at the end of this page.
+
+}
+
 }
 
 ◊; emacs:
