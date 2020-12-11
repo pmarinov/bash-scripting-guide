@@ -180,6 +180,38 @@ but init will generally clean it up sooner or later.
 
 }
 
+◊definition-entry[#:name "killall"]{
+
+The ◊command{killall} command kills a running process by name, rather than by
+process ID. If there are multiple instances of a particular command
+running, then doing a killall on that command will terminate them all.
+
+Note: This refers to the ◊command{killall} command in
+◊fname{/usr/bin}, not the ◊fname{killall} script in
+◊fname{/etc/rc.d/init.d}.
+
+}
+
+◊definition-entry[#:name "command"]{
+The ◊command{command} directive disables aliases and functions for the
+command immediately following it.
+
+◊example{
+bash$ command ls
+}
+
+Note: This is one of three shell directives that effect script command
+processing. The others are ◊command{builtin} and ◊command{enable}.
+
+}
+
+◊definition-entry[#:name "builtin"]{
+Invoking ◊command{builtin BUILTIN_COMMAND} runs the command
+◊code{BUILTIN_COMMAND} as a shell builtin, temporarily disabling both
+functions and external system commands with the same name.
+
+}
+
 }
 
 ◊; emacs:
