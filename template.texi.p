@@ -58,6 +58,11 @@
 ◊; Let page0 be the special node Top
 ◊(when (equal? here 'pages/page0.texi)
      (string-append
+        "@dircategory Guides\n"
+        "@direntry\n"
+        "* Advanced Bash-Scripting Guide: (bash-scripting-guide).\n"
+        "@end direntry\n"
+        "\n"
          "\\input texinfo\n"
          "@settitle " this-book-title "\n"
          "@node Top\n"
@@ -97,3 +102,8 @@
          "@bye\n")
    ; Simply mark the end of a node
    (string-append "@c End of node " (select-from-metas 'page-title metas) "\n"))
+
+◊; emacs:
+◊; Local Variables:
+◊; mode: fundamental
+◊; End:
