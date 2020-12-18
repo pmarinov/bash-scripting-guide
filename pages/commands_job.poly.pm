@@ -212,6 +212,69 @@ functions and external system commands with the same name.
 
 }
 
+◊definition-entry[#:name "enable"]{
+This either enables or disables a shell builtin command. As an
+example, ◊command{enable -n kill} disables the shell builtin
+◊command{kill}, so that when Bash subsequently encounters
+◊command{kill}, it invokes the external command ◊fname{/bin/kill}.
+
+The ◊code{-a} option to enable lists all the shell builtins,
+indicating whether or not they are enabled. The ◊code{-f filename}
+option lets enable load a builtin as a shared library (DLL) module
+from a properly compiled object file.
+
+The C source for a number of loadable builtins is typically found in
+the ◊fname{/usr/share/doc/bash-?.??/functions} directory.
+
+}
+
+◊definition-entry[#:name "autoload"]{
+This is a port to Bash of the ◊code{ksh} autoloader. With
+◊code{autoload} in place, a function with an ◊code{autoload}
+declaration will load from an external file at its first
+invocation. This saves system resources.
+
+Note that autoload is not a part of the core Bash installation. It
+needs to be loaded in with ◊code{enable -f} (see above).
+
+The same effect as autoload can be achieved with ◊code{typeset -fu}.
+
+}
+
+}
+
+◊section{Job Identifiers}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "%N"]{
+Job number [N]
+}
+
+◊definition-entry[#:name "%S"]{
+Invocation (command-line) of job begins with string S
+}
+
+◊definition-entry[#:name "%?S"]{
+Invocation (command-line) of job contains within it string S
+}
+
+◊definition-entry[#:name "%%"]{
+"current" job (last job stopped in foreground or started in background)
+}
+
+◊definition-entry[#:name "%+"]{
+"current" job (last job stopped in foreground or started in background)
+}
+
+◊definition-entry[#:name "%-"]{
+Last job
+}
+
+◊definition-entry[#:name "$!"]{
+Last background process
+}
+
 }
 
 ◊; emacs:
