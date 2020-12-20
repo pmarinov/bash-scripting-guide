@@ -114,6 +114,83 @@ exit $exitcode
 
 }
 
+◊definition-entry[#:name "cat, tac"]{
+◊code{cat}, an acronym for concatenate, lists a file to
+◊code{stdout}. When combined with redirection (◊code{>} or ◊code{>>}),
+it is commonly used to concatenate files.
+
+◊example{
+# Uses of 'cat'
+cat filename                          # Lists the file.
+
+cat file.1 file.2 file.3 > file.123   # Combines three files into one.
+}
+
+The ◊code{-n} option to ◊code{cat} inserts consecutive numbers before
+all lines of the target file(s). The ◊code{-b} option numbers only the
+non-blank lines. The ◊code{-v} option echoes nonprintable characters,
+using ^ notation. The ◊code{-s} option squeezes multiple consecutive
+blank lines into a single blank line.
+
+See also TODO Example 16-28 and Example 16-24.
+
+Note: In a pipe, it may be more efficient to redirect the ◊code{stdin} to a
+file, rather than to ◊code{cat} the file.
+
+◊example{
+cat filename | tr a-z A-Z
+
+tr a-z A-Z < filename   #  Same effect, but starts one less process,
+                        #+ and also dispenses with the pipe.
+}
+
+◊code{tac}, is the inverse of ◊code{cat}, listing a file backwards
+from its end.
+
+}
+
+◊definition-entry[#:name "rev"]{
+reverses each line of a file, and outputs to ◊code{stdout}. This does
+not have the same effect as ◊code{tac}, as it preserves the order of
+the lines, but flips each one around (mirror image).
+
+◊example{
+bash$ cat file1.txt
+This is line 1.
+ This is line 2.
+
+
+bash$ tac file1.txt
+This is line 2.
+ This is line 1.
+
+
+bash$ rev file1.txt
+.1 enil si sihT
+ .2 enil si sihT
+}
+
+◊definition-entry[#:name "cp"]{
+This is the file ◊code{copy} command. ◊code{cp file1 file2} copies
+◊fname{file1} to ◊fname{file2}, overwriting ◊fname{file2} if it
+already exists (see TODO Example 16-6).
+
+Tip: Particularly useful are the ◊code{-a} archive flag (for copying
+an entire directory tree), the ◊code{-u} update flag (which prevents
+overwriting identically-named newer files), and the ◊code{-r} and
+◊code{-R} recursive flags.
+
+◊example{
+cp -u source_dir/* dest_dir
+#  "Synchronize" dest_dir to source_dir
+#+  by copying over all newer and not previously existing files.
+}
+
+}
+
+}
+
+
 }
 
 ◊; emacs:
