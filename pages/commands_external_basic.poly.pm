@@ -170,6 +170,8 @@ bash$ rev file1.txt
  .2 enil si sihT
 }
 
+}
+
 ◊definition-entry[#:name "cp"]{
 This is the file ◊code{copy} command. ◊code{cp file1 file2} copies
 ◊fname{file1} to ◊fname{file2}, overwriting ◊fname{file2} if it
@@ -188,8 +190,29 @@ cp -u source_dir/* dest_dir
 
 }
 
+◊definition-entry[#:name "mv"]{
+
+This is the file move command. It is equivalent to a combination of
+◊command{cp} and ◊command{rm}. It may be used to move multiple files
+to a directory, or even to rename a directory. For some examples of
+using ◊command{mv} in a script, see TODO Example 10-11 and Example
+A-2.
+
+Note: When used in a non-interactive script, ◊command{mv} takes the
+◊command{-f} (force) option to bypass user input.
+
+When a directory is moved to a preexisting directory, it becomes a
+subdirectory of the destination directory.
+
+◊example{
+bash$ mv source_directory target_directory
+
+bash$ ls -lF target_directory
+total 1
+drwxrwxr-x    2 bozo  bozo      1024 May 28 19:20 source_directory/
 }
 
+}
 
 }
 
