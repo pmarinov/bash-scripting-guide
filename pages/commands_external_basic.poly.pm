@@ -191,7 +191,6 @@ cp -u source_dir/* dest_dir
 }
 
 ◊definition-entry[#:name "mv"]{
-
 This is the file move command. It is equivalent to a combination of
 ◊command{cp} and ◊command{rm}. It may be used to move multiple files
 to a directory, or even to rename a directory. For some examples of
@@ -210,6 +209,115 @@ bash$ mv source_directory target_directory
 bash$ ls -lF target_directory
 total 1
 drwxrwxr-x    2 bozo  bozo      1024 May 28 19:20 source_directory/
+}
+
+}
+
+◊definition-entry[#:name "rm"]{
+Delete (remove) a file or files. The ◊command{-f} option forces
+removal of even readonly files, and is useful for bypassing user input
+in a script.
+
+Note: The ◊command{rm} command will, by itself, fail to remove
+filenames beginning with a dash. Why? Because ◊command{rm} sees a
+dash-prefixed filename as an option.
+
+◊example{
+bash$ rm -badname
+rm: invalid option -- b
+Try `rm --help' for more information.
+}
+
+One clever workaround is to precede the filename with a ◊code{--} (the
+end-of-options flag).
+
+◊example{
+bash$ rm -- -badname
+}
+
+Another method to is to preface the filename to be removed with a
+dot-slash .
+
+◊example{
+bash$ rm ./-badname
+}
+
+Warning: When used with the recursive flag ◊code{-r}, this command
+removes files all the way down the directory tree from the current
+directory. A careless ◊command{rm -rf *} can wipe out a big chunk of a
+directory structure.
+
+}
+
+◊definition-entry[#:name "rmdir"]{
+Remove directory. The directory must be empty of all files --
+including "invisible" dotfiles -- for this command to
+succeed. ◊footnote{Dotfiles are files whose names begin with a dot,
+such as ◊fname{~/.Xdefaults}. Such filenames do not appear in a normal
+ls listing (although an ◊command{ls -a} will show them), and they
+cannot be deleted by an accidental ◊command{rm -rf *}. Dotfiles are
+generally used as setup and configuration files in a user's home
+directory.}
+
+}
+
+◊definition-entry[#:name "mkdir"]{
+Make directory, creates a new directory. For example, ◊command{mkdir
+-p project/programs/December} creates the named directory. The
+◊code{-p} option automatically creates any necessary parent
+directories.
+
+}
+
+◊definition-entry[#:name "chmod"]{
+
+Changes the attributes of an existing file or directory (see TODO Example 15-14).
+
+◊example{
+chmod +x filename
+# Makes "filename" executable for all users.
+
+chmod u+s filename
+# Sets "suid" bit on "filename" permissions.
+# An ordinary user may execute "filename" with same privileges as the file's owner.
+# (This does not apply to shell scripts.)
+
+chmod 644 filename
+#  Makes "filename" readable/writable to owner, readable to others
+#+ (octal mode).
+
+chmod 444 filename
+#  Makes "filename" read-only for all.
+#  Modifying the file (for example, with a text editor)
+#+ not allowed for a user who does not own the file (except for root),
+#+ and even the file owner must force a file-save
+#+ if she modifies the file.
+#  Same restrictions apply for deleting the file.
+
+chmod 1777 directory-name
+#  Gives everyone read, write, and execute permission in directory,
+#+ however also sets the "sticky bit".
+#  This means that only the owner of the directory,
+#+ owner of the file, and, of course, root
+#+ can delete any particular file in that directory.
+
+chmod 111 directory-name
+#  Gives everyone execute-only permission in a directory.
+#  This means that you can execute and READ the files in that directory
+#+ (execute permission necessarily includes read permission
+#+ because you can't execute a file without being able to read it).
+#  But you can't list the files or search for them with the "find" command.
+#  These restrictions do not apply to root.
+
+chmod 000 directory-name
+#  No permissions at all for that directory.
+#  Can't read, write, or execute files in it.
+#  Can't even list files in it or "cd" to it.
+#  But, you can rename (mv) the directory
+#+ or delete it (rmdir) if it is empty.
+#  You can even symlink to files in the directory,
+#+ but you can't read, write, or execute the symlinks.
+#  These restrictions do not apply to root.
 }
 
 }
