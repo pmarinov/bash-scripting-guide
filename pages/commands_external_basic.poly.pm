@@ -270,7 +270,6 @@ directories.
 }
 
 ◊definition-entry[#:name "chmod"]{
-
 Changes the attributes of an existing file or directory (see TODO Example 15-14).
 
 ◊example{
@@ -321,6 +320,123 @@ chmod 000 directory-name
 }
 
 }
+
+◊definition-entry[#:name "chattr"]{
+Change file attributes. This is analogous to ◊command{chmod} above,
+but with different options and a different invocation syntax, and it
+works only on ext2/ext3 filesystems.
+
+One particularly interesting chattr option is ◊code{i}. A
+◊command{chattr +i filename} marks the file as immutable. The file
+cannot be modified, linked to, or deleted, not even by root. This file
+attribute can be set or removed only by root. In a similar fashion,
+the ◊code{a} option marks the file as append only.
+
+◊example{
+root# chattr +i file1.txt
+
+root# rm file1.txt
+rm: remove write-protected regular file `file1.txt'? y
+rm: cannot remove `file1.txt': Operation not permitted
+}
+
+If a file has the ◊code{s} (secure) attribute set, then when it is
+deleted its block is overwritten with binary zeroes. ◊footnote{This
+particular feature may not yet be implemented in the version of the
+ext2/ext3 filesystem installed on your system. Check the documentation
+for your Linux distro.}
+
+If a file has the ◊code{u} (undelete) attribute set, then when it is
+deleted, its contents can still be retrieved (undeleted).
+
+If a file has the ◊code{c} (compress) attribute set, then it will
+automatically be compressed on writes to disk, and uncompressed on
+reads.
+
+Note: The file attributes set with ◊command{chattr} do not show in a
+file listing (◊command{ls -l}).
+
+}
+
+◊definition-entry[#:name "ln"]{
+Creates links to pre-existings files. A "link" is a reference to a
+file, an alternate name for it. The ◊command{ln} command permits
+referencing the linked file by more than one name and is a superior
+alternative to aliasing (see TODO Example 4-6).
+
+The ◊command{ln} creates only a reference, a pointer to the file only
+a few bytes in size.
+
+The ◊command{ln} command is most often used with the ◊code{-s},
+symbolic or "soft" link flag. Advantages of using the ◊code{-s} flag
+are that it permits linking across file systems or to directories.
+
+The syntax of the command is a bit tricky. For example: ◊command{ln -s
+oldfile newfile} links the previously existing ◊code{oldfile} to the
+newly created link, ◊code{newfile}.
+
+Caution: If a file named ◊code{newfile} has previously existed, an error
+message will result.
+
+Which type of link to use?
+
+Both of these [types of links] provide a certain measure of dual
+reference -- if you edit the contents of the file using any name, your
+changes will affect both the original name and either a hard or soft
+new name. The differences between them occurs when you work at a
+higher level. The advantage of a hard link is that the new name is
+totally independent of the old name -- if you remove or rename the old
+name, that does not affect the hard link, which continues to point to
+the data while it would leave a soft link hanging pointing to the old
+name which is no longer there. The advantage of a soft link is that it
+can refer to a different file system (since it is just a reference to
+a file name, not to actual data). And, unlike a hard link, a symbolic
+link can refer to a directory.
+
+Links give the ability to invoke a script (or any other type of
+executable) with multiple names, and having that script behave
+according to how it was invoked.
+
+◊example{
+#!/bin/bash
+# hello.sh: Saying "hello" or "goodbye"
+#+          depending on how script is invoked.
+
+# Make a link in current working directory ($PWD) to this script:
+#    ln -s hello.sh goodbye
+# Now, try invoking this script both ways:
+# ./hello.sh
+# ./goodbye
+
+
+HELLO_CALL=65
+GOODBYE_CALL=66
+
+if [ $0 = "./goodbye" ]
+then
+  echo "Good-bye!"
+  # Some other goodbye-type commands, as appropriate.
+  exit $GOODBYE_CALL
+fi
+
+echo "Hello!"
+# Some other hello-type commands, as appropriate.
+exit $HELLO_CALL
+}
+
+}
+
+◊definition-entry[#:name "man, info"]{
+These commands access the manual and information pages on system
+commands and installed utilities. When available, the info pages
+usually contain more detailed descriptions than do the man pages.
+
+There have been various attempts at "automating" the writing of man
+pages. For a script that makes a tentative first step in that
+direction, see TODO Example A-39.
+
+}
+
 
 }
 
