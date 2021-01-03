@@ -57,6 +57,7 @@ pages/exit_status.poly.pm
   pages/commands_internal.poly.pm
   pages/commands_job.poly.pm
   pages/commands_external_basic.poly.pm
+  pages/commands_external_complex.poly.pm
 }
 
 }
