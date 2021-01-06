@@ -193,6 +193,281 @@ powerful command.
 }
 
 ◊definition-entry[#:name "xargs"]{
+A filter for feeding arguments to a command, and also a tool for
+assembling the commands themselves. It breaks a data stream into small
+enough chunks for filters and commands to process. Consider it as a
+powerful replacement for backquotes. In situations where command
+substitution fails with a too many arguments error, substituting
+◊command{xargs} often works. Normally, ◊command{xargs} reads from
+◊code{stdin} or from a pipe, but it can also be given the output of a
+file. ◊footnote{And even when ◊command{xargs} is not strictly
+necessary, it can speed up execution of a command involving
+batch-processing of multiple files.}
+
+The default command for ◊command{xargs} is ◊command{echo}. This means
+that input piped to ◊command{xargs} may have linefeeds and other
+whitespace characters stripped out.
+
+◊example{
+bash$ ls -l
+total 0
+-rw-rw-r--    1 bozo  bozo         0 Jan 29 23:58 file1
+-rw-rw-r--    1 bozo  bozo         0 Jan 29 23:58 file2
+
+
+bash$ ls -l | xargs
+total 0 -rw-rw-r-- 1 bozo bozo 0 Jan 29 23:58 file1 -rw-rw-r-- 1 bozo bozo 0 Jan...
+
+
+bash$ find ~/mail -type f | xargs grep "Linux"
+./misc:User-Agent: slrn/0.9.8.1 (Linux)
+./sent-mail-jul-2005: hosted by the Linux Documentation Project.
+./sent-mail-jul-2005: (Linux Documentation Project Site, rtf version)
+./sent-mail-jul-2005: Subject: Criticism of Bozo's Windows/Linux article
+./sent-mail-jul-2005: while mentioning that the Linux ext2/ext3 filesystem
+. . .
+}
+
+◊command{ls | xargs -p -l gzip} gzips every file in current directory,
+one at a time, prompting before each operation.
+
+Note: Note that ◊command{xargs} processes the arguments passed to it
+sequentially, one at a time.
+
+◊example{
+bash$ find /usr/bin | xargs file
+/usr/bin:          directory
+/usr/bin/foomatic-ppd-options:          perl script text executable
+. . .
+}
+
+Tip: An interesting ◊command{xargs} option is ◊code{-n NN}, which
+limits to ◊code{NN} the number of arguments passed.
+
+◊command{ls | xargs -n 8 echo} lists the files in the current directory
+in 8 columns.
+
+Tip: Another useful option is ◊code{-0}, in combination with
+◊command{find -print0} or ◊command{grep -lZ}. This allows handling
+arguments containing whitespace or quotes.
+
+◊example{
+find / -type f -print0 | xargs -0 grep -liwZ GUI | xargs -0 rm -f
+}
+
+◊example{
+grep -rliwZ GUI / | xargs -0 rm -f
+}
+
+Either of the above will remove any file containing "GUI".
+
+Or:
+
+◊example{
+cat /proc/"$pid"/"$OPTION" | xargs -0 echo
+#  Formats output:         ^^^^^^^^^^^^^^^
+#  From Han Holl's fixup of "get-commandline.sh"
+#+ script in "/dev and /proc" chapter.
+}
+
+Tip: The ◊code{-P} option to ◊command{xargs} permits running processes
+in parallel. This speeds up execution in a machine with a multicore
+CPU.
+
+◊example{
+#!/bin/bash
+
+ls *gif | xargs -t -n1 -P2 gif2png
+# Converts all the gif images in current directory to png.
+
+# Options:
+# =======
+# -t    Print command to stderr.
+# -n1   At most 1 argument per command line.
+# -P2   Run up to 2 processes simultaneously.
+
+# Thank you, Roberto Polli, for the inspiration.
+}
+
+◊anchored-example[#:anchor "xargs_log1"]{Using xargs to monitor system
+log}
+
+◊example{
+#!/bin/bash
+
+# Generates a log file in current directory
+# from the tail end of /var/log/messages.
+
+# Note: /var/log/messages must be world readable
+# if this script invoked by an ordinary user.
+#         #root chmod 644 /var/log/messages
+
+LINES=5
+
+( date; uname -a ) >>logfile
+# Time and machine name
+echo ---------------------------------------------------------- >>logfile
+tail -n $LINES /var/log/messages | xargs | fmt -s >>logfile
+echo >>logfile
+echo >>logfile
+
+exit 0
+
+#  Note:
+#  ----
+#  As Frank Wang points out,
+#+ unmatched quotes (either single or double quotes) in the source file
+#+ may give xargs indigestion.
+#
+#  He suggests the following substitution for line 15:
+#  tail -n $LINES /var/log/messages | tr -d "\"'" | xargs | fmt -s >>logfile
+
+
+
+#  Exercise:
+#  --------
+#  Modify this script to track changes in /var/log/messages at intervals
+#+ of 20 minutes.
+#  Hint: Use the "watch" command.
+}
+
+◊anchored-example[#:anchor "xargs_arg1"]{Copying files in current
+directory to another}
+
+As in ◊command{find}, a curly bracket pair serves as a placeholder for
+replacement text.
+
+◊example{
+#!/bin/bash
+# copydir.sh
+
+#  Copy (verbose) all files in current directory ($PWD)
+#+ to directory specified on command-line.
+
+E_NOARGS=85
+
+if [ -z "$1" ]   # Exit if no argument given.
+then
+  echo "Usage: `basename $0` directory-to-copy-to"
+  exit $E_NOARGS
+fi
+
+ls . | xargs -i -t cp ./{} $1
+#            ^^ ^^      ^^
+#  -t is "verbose" (output command-line to stderr) option.
+#  -i is "replace strings" option.
+#  {} is a placeholder for output text.
+#  This is similar to the use of a curly-bracket pair in "find."
+#
+#  List the files in current directory (ls .),
+#+ pass the output of "ls" as arguments to "xargs" (-i -t options),
+#+ then copy (cp) these arguments ({}) to new directory ($1).
+#
+#  The net result is the exact equivalent of
+#+   cp * $1
+#+ unless any of the filenames has embedded "whitespace" characters.
+
+exit 0
+}
+
+◊anchored-example[#:anchor "xargs_killp1"]{Killing processes by name}
+
+◊example{
+#!/bin/bash
+# kill-byname.sh: Killing processes by name.
+# Compare this script with kill-process.sh.
+
+#  For instance,
+#+ try "./kill-byname.sh xterm" --
+#+ and watch all the xterms on your desktop disappear.
+
+#  Warning:
+#  -------
+#  This is a fairly dangerous script.
+#  Running it carelessly (especially as root)
+#+ can cause data loss and other undesirable effects.
+
+E_BADARGS=66
+
+if test -z "$1"  # No command-line arg supplied?
+then
+  echo "Usage: `basename $0` Process(es)_to_kill"
+  exit $E_BADARGS
+fi
+
+
+PROCESS_NAME="$1"
+ps ax | grep "$PROCESS_NAME" | awk '{print $1}' | xargs -i kill {} 2&>/dev/null
+#                                                       ^^      ^^
+
+# ---------------------------------------------------------------
+# Notes:
+# -i is the "replace strings" option to xargs.
+# The curly brackets are the placeholder for the replacement.
+# 2&>/dev/null suppresses unwanted error messages.
+#
+# Can  grep "$PROCESS_NAME" be replaced by pidof "$PROCESS_NAME"?
+# ---------------------------------------------------------------
+
+exit $?
+
+#  The "killall" command has the same effect as this script,
+#+ but using it is not quite as educational.
+}
+
+◊anchored-example[#:anchor "xargs_cntw1"]{Word frequency analysis
+using xargs}
+
+◊example{
+#!/bin/bash
+# wf2.sh: Crude word frequency analysis on a text file.
+
+# Uses 'xargs' to decompose lines of text into single words.
+# Compare this example to the "wf.sh" script later on.
+
+
+# Check for input file on command-line.
+ARGS=1
+E_BADARGS=85
+E_NOFILE=86
+
+if [ $# -ne "$ARGS" ]
+# Correct number of arguments passed to script?
+then
+  echo "Usage: `basename $0` filename"
+  exit $E_BADARGS
+fi
+
+if [ ! -f "$1" ]       # Does file exist?
+then
+  echo "File \"$1\" does not exist."
+  exit $E_NOFILE
+fi
+
+
+#####################################################
+cat "$1" | xargs -n1 | \
+#  List the file, one word per line.
+tr A-Z a-z | \
+#  Shift characters to lowercase.
+sed -e 's/\.//g'  -e 's/\,//g' -e 's/ /\
+/g' | \
+#  Filter out periods and commas, and
+#+ change space between words to linefeed,
+sort | uniq -c | sort -nr
+#  Finally remove duplicates, prefix occurrence count
+#+ and sort numerically.
+#####################################################
+
+#  This does the same job as the "wf.sh" example,
+#+ but a bit more ponderously, and it runs more slowly (why?).
+
+exit $?
+}
+
+}
+
+◊definition-entry[#:name "expr"]{
 }
 
 }
