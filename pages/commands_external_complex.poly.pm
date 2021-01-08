@@ -468,6 +468,233 @@ exit $?
 }
 
 ◊definition-entry[#:name "expr"]{
+All-purpose expression evaluator: Concatenates and evaluates the
+arguments according to the operation given (arguments must be
+separated by spaces). Operations may be arithmetic, comparison,
+string, or logical.
+
+◊example{
+expr 3 + 5
+}
+
+returns 8
+
+◊example{
+expr 5 % 3
+}
+
+returns 2
+
+◊example{
+expr 1 / 0
+}
+
+returns the error message, expr: division by zero
+
+Illegal arithmetic operations not allowed.
+
+◊example{
+expr 5 \* 3
+}
+
+returns 15
+
+The multiplication operator must be escaped when used in an arithmetic
+expression with ◊code{expr}.
+
+◊example{
+y=`expr $y + 1`
+}
+
+Increment a variable, with the same effect as ◊code{let y=y+1} and
+◊code{y=$(($y+1))}. This is an example of arithmetic expansion.
+
+◊example{
+z=`expr substr $string $position $length`
+}
+
+Extract substring of ◊code{$length} characters, starting at
+◊code{$position}.
+
+◊example{
+#!/bin/bash
+
+# Demonstrating some of the uses of 'expr'
+# =======================================
+
+echo
+
+# Arithmetic Operators
+# ---------- ---------
+
+echo "Arithmetic Operators"
+echo
+a=`expr 5 + 3`
+echo "5 + 3 = $a"
+
+a=`expr $a + 1`
+echo
+echo "a + 1 = $a"
+echo "(incrementing a variable)"
+
+a=`expr 5 % 3`
+# modulo
+echo
+echo "5 mod 3 = $a"
+
+echo
+echo
+
+# Logical Operators
+# ------- ---------
+
+#  Returns 1 if true, 0 if false,
+#+ opposite of normal Bash convention.
+
+echo "Logical Operators"
+echo
+
+x=24
+y=25
+b=`expr $x = $y`         # Test equality.
+echo "b = $b"            # 0  ( $x -ne $y )
+echo
+
+a=3
+b=`expr $a \> 10`
+echo 'b=`expr $a \> 10`, therefore...'
+echo "If a > 10, b = 0 (false)"
+echo "b = $b"            # 0  ( 3 ! -gt 10 )
+echo
+
+b=`expr $a \< 10`
+echo "If a < 10, b = 1 (true)"
+echo "b = $b"            # 1  ( 3 -lt 10 )
+echo
+# Note escaping of operators.
+
+b=`expr $a \<= 3`
+echo "If a <= 3, b = 1 (true)"
+echo "b = $b"            # 1  ( 3 -le 3 )
+# There is also a "\>=" operator (greater than or equal to).
+
+
+echo
+echo
+
+
+
+# String Operators
+# ------ ---------
+
+echo "String Operators"
+echo
+
+a=1234zipper43231
+echo "The string being operated upon is \"$a\"."
+
+# length: length of string
+b=`expr length $a`
+echo "Length of \"$a\" is $b."
+
+# index: position of first character in substring
+#        that matches a character in string
+b=`expr index $a 23`
+echo "Numerical position of first \"2\" in \"$a\" is \"$b\"."
+
+# substr: extract substring, starting position & length specified
+b=`expr substr $a 2 6`
+echo "Substring of \"$a\", starting at position 2,\
+and 6 chars long is \"$b\"."
+
+
+#  The default behavior of the 'match' operations is to
+#+ search for the specified match at the BEGINNING of the string.
+#
+#       Using Regular Expressions ...
+b=`expr match "$a" '[0-9]*'`               #  Numerical count.
+echo Number of digits at the beginning of \"$a\" is $b.
+b=`expr match "$a" '\([0-9]*\)'`           #  Note that escaped parentheses
+#                   ==      ==             #+ trigger substring match.
+echo "The digits at the beginning of \"$a\" are \"$b\"."
+
+echo
+
+exit 0
+}
+
+Important: The ◊code{:} (null) operator can substitute for
+◊code{match}. For example, ◊code{b=`expr $a : [0-9]*`} is the exact
+equivalent of ◊code{b=`expr match $a [0-9]*`} in the above listing.
+
+◊example{
+#!/bin/bash
+
+echo
+echo "String operations using \"expr \$string : \" construct"
+echo "==================================================="
+echo
+
+a=1234zipper5FLIPPER43231
+
+echo "The string being operated upon is \"`expr "$a" : '\(.*\)'`\"."
+#     Escaped parentheses grouping operator.            ==  ==
+
+#       ***************************
+#+          Escaped parentheses
+#+           match a substring
+#       ***************************
+
+
+#  If no escaped parentheses ...
+#+ then 'expr' converts the string operand to an integer.
+
+echo "Length of \"$a\" is `expr "$a" : '.*'`."   # Length of string
+
+echo "Number of digits at the beginning of \"$a\" is `expr "$a" : '[0-9]*'`."
+
+# ------------------------------------------------------------------------- #
+
+echo
+
+echo "The digits at the beginning of \"$a\" are `expr "$a" : '\([0-9]*\)'`."
+#                                                             ==      ==
+echo "The first 7 characters of \"$a\" are `expr "$a" : '\(.......\)'`."
+#         =====                                          ==       ==
+# Again, escaped parentheses force a substring match.
+#
+echo "The last 7 characters of \"$a\" are `expr "$a" : '.*\(.......\)'`."
+#         ====                  end of string operator  ^^
+#  (In fact, means skip over one or more of any characters until specified
+#+  substring found.)
+
+echo
+
+exit 0
+}
+
+The above script illustrates how ◊code{expr} uses the escaped
+parentheses -- ◊code{\( ... \)} -- grouping operator in tandem with
+regular expression parsing to match a substring. Here is a another
+example, this time from "real life."
+
+◊example{
+# Strip the whitespace from the beginning and end.
+LRFDATE=`expr "$LRFDATE" : '[[:space:]]*\(.*\)[[:space:]]*$'`
+
+#  From Peter Knowles' "booklistgen.sh" script
+#+ for converting files to Sony Librie/PRS-50X format.
+#  (http://booklistgensh.peterknowles.com)
+}
+
+◊command{Perl}, ◊command{sed}, and ◊command{awk} have far superior
+string parsing facilities. A short ◊command{sed} or ◊command{awk}
+"subroutine" within a script (see TODO Section 36.2) is an attractive
+alternative to ◊command{expr}.
+
+See TODO Section 10.1 for more on using ◊command{expr} in string
+operations.
+
 }
 
 }
