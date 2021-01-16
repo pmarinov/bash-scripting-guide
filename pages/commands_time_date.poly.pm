@@ -140,7 +140,62 @@ See also TODO Example 3-4 and Example A-43.
 }
 
 ◊definition-entry[#:name "zdump"]{
+Time zone dump: echoes the time in a specified time zone.
 
+◊example{
+bash$ zdump EST
+EST  Tue Sep 18 22:09:22 2001 EST
+
+}
+
+}
+
+◊definition-entry[#:name "time"]{
+Outputs verbose timing statistics for executing a command.
+
+◊example{
+$ time ls -l /
+<output of of ls here>
+
+real    0m0.067s
+user    0m0.004s
+sys     0m0.005s
+
+}
+
+See also the very similar times command in the previous section.
+
+Note: As of version 2.0 of Bash, ◊command{time} became a shell
+reserved word, with slightly altered behavior in a pipeline.
+
+}
+
+◊definition-entry[#:name "touch"]{
+Utility for updating access/modification times of a file to current
+system time or other specified time, but also useful for creating a
+new file. The command ◊command{touch zzz} will create a new file of
+zero length, named ◊fname{zzz}, assuming that ◊fname{zzz} did not
+previously exist. Time-stamping empty files in this way is useful for
+storing date information, for example in keeping track of modification
+times on a project.
+
+Note: The ◊command{touch} command is equivalent to ◊command{: >>
+newfile} or ◊command{>> newfile} (for ordinary files).
+
+Tip: Before doing a ◊command{cp -u} (copy/update), use ◊command{touch}
+to update the time stamp of files you don't wish overwritten.
+
+As an example, if the directory ◊fname{/home/bozo/tax_audit} contains
+the files ◊fname{spreadsheet-051606.data},
+◊fname{spreadsheet-051706.data}, and ◊fname{spreadsheet-051806.data},
+then doing a ◊command{touch spreadsheet*.data} will protect these
+files from being overwritten by files with the same names during a
+◊command{cp -u /home/bozo/financial_info/spreadsheet*data
+/home/bozo/tax_audit}.
+
+}
+
+◊definition-entry[#:name "at"]{
 }
 
 }
