@@ -196,6 +196,75 @@ files from being overwritten by files with the same names during a
 }
 
 ◊definition-entry[#:name "at"]{
+The ◊code{at} job control command executes a given set of commands at a
+specified time. Superficially, it resembles ◊code{cron}, however, ◊code{at} is
+chiefly useful for one-time execution of a command set.
+
+◊command{at 2pm January 15} prompts for a set of commands to execute
+at that time. These commands should be shell-script compatible, since,
+for all practical purposes, the user is typing in an executable shell
+script a line at a time. Input terminates with a ◊kbd{Ctl-D}.
+
+Using either the ◊code{-f} option or input redirection (◊code{<}), at
+reads a command list from a file. This file is an executable shell
+script, though it should, of course, be non-interactive. Particularly
+clever is including the run-parts command in the file to execute a
+different set of scripts.
+
+◊example{
+bash$ at 2:30 am Friday < at-jobs.list
+job 2 at 2000-10-27 02:30
+
+}
+
+}
+
+◊definition-entry[#:name "batch"]{
+The ◊code{batch} job control command is similar to ◊code{at}, but it
+runs a command list when the system load drops below .8. Like
+◊code{at}, it can read commands from a file with the ◊code{-f} option.
+
+History: The concept of batch processing dates back to the era of mainframe
+computers. It means running a set of commands without user
+intervention.
+
+}
+
+◊definition-entry[#:name "cal"]{
+Prints a neatly formatted monthly calendar to stdout. Will do current
+year or a large range of past and future years.
+
+}
+
+◊definition-entry[#:name "sleep"]{
+This is the shell equivalent of a wait loop. It pauses for a specified
+number of seconds, doing nothing. It can be useful for timing or in
+processes running in the background, checking for a specific event
+every so often (polling), as in TODO Example 32-6.
+
+◊example{
+sleep 3     # Pauses 3 seconds.
+}
+
+Note: The ◊command{sleep} command defaults to seconds, but minute,
+hours, or days may also be specified.
+
+◊example{
+sleep 3 h   # Pauses 3 hours!
+
+}
+
+Note: The ◊command{watch} command may be a better choice than
+◊command{sleep} for running commands at timed intervals.
+
+}
+
+◊definition-entry[#:name "hwclock"]{
+The ◊command{hwclock} command accesses or adjusts the machine's
+hardware clock. Some options require root privileges. The
+◊fname{/etc/rc.d/rc.sysinit} startup file uses hwclock to set the
+system time from the hardware clock at bootup.
+
 }
 
 }
