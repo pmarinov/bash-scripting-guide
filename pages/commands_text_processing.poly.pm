@@ -159,6 +159,80 @@ bash$ ./wf.sh testfile
 
 }
 
+◊definition-entry[#:name "expand, unexpand"]{
+The ◊command{expand} filter converts tabs to spaces. It is often used
+in a pipe.
+
+The ◊command{unexpand} filter converts spaces to tabs. This reverses
+the effect of ◊command{expand}.
+
+}
+
+◊definition-entry[#:name "cut"]{
+A tool for extracting fields from files. It is similar to the
+◊command{print $N} command set in awk, but more limited. It may be
+simpler to use ◊command{cut} in a script than awk. Particularly
+important are the ◊code{-d} (delimiter) and ◊code{-f} (field
+specifier) options.
+
+Using ◊command{cut} to obtain a listing of the mounted filesystems:
+
+◊example{
+cut -d ' ' -f1,2 /etc/mtab
+}
+
+Using ◊command{cut} to list the OS and kernel version:
+
+◊example{
+uname -a | cut -d" " -f1,3,11,12
+}
+
+Using ◊command{cut} to extract message headers from an e-mail folder:
+
+◊example{
+bash$ grep '^Subject:' read-messages | cut -c10-80
+Re: Linux suitable for mission-critical apps?
+MAKE MILLIONS WORKING AT HOME!!!
+Spam complaint
+Re: Spam complaint
+}
+
+Using ◊command{cut} to parse a file:
+
+◊example{
+# List all the users in /etc/passwd.
+
+FILENAME=/etc/passwd
+
+for user in $(cut -d: -f1 $FILENAME)
+do
+  echo $user
+done
+}
+
+◊command{cut -d ' ' -f2,3 filename} is equivalent to ◊command{awk -F'[
+]' '$◊escaped{◊"{"} print $2, $3 $◊escaped{◊"}    "}' filename}
+
+Note: It is even possible to specify a linefeed as a delimiter. The
+trick is to actually embed a linefeed (RETURN) in the command
+sequence.
+
+◊example{
+bash$ cut -d'
+ ' -f3,7,19 testfile
+This is line 3 of testfile.
+This is line 7 of testfile.
+This is line 19 of testfile.
+
+}
+
+See also TODO Example 16-48.
+
+}
+
+◊definition-entry[#:name "paste"]{
+}
+
 }
 
 ◊; emacs:
