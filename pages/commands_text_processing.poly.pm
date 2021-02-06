@@ -231,6 +231,70 @@ See also TODO Example 16-48.
 }
 
 ◊definition-entry[#:name "paste"]{
+Tool for merging together different files into a single, multi-column
+file. In combination with ◊command{cut}, useful for creating system
+log files.
+
+◊example{
+bash$ cat items
+alphabet blocks
+building blocks
+cables
+
+bash$ cat prices
+$1.00/dozen
+$2.50 ea.
+$3.75
+
+bash$ paste items prices
+alphabet blocks $1.00/dozen
+building blocks $2.50 ea.
+cables  $3.75
+}
+
+}
+
+◊definition-entry[#:name "join"]{
+Consider this a special-purpose cousin of ◊command{paste}. This
+powerful utility allows merging two files in a meaningful fashion,
+which essentially creates a simple version of a relational database.
+
+The ◊command{join} command operates on exactly two files, but pastes
+together only those lines with a common tagged field (usually a
+numerical label), and writes the result to ◊code{stdout}. The files to
+be joined should be sorted according to the tagged field for the
+matchups to work properly.
+
+◊example{
+File: 1.data
+
+100 Shoes
+200 Laces
+300 Socks
+}
+
+◊example{
+File: 2.data
+
+100 $40.00
+200 $1.00
+300 $2.00
+}
+
+◊example{
+bash$ join 1.data 2.data
+File: 1.data 2.data
+
+100 Shoes $40.00
+200 Laces $1.00
+300 Socks $2.00
+}
+
+Note: The tagged field appears only once in the output.
+
+}
+
+◊definition-entry[#:name "head"]{
 }
 
 }
