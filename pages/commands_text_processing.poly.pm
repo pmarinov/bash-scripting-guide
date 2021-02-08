@@ -320,7 +320,7 @@ do
     echo "File \"$file\" is *not* a script."
   fi
 done
-  
+
 exit 0
 
 #  Exercises:
@@ -358,7 +358,7 @@ head -c4 /dev/urandom | od -N4 -tu4 | sed -ne '1s/.* //p'
 # -N4 option limits output to 4 bytes.
 # -tu4 option selects unsigned decimal format for output.
 
-# sed: 
+# sed:
 # -n option, in combination with "p" flag to the "s" command,
 # outputs only matched lines.
 
@@ -427,6 +427,52 @@ See also TODO Example 16-39.
 }
 
 ◊definition-entry[#:name "tail"]{
+lists the (tail) end of a file to ◊code{stdout}. The default is 10
+lines, but this can be changed with the ◊code{-n} option. Commonly
+used to keep track of changes to a system logfile, using the ◊code{-f}
+option, which outputs lines appended to the file.
+
+◊example{
+#!/bin/bash
+
+filename=sys.log
+
+cat /dev/null > $filename; echo "Creating / cleaning out file."
+#  Creates the file if it does not already exist,
+#+ and truncates it to zero length if it does.
+#  : > filename   and   > filename also work.
+
+tail /var/log/messages > $filename
+# /var/log/messages must have world read permission for this to work.
+
+echo "$filename contains tail end of system log."
+
+exit 0
+}
+
+Tip: To list a specific line of a text file, pipe the output of head to
+◊command{tail -n 1}. For example ◊command{head -n 8 database.txt |
+tail -n 1} lists the 8th line of the file ◊fname{database.txt}.
+
+To set a variable to a given block of a text file:
+
+◊example{
+var=$(head -n $m $filename | tail -n $n)
+
+# filename = name of file
+# m = from beginning of file, number of lines to end of block
+# n = number of lines to set variable to (trim from end of block)
+}
+
+Note: Newer implementations of ◊command{tail} deprecate the older
+◊command{tail -$LINES filename} usage. The standard ◊command{tail -n
+$LINES filename} is correct.
+
+See also TODO Example 16-5, Example 16-39 and Example 32-6.
+
+}
+
+◊definition-entry[#:name "grep"]{
 }
 
 }
