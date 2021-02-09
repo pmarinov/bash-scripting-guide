@@ -473,6 +473,318 @@ See also TODO Example 16-5, Example 16-39 and Example 32-6.
 }
 
 ◊definition-entry[#:name "grep"]{
+
+A multi-purpose file search tool that uses Regular Expressions. It was
+originally a command/filter in the venerable ed line editor: g/re/p --
+global - regular expression - print.
+
+◊code{grep pattern [file...]}
+
+Search the target file(s) for occurrences of ◊code{pattern}, where
+◊code{pattern} may be literal text or a Regular Expression.
+
+◊example{
+bash$ grep '[rst]ystem.$' osinfo.txt
+The GPL governs the distribution of the Linux operating system.
+
+}
+
+If no target file(s) specified, ◊command{grep} works as a filter on
+◊code{stdout}, as in a pipe.
+
+◊example{
+bash$ ps ax | grep clock
+765 tty1     S      0:00 xclock
+901 pts/1    S      0:00 grep clock
+
+}
+
+The ◊code{-i} option causes a case-insensitive search.
+
+The ◊code{-w} option matches only whole words.
+
+The ◊code{-l} option lists only the files in which matches were found,
+but not the matching lines.
+
+The ◊code{-r} (recursive) option searches files in the current working
+directory and all subdirectories below it.
+
+The ◊code{-n} option lists the matching lines, together with line
+numbers.
+
+◊example{
+bash$ grep -n Linux osinfo.txt
+2:This is a file containing information about Linux.
+6:The GPL governs the distribution of the Linux operating system.
+
+}
+
+The ◊code{-v} (or ◊code{--invert-match}) option filters out matches.
+
+◊example{
+grep pattern1 *.txt | grep -v pattern2
+
+# Matches all lines in "*.txt" files containing "pattern1",
+# but ***not*** "pattern2".
+}
+
+The ◊code{-c} (◊code{--count}) option gives a numerical count of
+matches, rather than actually listing the matches.
+
+◊example{
+grep -c txt *.sgml   # (number of occurrences of "txt" in "*.sgml" files)
+
+
+#   grep -cz .
+#            ^ dot
+# means count (-c) zero-separated (-z) items matching "."
+# that is, non-empty ones (containing at least 1 character).
+#
+printf 'a b\nc  d\n\n\n\n\n\000\n\000e\000\000\nf' | grep -cz .     # 3
+printf 'a b\nc  d\n\n\n\n\n\000\n\000e\000\000\nf' | grep -cz '$'   # 5
+printf 'a b\nc  d\n\n\n\n\n\000\n\000e\000\000\nf' | grep -cz '^'   # 5
+#
+printf 'a b\nc  d\n\n\n\n\n\000\n\000e\000\000\nf' | grep -c '$'    # 9
+# By default, newline chars (\n) separate items to match.
+
+# Note that the -z option is GNU "grep" specific.
+
+}
+
+◊anchored-example[#:anchor "grep_color1"]{Printing out the From lines
+in stored e-mail messages}
+
+The ◊code{--color} (or ◊code{--colour}) option marks the matching
+string in color (on the console or in an ◊code{xterm} window). Since
+◊code{grep} prints out each entire line containing the matching
+pattern, this lets you see exactly what is being matched. See also the
+◊code{-o} option, which shows only the matching portion of the
+line(s).
+
+◊example{
+#!/bin/bash
+# from.sh
+
+#  Emulates the useful 'from' utility in Solaris, BSD, etc.
+#  Echoes the "From" header line in all messages
+#+ in your e-mail directory.
+
+
+MAILDIR=~/mail/*               #  No quoting of variable. Why?
+# Maybe check if-exists $MAILDIR:   if [ -d $MAILDIR ] . . .
+GREP_OPTS="-H -A 5 --color"    #  Show file, plus extra context lines
+                               #+ and display "From" in color.
+TARGETSTR="^From"              # "From" at beginning of line.
+
+for file in $MAILDIR           #  No quoting of variable.
+do
+  grep $GREP_OPTS "$TARGETSTR" "$file"
+  #    ^^^^^^^^^^              #  Again, do not quote this variable.
+  echo
+done
+
+exit $?
+
+#  You might wish to pipe the output of this script to 'more'
+#+ or redirect it to a file . . .
+}
+
+When invoked with more than one target file given, ◊command{grep}
+specifies which file contains matches.
+
+◊example{
+bash$ grep Linux osinfo.txt misc.txt
+osinfo.txt:This is a file containing information about Linux.
+osinfo.txt:The GPL governs the distribution of the Linux operating system.
+misc.txt:The Linux operating system is steadily gaining in popularity.
+
+}
+
+Tip: To force ◊command{grep} to show the filename when searching only
+one target file, simply give ◊fname{/dev/null} as the second file.
+
+◊example{
+bash$ grep Linux osinfo.txt /dev/null
+osinfo.txt:This is a file containing information about Linux.
+osinfo.txt:The GPL governs the distribution of the Linux operating system
+
+}
+
+If there is a successful match, ◊command{grep} returns an exit status
+of 0, which makes it useful in a condition test in a script,
+especially in combination with the ◊code{-q} option to suppress
+output.
+
+◊example{
+SUCCESS=0                      # if grep lookup succeeds
+word=Linux
+filename=data.file
+
+grep -q "$word" "$filename"    #  The "-q" option
+                               #+ causes nothing to echo to stdout.
+if [ $? -eq $SUCCESS ]
+# if grep -q "$word" "$filename"   can replace lines 5 - 7.
+then
+  echo "$word found in $filename"
+else
+  echo "$word not found in $filename"
+fi
+}
+
+TODO Example 32-6 demonstrates how to use ◊code{grep} to search for a
+word pattern in a system logfile.
+
+◊anchored-example[#:anchor "grep_emu1"]{Emulating grep in a script}
+
+◊example{
+#!/bin/bash
+# grp.sh: Rudimentary reimplementation of grep.
+
+E_BADARGS=85
+
+if [ -z "$1" ]    # Check for argument to script.
+then
+  echo "Usage: `basename $0` pattern"
+  exit $E_BADARGS
+fi
+
+echo
+
+for file in *     # Traverse all files in $PWD.
+do
+  output=$(sed -n /"$1"/p $file)  # Command substitution.
+
+  if [ ! -z "$output" ]           # What happens if "$output" is not quoted?
+  then
+    echo -n "$file: "
+    echo "$output"
+  fi              #  sed -ne "/$1/s|^|${file}: |p"  is equivalent to above.
+
+  echo
+done
+
+echo
+
+exit 0
+
+# Exercises:
+# ---------
+# 1) Add newlines to output, if more than one match in any given file.
+# 2) Add features.
+
+}
+
+How can ◊command{grep} search for two (or more) separate patterns?
+What if you want ◊command{grep} to display all lines in a file or
+files that contain both "pattern1" and "pattern2"?
+
+One method is to pipe the result of ◊command{grep pattern1} to
+◊command{grep pattern2}.
+
+For example, given the following file:
+
+◊example{
+# Filename: tstfile
+
+This is a sample file.
+This is an ordinary text file.
+This file does not contain any unusual text.
+This file is not unusual.
+Here is some text.
+}
+
+Now, let's search this file for lines containing both "file" and
+"text" ...
+
+◊example{
+bash$ grep file tstfile
+# Filename: tstfile
+This is a sample file.
+This is an ordinary text file.
+This file does not contain any unusual text.
+This file is not unusual.
+
+bash$ grep file tstfile | grep text
+This is an ordinary text file.
+This file does not contain any unusual text.
+
+}
+
+◊anchored-example[#:anchor "grep_crswd1"]{Crossword puzzle solver}
+
+Now, for an interesting recreational use of ◊command{grep} ...
+
+◊example{
+#!/bin/bash
+# cw-solver.sh
+# This is actually a wrapper around a one-liner (line 46).
+
+#  Crossword puzzle and anagramming word game solver.
+#  You know *some* of the letters in the word you're looking for,
+#+ so you need a list of all valid words
+#+ with the known letters in given positions.
+#  For example: w...i....n
+#               1???5????10
+# w in position 1, 3 unknowns, i in the 5th, 4 unknowns, n at the end.
+# (See comments at end of script.)
+
+
+E_NOPATT=71
+DICT=/usr/share/dict/word.lst
+#                    ^^^^^^^^   Looks for word list here.
+#  ASCII word list, one word per line.
+#  If you happen to need an appropriate list,
+#+ download the author's "yawl" word list package.
+#  http://ibiblio.org/pub/Linux/libs/yawl-0.3.2.tar.gz
+#  or
+#  http://bash.deta.in/yawl-0.3.2.tar.gz
+
+
+if [ -z "$1" ]   #  If no word pattern specified
+then             #+ as a command-line argument . . .
+  echo           #+ . . . then . . .
+  echo "Usage:"  #+ Usage message.
+  echo
+  echo ""$0" \"pattern,\""
+  echo "where \"pattern\" is in the form"
+  echo "xxx..x.x..."
+  echo
+  echo "The x's represent known letters,"
+  echo "and the periods are unknown letters (blanks)."
+  echo "Letters and periods can be in any position."
+  echo "For example, try:   sh cw-solver.sh w...i....n"
+  echo
+  exit $E_NOPATT
+fi
+
+echo
+# ===============================================
+# This is where all the work gets done.
+grep ^"$1"$ "$DICT"   # Yes, only one line!
+#    |    |
+# ^ is start-of-word regex anchor.
+# $ is end-of-word regex anchor.
+
+#  From _Stupid Grep Tricks_, vol. 1,
+#+ a book the ABS Guide author may yet get around
+#+ to writing . . . one of these days . . .
+# ===============================================
+echo
+
+
+exit $?  # Script terminates here.
+#  If there are too many words generated,
+#+ redirect the output to a file.
+
+$ sh cw-solver.sh w...i....n
+
+wellington
+workingman
+workingmen
+}
+
+◊command{egrep}
+
 }
 
 }
