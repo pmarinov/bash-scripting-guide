@@ -783,8 +783,130 @@ workingman
 workingmen
 }
 
-◊command{egrep}
+◊definition-entry[#:name "egrep"]{
+extended grep -- is the same as ◊command{grep -E}. This uses a
+somewhat different, extended set of Regular Expressions, which can
+make the search a bit more flexible. It also allows the boolean
+◊code{|} (or) operator.
 
+◊example{
+bash $ egrep 'matches|Matches' file.txt
+Line 1 matches.
+Line 3 Matches.
+Line 4 contains matches, but also Matches
+
+}
+
+}
+
+◊definition-entry[#:name "fgrep"]{
+fast grep -- is the same as ◊command{grep -F}. It does a literal
+string search (no Regular Expressions), which generally speeds things
+up a bit.
+
+Note: On some Linux distros, ◊command{egrep} and ◊command{fgrep} are
+symbolic links to, or aliases for ◊command{grep}, but invoked with the
+◊code{-E} and ◊code{-F} options, respectively.
+
+◊anchored-example[#:anchor "grep_dict1"]{Looking up definitions in
+Webster's 1913 Dictionary}
+
+◊example{
+#!/bin/bash
+# dict-lookup.sh
+
+#  This script looks up definitions in the 1913 Webster's Dictionary.
+#  This Public Domain dictionary is available for download
+#+ from various sites, including
+#+ Project Gutenberg (http://www.gutenberg.org/etext/247).
+#
+#  Convert it from DOS to UNIX format (with only LF at end of line)
+#+ before using it with this script.
+#  Store the file in plain, uncompressed ASCII text.
+#  Set DEFAULT_DICTFILE variable below to path/filename.
+
+
+E_BADARGS=85
+MAXCONTEXTLINES=50                        # Maximum number of lines to show.
+DEFAULT_DICTFILE="/usr/share/dict/webster1913-dict.txt"
+                                          # Default dictionary file pathname.
+                                          # Change this as necessary.
+#  Note:
+#  ----
+#  This particular edition of the 1913 Webster's
+#+ begins each entry with an uppercase letter
+#+ (lowercase for the remaining characters).
+#  Only the *very first line* of an entry begins this way,
+#+ and that's why the search algorithm below works.
+
+
+
+if [[ -z $(echo "$1" | sed -n '/^[A-Z]/p') ]]
+#  Must at least specify word to look up, and
+#+ it must start with an uppercase letter.
+then
+  echo "Usage: `basename $0` Word-to-define [dictionary-file]"
+  echo
+  echo "Note: Word to look up must start with capital letter,"
+  echo "with the rest of the word in lowercase."
+  echo "--------------------------------------------"
+  echo "Examples: Abandon, Dictionary, Marking, etc."
+  exit $E_BADARGS
+fi
+
+
+if [ -z "$2" ]                            #  May specify different dictionary
+                                          #+ as an argument to this script.
+then
+  dictfile=$DEFAULT_DICTFILE
+else
+  dictfile="$2"
+fi
+
+# ---------------------------------------------------------
+Definition=$(fgrep -A $MAXCONTEXTLINES "$1 \\" "$dictfile")
+#                  Definitions in form "Word \..."
+#
+#  And, yes, "fgrep" is fast enough
+#+ to search even a very large text file.
+
+
+# Now, snip out just the definition block.
+
+echo "$Definition" |
+sed -n '1,/^[A-Z]/p' |
+#  Print from first line of output
+#+ to the first line of the next entry.
+sed '$d' | sed '$d'
+#  Delete last two lines of output
+#+ (blank line and first line of next entry).
+# ---------------------------------------------------------
+
+exit $?
+
+# Exercises:
+# ---------
+# 1)  Modify the script to accept any type of alphabetic input
+#   + (uppercase, lowercase, mixed case), and convert it
+#   + to an acceptable format for processing.
+#
+# 2)  Convert the script to a GUI application,
+#   + using something like 'gdialog' or 'zenity' . . .
+#     The script will then no longer take its argument(s)
+#   + from the command-line.
+#
+# 3)  Modify the script to parse one of the other available
+#   + Public Domain Dictionaries, such as the U.S. Census Bureau Gazetteer.
+}
+
+Note: See also TODO Example A-41 for an example of speedy fgrep lookup
+on a large text file.
+
+}
+
+}
+
+◊definition-entry[#:name "agrep"]{
 }
 
 }
