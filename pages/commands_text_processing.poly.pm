@@ -907,6 +907,161 @@ on a large text file.
 }
 
 ◊definition-entry[#:name "agrep"]{
+Approximate grep -- extends the capabilities of ◊command{grep} to approximate
+matching. The search string may differ by a specified number of
+characters from the resulting matches. This utility is not part of the
+core Linux distribution.
+
+Tip: To search compressed files, use ◊command{zgrep},
+◊command{zegrep}, or ◊command{zfgrep}. These also work on
+non-compressed files, though slower than plain ◊command{grep},
+◊command{egrep}, ◊command{fgrep}. They are handy for searching through
+a mixed set of files, some compressed, some not.
+
+To search bzipped files, use ◊command{bzgrep}.
+
+}
+
+◊definition-entry[#:name "look"]{
+The command ◊command{look} works like ◊command{grep}, but does a
+lookup on a "dictionary," a sorted word list. By default,
+◊command{look} searches for a match in ◊fname{/usr/dict/words}, but a
+different dictionary file may be specified.
+
+◊anchored-example[#:anchor "chk_wrd_valid1"]{Checking words in a list
+for validity}
+
+◊example{
+#!/bin/bash
+# lookup: Does a dictionary lookup on each word in a data file.
+
+file=words.data  # Data file from which to read words to test.
+
+echo
+echo "Testing file $file"
+echo
+
+while [ "$word" != end ]  # Last word in data file.
+do               # ^^^
+  read word      # From data file, because of redirection at end of loop.
+  look $word > /dev/null  # Don't want to display lines in dictionary file.
+  #  Searches for words in the file /usr/share/dict/words
+  #+ (usually a link to linux.words).
+  lookup=$?      # Exit status of 'look' command.
+
+  if [ "$lookup" -eq 0 ]
+  then
+    echo "\"$word\" is valid."
+  else
+    echo "\"$word\" is invalid."
+  fi
+
+done <"$file"    # Redirects stdin to $file, so "reads" come from there.
+
+echo
+
+exit 0
+
+# ----------------------------------------------------------------
+# Code below line will not execute because of "exit" command above.
+
+
+# Stephane Chazelas proposes the following, more concise alternative:
+
+while read word && [[ $word != end ]]
+do if look "$word" > /dev/null
+   then echo "\"$word\" is valid."
+   else echo "\"$word\" is invalid."
+   fi
+done <"$file"
+
+exit 0
+}
+
+◊definition-entry[#:name "sed"]{
+Non-interactive "stream editor", permits using many ◊command{ex}
+commands in batch mode. It finds many uses in shell scripts.
+
+TODO: See reference to a more detailed page
+
+}
+
+◊definition-entry[#:name "awk"]{
+Programmable file extractor and formatter, good for manipulating
+and/or extracting fields (columns) in structured text files. Its
+syntax is similar to C.
+
+TODO: See reference to a more detailed page
+
+}
+
+◊definition-entry[#:name "wc"]{
+
+◊command{wc} gives a "word count" on a file or I/O stream:
+
+◊example{
+bash $ wc /usr/share/doc/sed-4.1.2/README
+13  70  447 README
+[13 lines  70 words  447 characters]
+}
+
+◊command{wc -w} gives only the word count.
+
+◊command{wc -l} gives only the line count.
+
+◊command{wc -c} gives only the byte count.
+
+◊command{wc -m} gives only the character count.
+
+◊command{wc -L} gives only the length of the longest line.
+
+Using ◊command{wc} to count how many ◊fname{.txt} files are in current
+working directory:
+
+◊example{
+$ ls *.txt | wc -l
+#  Will work as long as none of the "*.txt" files
+#+ have a linefeed embedded in their name.
+
+#  Alternative ways of doing this are:
+#      find . -maxdepth 1 -name \*.txt -print0 | grep -cz .
+#      (shopt -s nullglob; set -- *.txt; echo $#)
+}
+
+Using ◊command{wc} to total up the size of all the files whose names
+begin with letters in the range d - h:
+
+◊example{
+bash$ wc [d-h]* | grep total | awk '{print $3}'
+71832
+}
+
+Using ◊command{wc} to count the instances of the word "Linux" in the
+main source file for this book.
+
+◊example{
+bash$ grep Linux abs-book.sgml | wc -l
+138
+}
+
+See TODO also Example 16-39 and Example 20-8.
+
+Certain commands include some of the functionality of ◊command{wc} as
+options.
+
+◊example{
+... | grep foo | wc -l
+# This frequently used construct can be more concisely rendered.
+
+... | grep -c foo
+# Just use the "-c" (or "--count") option of grep.
+}
+
+◊definition-entry[#:name "tr"]{
+}
+
+}
+
 }
 
 }
