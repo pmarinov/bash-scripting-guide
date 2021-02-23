@@ -473,7 +473,6 @@ See also TODO Example 16-5, Example 16-39 and Example 32-6.
 }
 
 ◊definition-entry[#:name "grep"]{
-
 A multi-purpose file search tool that uses Regular Expressions. It was
 originally a command/filter in the venerable ed line editor: g/re/p --
 global - regular expression - print.
@@ -978,6 +977,8 @@ done <"$file"
 exit 0
 }
 
+}
+
 ◊definition-entry[#:name "sed"]{
 Non-interactive "stream editor", permits using many ◊command{ex}
 commands in batch mode. It finds many uses in shell scripts.
@@ -996,7 +997,6 @@ TODO: See reference to a more detailed page
 }
 
 ◊definition-entry[#:name "wc"]{
-
 ◊command{wc} gives a "word count" on a file or I/O stream:
 
 ◊example{
@@ -1057,11 +1057,262 @@ options.
 # Just use the "-c" (or "--count") option of grep.
 }
 
+}
+
 ◊definition-entry[#:name "tr"]{
+character translation filter.
+
+Caution: Must use quoting and/or brackets, as appropriate. Quotes
+prevent the shell from reinterpreting the special characters in
+◊command{tr} command sequences. Brackets should be quoted to prevent
+expansion by the shell.
+
+Either ◊command{tr "A-Z" "*" <filename or tr A-Z \* <filename} changes
+all the uppercase letters in ◊code{filename} to asterisks (writes to
+◊code{stdout}). On some systems this may not work, but ◊command{tr A-Z
+'[**]'} will.
+
+The ◊code{-d} option deletes a range of characters.
+
+◊example{
+echo "abcdef"                 # abcdef
+echo "abcdef" | tr -d b-d     # aef
+
+
+tr -d 0-9 <filename
+# Deletes all digits from the file "filename".
 }
+
+The ◊code{--squeeze-repeats} (or ◊code{-s}) option deletes all but the
+first instance of a string of consecutive characters. This option is
+useful for removing excess whitespace.
+
+◊example{
+bash$ echo "XXXXX" | tr --squeeze-repeats 'X'
+X
+}
+
+The ◊code{-c} "complement" option inverts the character set to
+match. With this option, ◊command{tr} acts only upon those characters
+not matching the specified set.
+
+◊example{
+bash$ echo "acfdeb123" | tr -c b-d +
++c+d+b++++
+}
+
+Note that ◊command{tr} recognizes POSIX character classes. [1]
+
+◊example{
+bash$ echo "abcd2ef1" | tr '[:alpha:]' -
+----2--1
+}
+
+◊anchored-example[#:anchor "toupper_tr1"]{toupper: Transforms a file
+to all uppercase}
+
+◊example{
+#!/bin/bash
+# Changes a file to all uppercase.
+
+E_BADARGS=85
+
+if [ -z "$1" ]  # Standard check for command-line arg.
+then
+  echo "Usage: `basename $0` filename"
+  exit $E_BADARGS
+fi
+
+tr a-z A-Z <"$1"
+
+# Same effect as above, but using POSIX character set notation:
+#        tr '[:lower:]' '[:upper:]' <"$1"
+# Thanks, S.C.
+
+#     Or even . . .
+#     cat "$1" | tr a-z A-Z
+#     Or dozens of other ways . . .
+
+exit 0
+
+#  Exercise:
+#  Rewrite this script to give the option of changing a file
+#+ to *either* upper or lowercase.
+#  Hint: Use either the "case" or "select" command.
+}
+
+◊anchored-example[#:anchor "tolower_tr1"]{lowercase: Changes all
+filenames in working directory to lowercase}
+
+◊example{
+#!/bin/bash
+#
+#  Changes every filename in working directory to all lowercase.
+#
+#  Inspired by a script of John Dubois,
+#+ which was translated into Bash by Chet Ramey,
+#+ and considerably simplified by the author of the ABS Guide.
+
+
+for filename in *                # Traverse all files in directory.
+do
+   fname=`basename $filename`
+   n=`echo $fname | tr A-Z a-z`  # Change name to lowercase.
+   if [ "$fname" != "$n" ]       # Rename only files not already lowercase.
+   then
+     mv $fname $n
+   fi
+done
+
+exit $?
+
+
+# Code below this line will not execute because of "exit".
+#--------------------------------------------------------#
+# To run it, delete script above line.
+
+# The above script will not work on filenames containing blanks or newlines.
+# Stephane Chazelas therefore suggests the following alternative:
+
+
+for filename in *    # Not necessary to use basename,
+                     # since "*" won't return any file containing "/".
+do n=`echo "$filename/" | tr '[:upper:]' '[:lower:]'`
+#                             POSIX char set notation.
+#                    Slash added so that trailing newlines are not
+#                    removed by command substitution.
+   # Variable substitution:
+   n=${n%/}          # Removes trailing slash, added above, from filename.
+   [[ $filename == $n ]] || mv "$filename" "$n"
+                     # Checks if filename already lowercase.
+done
+
+exit $?
+}
+
+◊anchored-example[#:anchor "du_tr1"]{du: DOS to UNIX text file
+conversion}
+
+◊example{
+#!/bin/bash
+# Du.sh: DOS to UNIX text file converter.
+
+E_WRONGARGS=85
+
+if [ -z "$1" ]
+then
+  echo "Usage: `basename $0` filename-to-convert"
+  exit $E_WRONGARGS
+fi
+
+NEWFILENAME=$1.unx
+
+CR='\015'  # Carriage return.
+           # 015 is octal ASCII code for CR.
+           # Lines in a DOS text file end in CR-LF.
+           # Lines in a UNIX text file end in LF only.
+
+tr -d $CR < $1 > $NEWFILENAME
+# Delete CR's and write to new file.
+
+echo "Original DOS text file is \"$1\"."
+echo "Converted UNIX text file is \"$NEWFILENAME\"."
+
+exit 0
+
+# Exercise:
+# --------
+# Change the above script to convert from UNIX to DOS.
+}
+
+◊anchored-example[#:anchor "rot13_tr1"]{rot13: ultra-weak encryption}
+
+◊example{
+#!/bin/bash
+# rot13.sh: Classic rot13 algorithm,
+#           encryption that might fool a 3-year old
+#           for about 10 minutes.
+
+# Usage: ./rot13.sh filename
+# or     ./rot13.sh <filename
+# or     ./rot13.sh and supply keyboard input (stdin)
+
+cat "$@" | tr 'a-zA-Z' 'n-za-mN-ZA-M'   # "a" goes to "n", "b" to "o" ...
+#  The   cat "$@"   construct
+#+ permits input either from stdin or from files.
+
+exit 0
+}
+
+◊anchored-example[#:anchor "crypto_tr1"]{Generating "Crypto-Quote"
+Puzzles}
+
+◊example{
+#!/bin/bash
+# crypto-quote.sh: Encrypt quotes
+
+#  Will encrypt famous quotes in a simple monoalphabetic substitution.
+#  The result is similar to the "Crypto Quote" puzzles
+#+ seen in the Op Ed pages of the Sunday paper.
+
+
+key=ETAOINSHRDLUBCFGJMQPVWZYXK
+# The "key" is nothing more than a scrambled alphabet.
+# Changing the "key" changes the encryption.
+
+# The 'cat "$@"' construction gets input either from stdin or from files.
+# If using stdin, terminate input with a Control-D.
+# Otherwise, specify filename as command-line parameter.
+
+cat "$@" | tr "a-z" "A-Z" | tr "A-Z" "$key"
+#        |  to uppercase  |     encrypt
+# Will work on lowercase, uppercase, or mixed-case quotes.
+# Passes non-alphabetic characters through unchanged.
+
+
+# Try this script with something like:
+# "Nothing so needs reforming as other people's habits."
+# --Mark Twain
+#
+# Output is:
+# "CFPHRCS QF CIIOQ MINFMBRCS EQ FPHIM GIFGUI'Q HETRPQ."
+# --BEML PZERC
+
+# To reverse the encryption:
+# cat "$@" | tr "$key" "A-Z"
+
+
+#  This simple-minded cipher can be broken by an average 12-year old
+#+ using only pencil and paper.
+
+exit 0
+
+#  Exercise:
+#  --------
+#  Modify the script so that it will either encrypt or decrypt,
+#+ depending on command-line argument(s).
+}
+
+Of course, ◊command{tr} lends itself to code obfuscation.
+
+◊example{
+#!/bin/bash
+# jabh.sh
+
+x="wftedskaebjgdBstbdbsmnjgz"
+echo $x | tr "a-z" 'oh, turtleneck Phrase Jar!'
+
+# Based on the Wikipedia "Just another Perl hacker" article.
+}
+
+Variants: The ◊command{tr} utility has two historic
+variants. The BSD version does not use brackets (◊command{tr a-z
+A-Z}), but the SysV one does (◊command{tr '[a-z]' '[A-Z]'}). The GNU
+version of tr resembles the BSD one.
 
 }
 
+◊definition-entry[#:name "fold"]{
 }
 
 }
