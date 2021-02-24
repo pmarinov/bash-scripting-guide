@@ -1313,6 +1313,36 @@ version of tr resembles the BSD one.
 }
 
 ◊definition-entry[#:name "fold"]{
+A filter that wraps lines of input to a specified width. This is
+especially useful with the ◊code{-s} option, which breaks lines at
+word spaces (see TODO Example 16-26 and Example A-1).
+
+}
+
+◊definition-entry[#:name "fmt"]{
+Simple-minded file formatter, used as a filter in a pipe to "wrap"
+long lines of text output.
+
+◊example{
+#!/bin/bash
+
+WIDTH=40                    # 40 columns wide.
+
+b=`ls /usr/local/bin`       # Get a file listing...
+
+echo $b | fmt -w $WIDTH
+
+# Could also have been done by
+#    echo $b | fold - -s -w $WIDTH
+
+exit 0
+}
+
+See also TODO Example 16-5.
+
+Tip: A powerful alternative to ◊code{fmt} is Kamil Toman's ◊code{par}
+utility, available from http://www.cs.berkeley.edu/~amc/Par/.
+
 }
 
 }
