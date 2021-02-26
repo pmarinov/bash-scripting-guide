@@ -1345,6 +1345,46 @@ utility, available from http://www.cs.berkeley.edu/~amc/Par/.
 
 }
 
+◊definition-entry[#:name "col"]{
+This deceptively named filter removes reverse line feeds from an input
+stream. It also attempts to replace whitespace with equivalent
+tabs. The chief use of ◊command{col} is in filtering the output from
+certain text processing utilities, such as ◊command{groff} and
+◊command{tbl}.
+
+}
+
+◊definition-entry[#:name "column"]{
+Column formatter. This filter transforms list-type text output into a
+"pretty-printed" table by inserting tabs at appropriate places.
+
+◊anchored-example[#:anchor "col_fmt_dir1"]{Using column to format a
+directory listing}
+
+◊example{
+#!/bin/bash
+# colms.sh
+# A minor modification of the example file in the "column" man page.
+
+
+(printf "PERMISSIONS LINKS OWNER GROUP SIZE MONTH DAY HH:MM PROG-NAME\n" \
+; ls -l | sed 1d) | column -t
+#         ^^^^^^           ^^
+
+#  The "sed 1d" in the pipe deletes the first line of output,
+#+ which would be "total        N",
+#+ where "N" is the total number of files found by "ls -l".
+
+# The -t option to "column" pretty-prints a table.
+
+exit 0
+}
+
+◊definition-entry[#:name "colrm"]{
+}
+
+}
+
 }
 
 ◊; emacs:
