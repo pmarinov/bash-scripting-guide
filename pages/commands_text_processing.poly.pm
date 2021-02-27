@@ -1380,8 +1380,28 @@ directory listing}
 exit 0
 }
 
-◊definition-entry[#:name "colrm"]{
 }
+
+◊definition-entry[#:name "colrm"]{
+Column removal filter. This removes columns (characters) from a file
+and writes the file, lacking the range of specified columns, back to
+◊code{stdout}. ◊command{colrm 2 4 <filename} removes the second
+through fourth characters from each line of the text file
+◊fname{filename}.
+
+Caution: If the file contains tabs or nonprintable characters, this
+may cause unpredictable behavior. In such cases, consider using expand
+and unexpand in a pipe preceding ◊command{colrm}.
+
+}
+
+◊definition-entry[#:name "nl"]{
+Line numbering filter: ◊command{nl filename} lists ◊fname{filename} to
+◊code{stdout}, but inserts consecutive numbers at the beginning of each
+non-blank line. If ◊fname{filename} omitted, operates on ◊code{stdin}.
+
+The output of ◊command{nl} is very similar to ◊command{cat -b}, since,
+by default ◊command{nl} does not list blank lines.
 
 }
 
