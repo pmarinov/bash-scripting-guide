@@ -1430,6 +1430,34 @@ exit 0
 }
 
 ◊definition-entry[#:name "pr"]{
+Print formatting filter. This will paginate files (or stdout) into
+sections suitable for hard copy printing or viewing on screen. Various
+options permit row and column manipulation, joining lines, setting
+margins, numbering lines, adding page headers, and merging files,
+among other things. The ◊command{pr} command combines much of the
+functionality of ◊command{nl}, ◊command{paste}, ◊command{fold},
+◊command{column}, and ◊command{expand}.
+
+◊command{pr -o 5 --width=65 fileZZZ | more} gives a nice paginated
+listing to screen of ◊fname{fileZZZ} with margins set at 5 and 65.
+
+A particularly useful option is ◊code{-d}, forcing double-spacing
+(same effect as ◊command{sed -G}).
+
+}
+
+◊definition-entry[#:name "gettext"]{
+The GNU ◊command{gettext} package is a set of utilities for localizing
+and translating the text output of programs into foreign
+languages. While originally intended for C programs, it now supports
+quite a number of programming and scripting languages.
+
+The ◊command{gettext} program works on shell scripts. See the
+◊command{info} page.
+
+}
+
+◊definition-entry[#:name "msgfmt"]{
 }
 
 }
