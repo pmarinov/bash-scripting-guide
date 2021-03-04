@@ -1458,6 +1458,32 @@ The ◊command{gettext} program works on shell scripts. See the
 }
 
 ◊definition-entry[#:name "msgfmt"]{
+A program for generating binary message catalogs. It is used for
+localization.
+
+}
+
+◊definition-entry[#:name "iconv"]{
+A utility for converting file(s) to a different encoding (character
+set). Its chief use is for localization.
+
+◊example{
+# Convert a string from UTF-8 to UTF-16 and print to the BookList
+function write_utf8_string {
+    STRING=$1
+    BOOKLIST=$2
+    echo -n "$STRING" | iconv -f UTF8 -t UTF16 | \
+    cut -b 3- | tr -d \\n >> "$BOOKLIST"
+}
+
+#  From Peter Knowles' "booklistgen.sh" script
+#+ for converting files to Sony Librie/PRS-50X format.
+#  (http://booklistgensh.peterknowles.com)
+}
+
+}
+
+◊definition-entry[#:name "recode"]{
 }
 
 }
