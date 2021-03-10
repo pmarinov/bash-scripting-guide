@@ -1484,6 +1484,34 @@ function write_utf8_string {
 }
 
 ◊definition-entry[#:name "recode"]{
+Consider this a fancier version of ◊command{iconv}, above. This very
+versatile utility for converting a file to a different encoding
+scheme. Note that ◊command{recode} is not part of the standard Linux
+installation.
+
+}
+
+◊definition-entry[#:name "tex, gs"]{
+TeX and Postscript are text markup languages used for preparing copy
+for printing or formatted video display.
+
+TeX is Donald Knuth's elaborate typsetting system. It is often
+convenient to write a shell script encapsulating all the options and
+arguments passed to one of these markup languages.
+
+Ghostscript (gs) is a GPL-ed Postscript interpreter.
+
+}
+
+◊definition-entry[#:name "enscript"]{
+Utility for converting plain text file to PostScript
+
+For example, ◊command{enscript filename.txt -p filename.ps} produces
+the PostScript output file ◊fname{filename.ps}.
+
+}
+
+◊definition-entry[#:name "groff, tbl, eqn"]{
 }
 
 }
