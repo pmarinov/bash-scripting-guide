@@ -1512,6 +1512,65 @@ the PostScript output file ◊fname{filename.ps}.
 }
 
 ◊definition-entry[#:name "groff, tbl, eqn"]{
+Yet another text markup and display formatting language is
+◊command{groff}. This is the enhanced GNU version of the venerable
+UNIX ◊command{roff/troff} display and typesetting package. Manpages
+use ◊command{groff}.
+
+The ◊command{tbl} table processing utility is considered part of
+◊command{groff}, as its function is to convert table markup into
+◊command{groff} commands.
+
+The ◊command{eqn} equation processing utility is likewise part of
+◊command{groff}, and its function is to convert equation markup into
+◊command{groff} commands.
+
+◊anchored-example[#:anchor "man_fmt1"]{manview: Viewing formatted
+manpages}
+
+◊example{
+#!/bin/bash
+# manview.sh: Formats the source of a man page for viewing.
+
+#  This script is useful when writing man page source.
+#  It lets you look at the intermediate results on the fly
+#+ while working on it.
+
+E_WRONGARGS=85
+
+if [ -z "$1" ]
+then
+  echo "Usage: `basename $0` filename"
+  exit $E_WRONGARGS
+fi
+
+# ---------------------------
+groff -Tascii -man $1 | less
+# From the man page for groff.
+# ---------------------------
+
+#  If the man page includes tables and/or equations,
+#+ then the above code will barf.
+#  The following line can handle such cases.
+#
+#   gtbl < "$1" | geqn -Tlatin1 | groff -Tlatin1 -mtty-char -man
+
+exit $?   # See also the "maned.sh" script.
+}
+
+See also TODO Example A-39.
+
+}
+
+◊definition-entry[#:name "lex, yacc"]{
+The ◊command{lex} lexical analyzer produces programs for pattern
+matching. This has been replaced by the nonproprietary ◊command{flex}
+on Linux systems.
+
+The ◊command{yacc} utility creates a parser based on a set of
+specifications. This has been replaced by the nonproprietary
+◊command{bison} on Linux systems.
+
 }
 
 }
