@@ -60,6 +60,7 @@ pages/exit_status.poly.pm
   pages/commands_external_complex.poly.pm
   pages/commands_time_date.poly.pm
   pages/commands_text_processing.poly.pm
+  pages/commands_file_and_archiving.poly.pm
 }
 
 }
