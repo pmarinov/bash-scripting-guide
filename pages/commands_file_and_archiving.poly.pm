@@ -90,7 +90,6 @@ Staticly linked libraries for C/C++ programs are managed via
 }
 
 ◊definition-entry[#:name "rpm"]{
-
 The Red Hat Package Manager, or ◊command{rpm} utility provides a
 wrapper for source or binary archives. It includes commands for
 installing and checking the integrity of packages, among other things.
@@ -136,6 +135,84 @@ docbook-dtd40-sgml-1.0-11
 docbook-utils-pdf-0.6.9-2
 docbook-dtd41-sgml-1.0-10
 docbook-utils-0.6.9-2
+}
+
+}
+
+◊definition-entry[#:name "cpio"]{
+This specialized archiving copy command (copy input and output) is
+rarely seen any more, having been supplanted by
+◊code{tar}/◊code{gzip}. It still has its uses, such as moving a
+directory tree. With an appropriate block size (for copying)
+specified, it can be appreciably faster than ◊command{tar}.
+
+◊example{
+#!/bin/bash
+
+# Copying a directory tree using cpio.
+
+# Advantages of using 'cpio':
+#   Speed of copying. It's faster than 'tar' with pipes.
+#   Well suited for copying special files (named pipes, etc.)
+#+  that 'cp' may choke on.
+
+ARGS=2
+E_BADARGS=65
+
+if [ $# -ne "$ARGS" ]
+then
+  echo "Usage: `basename $0` source destination"
+  exit $E_BADARGS
+fi
+
+source="$1"
+destination="$2"
+
+###################################################################
+find "$source" -depth | cpio -admvp "$destination"
+#               ^^^^^         ^^^^^
+#  Read the 'find' and 'cpio' info pages to decipher these options.
+#  The above works only relative to $PWD (current directory) . . .
+#+ full pathnames are specified.
+###################################################################
+
+
+# Exercise:
+# --------
+
+#  Add code to check the exit status ($?) of the 'find | cpio' pipe
+#+ and output appropriate error messages if anything went wrong.
+
+exit $?
+}
+
+}
+
+◊definition-entry[#:name "rpm2cpio"]{
+This command extracts a ◊code{cpio} archive from an ◊code{rpm} one.
+
+◊example{
+#!/bin/bash
+# de-rpm.sh: Unpack an 'rpm' archive
+
+: ${1?"Usage: `basename $0` target-file"}
+# Must specify 'rpm' archive name as an argument.
+
+
+TEMPFILE=$$.cpio                         #  Tempfile with "unique" name.
+                                         #  $$ is process ID of script.
+
+rpm2cpio < $1 > $TEMPFILE                #  Converts rpm archive into
+                                         #+ cpio archive.
+cpio --make-directories -F $TEMPFILE -i  #  Unpacks cpio archive.
+rm -f $TEMPFILE                          #  Deletes cpio archive.
+
+exit 0
+
+#  Exercise:
+#  Add check for whether 1. "target-file" exists and
+#+                       2. it is an rpm archive.
+#  Hint:                    Parse output of 'file' command.
 }
 
 }
