@@ -215,11 +215,68 @@ exit 0
 #  Hint:                    Parse output of 'file' command.
 }
 
+A single-line alternative (which also avoids the creation of a temp
+file):
+
+◊example{
+bash$ rpm2cpio file.rpm | cpio -idmv
+}
+
+}
+
+◊definition-entry[#:name "pax"]{
+The pax portable archive exchange toolkit facilitates periodic file
+backups and is designed to be cross-compatible between various flavors
+of UNIX. It was designed to replace ◊command{tar} and ◊command{cpio}.
+
+◊example{
+pax -wf daily_backup.pax ~/linux-server/files
+#  Creates a tar archive of all files in the target directory.
+#  Note that the options to pax must be in the correct order --
+#+ pax -fw     has an entirely different effect.
+
+pax -f daily_backup.pax
+#  Lists the files in the archive.
+
+pax -rf daily_backup.pax ~/bsd-server/files
+#  Restores the backed-up files from the Linux machine
+#+ onto a BSD one.
+}
+
+Note that ◊command{pax} handles many of the standard archiving and
+compression commands.
+
 }
 
 }
 
 ◊section{Compression}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "gzip"]{
+The standard GNU/UNIX compression utility, replacing the inferior and
+proprietary ◊command{compress}. The corresponding decompression
+command is ◊command{gunzip}, which is the equivalent of ◊command{gzip
+-d}.
+
+Note: The ◊code{-c} option sends the output of ◊commnand{gzip} to
+◊code{stdout}. This is useful when piping to other commands.
+
+The ◊command{zcat} filter decompresses a gzipped file to
+◊code{stdout}, as possible input to a pipe or redirection. This is, in
+effect, a cat command that works on compressed files (including files
+processed with the older ◊command{compress} utility). The
+◊command{zcat} command is equivalent to ◊command{gzip -dc}.
+
+Caution: On some commercial UNIX systems, ◊command{zcat} is a synonym
+for ◊command{uncompress -c}, and will not work on gzipped files.
+
+See also TODO Example 7-7.
+
+}
+
+}
 
 ◊; emacs:
 ◊; Local Variables:
