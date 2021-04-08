@@ -260,7 +260,7 @@ proprietary ◊command{compress}. The corresponding decompression
 command is ◊command{gunzip}, which is the equivalent of ◊command{gzip
 -d}.
 
-Note: The ◊code{-c} option sends the output of ◊commnand{gzip} to
+Note: The ◊code{-c} option sends the output of ◊command{gzip} to
 ◊code{stdout}. This is useful when piping to other commands.
 
 The ◊command{zcat} filter decompresses a gzipped file to
@@ -273,6 +273,31 @@ Caution: On some commercial UNIX systems, ◊command{zcat} is a synonym
 for ◊command{uncompress -c}, and will not work on gzipped files.
 
 See also TODO Example 7-7.
+
+}
+
+◊definition-entry[#:name "bzip2"]{
+An alternate compression utility, usually more efficient (but slower)
+than ◊command{gzip}, especially on large files. The corresponding
+decompression command is ◊command{bunzip2}.
+
+Similar to the ◊command{zcat} command, ◊command{bzcat} decompresses a
+◊code{bzipped2}-ed file to ◊code{stdout}.
+
+Note: Newer versions of tar have been patched with ◊code{bzip2}
+support.
+
+}
+
+◊definition-entry[#:name "compress, uncompress"]{
+This is an older, proprietary compression utility found in commercial
+UNIX distributions. The more efficient ◊code{gzip} has largely
+replaced it. Linux distributions generally include a compress
+workalike for compatibility, although ◊code{gunzip} can unarchive
+files treated with ◊command{compress}.
+
+Tip: The ◊command{znew} command transforms compressed files into
+gzipped ones.
 
 }
 
