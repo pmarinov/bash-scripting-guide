@@ -301,6 +301,43 @@ gzipped ones.
 
 }
 
+◊definition-entry[#:name "sq"]{
+Yet another compression (squeeze) utility, a filter that works only on
+sorted ASCII word lists. It uses the standard invocation syntax for a
+filter, ◊command{sq < input-file > output-file}. Fast, but not nearly
+as efficient as ◊command{gzip}. The corresponding uncompression filter
+is ◊command{unsq}, invoked like ◊command{sq}.
+
+Tip: The output of ◊command{sq} may be piped to ◊command{gzip} for
+further compression.
+
+}
+
+◊definition-entry[#:name "zip, unzip"]{
+Cross-platform file archiving and compression utility compatible with
+DOS ◊command{pkzip.exe}. "Zipped" archives seem to be a more common
+medium of file exchange on the Internet than "tarballs."
+
+Zip files have the advantage of embedding a checksum to verify archive
+correctness.
+
+}
+
+◊definition-entry[#:name "unarc, unarj, unrar"]{
+These Linux utilities permit unpacking archives compressed with the
+DOS ◊command{arc.exe}, ◊command{arj.exe}, and ◊command{rar.exe}
+programs.
+
+}
+
+◊definition-entry[#:name "lzma, unlzma, lzcat"]{
+Highly efficient Lempel-Ziv-Markov compression. The syntax of ◊command{lzma} is
+similar to that of ◊command{gzip}.
+
+See: https://www.7-zip.org/sdk.html
+
+}
+
 }
 
 ◊; emacs:
