@@ -353,7 +353,6 @@ See: ◊url[#:link "https://en.wikipedia.org/wiki/XZ_Utils"]{}
 ◊definition-block[#:type "code"]{
 
 ◊definition-entry[#:name "file"]{
-
 A utility for identifying file types. The command ◊command{file
 file-name} will return a file specification for ◊code{file-name}, such
 as ascii text or data. It references the magic numbers found in
@@ -478,6 +477,70 @@ esac
 
 exit 0
 }
+
+}
+
+◊definition-entry[#:name "wchich"]{
+◊command{which} command gives the full path to "command." This is
+useful for finding out whether a particular command or utility is
+installed on the system.
+
+◊example{
+bash$ which rm
+/usr/bin/rm
+}
+
+For an interesting use of this command, see TODO Example 36-16.
+
+}
+
+◊definition-entry[#:name "whereis"]{
+Similar to ◊command{which}, above, ◊command{whereis} command gives the
+full path to "command," but also to its manpage.
+
+◊example{
+bash$ whereis rm
+rm: /bin/rm /usr/share/man/man1/rm.1.bz2
+}
+
+}
+
+◊definition-entry[#:name "whatis"]{
+◊command{whatis} command looks up "command" in the ◊code{whatis}
+database. This is useful for identifying system commands and important
+configuration files. Consider it a simplified ◊command{man} command.
+
+◊example{
+bash$ whatis whatis
+whatis               (1)  - search the whatis database for complete words
+}
+
+◊anchored-example[#:anchor "whatis_x11"]{Exploring /usr/X11R6/bin}
+
+◊example{
+#!/bin/bash
+
+# What are all those mysterious binaries in /usr/X11R6/bin?
+
+DIRECTORY="/usr/X11R6/bin"
+# Try also "/bin", "/usr/bin", "/usr/local/bin", etc.
+
+for file in $DIRECTORY/*
+do
+  whatis `basename $file`   # Echoes info about the binary.
+done
+
+exit 0
+
+#  Note: For this to work, you must create a "whatis" database
+#+ with /usr/sbin/makewhatis.
+#  You may wish to redirect output of this script, like so:
+#    ./what.sh >>whatis.db
+#  or view it a page at a time on stdout,
+#    ./what.sh | less
+}
+
+See also TODO Example 11-3.
 
 }
 
