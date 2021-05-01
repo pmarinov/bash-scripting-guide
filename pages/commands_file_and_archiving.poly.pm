@@ -544,8 +544,255 @@ See also TODO Example 11-3.
 
 }
 
+◊definition-entry[#:name "vdir"]{
+Show a detailed directory listing. The effect is similar to
+◊command{ls -lb}.
+
+This is one of the GNU fileutils.
+
+◊example{
+bash$ vdir
+total 10
+-rw-r--r--    1 bozo  bozo      4034 Jul 18 22:04 data1.xrolo
+-rw-r--r--    1 bozo  bozo      4602 May 25 13:58 data1.xrolo.bak
+-rw-r--r--    1 bozo  bozo       877 Dec 17  2000 employment.xrolo
+
+bash ls -l
+total 10
+-rw-r--r--    1 bozo  bozo      4034 Jul 18 22:04 data1.xrolo
+-rw-r--r--    1 bozo  bozo      4602 May 25 13:58 data1.xrolo.bak
+-rw-r--r--    1 bozo  bozo       877 Dec 17  2000 employment.xrolo
 }
 
+}
+
+◊definition-entry[#:name "locate, slocate"]{
+The ◊command{locate} command searches for files using a database
+stored for just that purpose. The ◊command{slocate} command is the
+secure version of ◊command{locate} (which may be aliased to
+◊command{slocate}).
+
+◊example{
+bash$ locate hickson
+/usr/lib/xephem/catalogs/hickson.edb
+}
+
+}
+
+◊definition-entry[#:name "getfacl, setfacl"]{
+These commands retrieve or set the file access control list -- the
+owner, group, and file permissions.
+
+◊example{
+bash$ getfacl *
+# file: test1.txt
+ # owner: bozo
+ # group: bozgrp
+ user::rw-
+ group::rw-
+ other::r--
+
+ # file: test2.txt
+ # owner: bozo
+ # group: bozgrp
+ user::rw-
+ group::rw-
+ other::r--
+
+
+bash$ setfacl -m u:bozo:rw yearly_budget.csv
+bash$ getfacl yearly_budget.csv
+# file: yearly_budget.csv
+ # owner: accountant
+ # group: budgetgrp
+ user::rw-
+ user:bozo:rw-
+ user:accountant:rw-
+ group::rw-
+ mask::rw-
+ other::r--
+}
+
+}
+
+◊definition-entry[#:name "readlink"]{
+Disclose the file that a symbolic link points to.
+
+◊example{
+bash$ readlink /usr/bin/awk
+../../bin/gawk
+}
+
+}
+
+◊definition-entry[#:name "strings"]{
+Use the ◊command{strings} command to find printable strings in a
+binary or data file. It will list sequences of printable characters
+found in the target file. This might be handy for a quick 'n dirty
+examination of a core dump or for looking at an unknown graphic image
+file (◊command{strings image-file | more} might show something like
+JFIF, which would identify the file as a jpeg graphic). In a script,
+you would probably parse the output of strings with grep or sed. See
+TODO Example 11-8 and Example 11-10.
+
+◊anchored-example[#:anchor "string_improved1"]{An "improved" strings
+command}
+
+◊example{
+#!/bin/bash
+# wstrings.sh: "word-strings" (enhanced "strings" command)
+#
+#  This script filters the output of "strings" by checking it
+#+ against a standard word list file.
+#  This effectively eliminates gibberish and noise,
+#+ and outputs only recognized words.
+
+# ===========================================================
+#                 Standard Check for Script Argument(s)
+ARGS=1
+E_BADARGS=85
+E_NOFILE=86
+
+if [ $# -ne $ARGS ]
+then
+  echo "Usage: `basename $0` filename"
+  exit $E_BADARGS
+fi
+
+if [ ! -f "$1" ]                      # Check if file exists.
+then
+    echo "File \"$1\" does not exist."
+    exit $E_NOFILE
+fi
+# ===========================================================
+
+
+MINSTRLEN=3                           #  Minimum string length.
+WORDFILE=/usr/share/dict/linux.words  #  Dictionary file.
+#  May specify a different word list file
+#+ of one-word-per-line format.
+#  For example, the "yawl" word-list package,
+#  http://bash.deta.in/yawl-0.3.2.tar.gz
+
+
+wlist=`strings "$1" | tr A-Z a-z | tr '[:space:]' Z | \
+       tr -cs '[:alpha:]' Z | tr -s '\173-\377' Z | tr Z ' '`
+
+# Translate output of 'strings' command with multiple passes of 'tr'.
+#  "tr A-Z a-z"  converts to lowercase.
+#  "tr '[:space:]'"  converts whitespace characters to Z's.
+#  "tr -cs '[:alpha:]' Z"  converts non-alphabetic characters to Z's,
+#+ and squeezes multiple consecutive Z's.
+#  "tr -s '\173-\377' Z"  converts all characters past 'z' to Z's
+#+ and squeezes multiple consecutive Z's,
+#+ which gets rid of all the weird characters that the previous
+#+ translation failed to deal with.
+#  Finally, "tr Z ' '" converts all those Z's to whitespace,
+#+ which will be seen as word separators in the loop below.
+
+#  ***********************************************************************
+#  Note the technique of feeding/piping the output of 'tr' back to itself,
+#+ but with different arguments and/or options on each successive pass.
+#  ***********************************************************************
+
+
+for word in $wlist                    #  Important:
+                                      #  $wlist must not be quoted here.
+                                      # "$wlist" does not work.
+                                      #  Why not?
+do
+  strlen=${#word}                     #  String length.
+  if [ "$strlen" -lt "$MINSTRLEN" ]   #  Skip over short strings.
+  then
+    continue
+  fi
+
+  grep -Fw $word "$WORDFILE"          #   Match whole words only.
+#      ^^^                            #  "Fixed strings" and
+                                      #+ "whole words" options. 
+done  
+
+exit $?
+}
+
+}
+
+}
+
+◊section{Comparison}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "diff, patch"]{
+
+◊command{diff}: flexible file comparison utility. It compares the
+target files line-by-line sequentially. In some applications, such as
+comparing word dictionaries, it may be helpful to filter the files
+through ◊command{sort} and ◊command{uniq} before piping them to
+◊command{diff}. ◊command{diff file-1 file-2} outputs the lines in the
+files that differ, with carets showing which file each particular line
+belongs to.
+
+The ◊code{--side-by-side} option to ◊command{diff} outputs each
+compared file, line by line, in separate columns, with non-matching
+lines marked. The ◊code{-c} and ◊code{-u} options likewise make the
+output of the command easier to interpret.
+
+There are available various fancy frontends for ◊command{diff}, such
+as ◊command{sdiff}, ◊command{wdiff}, ◊command{xdiff}, and
+◊command{mgdiff}.
+
+Tip: The ◊command{diff} command returns an exit status of 0 if the
+compared files are identical, and 1 if they differ (or 2 when binary
+files are being compared). This permits use of ◊command{diff} in a
+test construct within a shell script (see below).
+
+A common use for ◊command{diff} is generating difference files to be
+used with ◊command{patch}. The ◊code{-e} option outputs files suitable
+for ◊command{ed} or ◊command{ex} scripts.
+
+◊command{patch}: flexible versioning utility. Given a difference file
+generated by ◊command{diff}, ◊command{patch} can upgrade a previous
+version of a package to a newer version. It is much more convenient to
+distribute a relatively small "diff" file than the entire body of a
+newly revised package. Kernel "patches" have become the preferred
+method of distributing the frequent releases of the Linux kernel.
+
+◊example{
+patch -p1 <patch-file
+# Takes all the changes listed in 'patch-file'
+# and applies them to the files referenced therein.
+# This upgrades to a newer version of the package.
+}
+
+Patching the kernel:
+
+◊example{
+cd /usr/src
+gzip -cd patchXX.gz | patch -p0
+# Upgrading kernel source using 'patch'.
+# From the Linux kernel docs "README",
+# by anonymous author (Alan Cox?).
+}
+
+Note: The ◊command{diff} command can also recursively compare
+directories (for the filenames present).
+
+◊example{
+bash$ diff -r ~/notes1 ~/notes2
+Only in /home/bozo/notes1: file02
+Only in /home/bozo/notes1: file03
+Only in /home/bozo/notes2: file04
+}
+
+Tip: Use ◊command{zdiff} to compare gzipped files.
+
+Tip: Use ◊command{diffstat} to create a histogram (point-distribution
+graph) of output from ◊command{diff}.
+
+}
+
+}
 
 ◊; emacs:
 ◊; Local Variables:
