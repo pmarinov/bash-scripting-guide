@@ -709,8 +709,8 @@ do
 
   grep -Fw $word "$WORDFILE"          #   Match whole words only.
 #      ^^^                            #  "Fixed strings" and
-                                      #+ "whole words" options. 
-done  
+                                      #+ "whole words" options.
+done
 
 exit $?
 }
@@ -724,7 +724,6 @@ exit $?
 ◊definition-block[#:type "code"]{
 
 ◊definition-entry[#:name "diff, patch"]{
-
 ◊command{diff}: flexible file comparison utility. It compares the
 target files line-by-line sequentially. In some applications, such as
 comparing word dictionaries, it may be helpful to filter the files
@@ -789,6 +788,92 @@ Tip: Use ◊command{zdiff} to compare gzipped files.
 
 Tip: Use ◊command{diffstat} to create a histogram (point-distribution
 graph) of output from ◊command{diff}.
+
+}
+
+◊definition-entry[#:name "diff3, merge"]{
+An extended version of ◊command{diff} that compares three files at a
+time. This command returns an exit value of 0 upon successful
+execution, but unfortunately this gives no information about the
+results of the comparison.
+
+◊example{
+bash$ diff3 file-1 file-2 file-3
+====
+1:1c
+  This is line 1 of "file-1".
+2:1c
+  This is line 1 of "file-2".
+3:1c
+  This is line 1 of "file-3"
+}
+
+The ◊command{merge} (3-way file merge) command is an interesting
+adjunct to ◊command{diff3}. Its syntax is ◊command{merge Mergefile
+file1 file2}. The result is to output to ◊fname{Mergefile} the changes
+that lead from ◊fname{file1} to ◊fname{file2}. Consider this command a
+stripped-down version of ◊command{patch}.
+
+}
+
+◊definition-entry[#:name "sdiff"]{
+Compare and/or edit two files in order to merge them into an output
+file. Because of its interactive nature, this command would find
+little use in a script.
+
+}
+
+◊definition-entry[#:name "cmp"]{
+The ◊command{cmp} command is a simpler version of ◊command{diff},
+above. Whereas ◊command{diff} reports the differences between two
+files, ◊command{cmp} merely shows at what point they differ.
+
+Note: Like ◊command{diff}, ◊command{cmp} returns an exit status of 0
+if the compared files are identical, and 1 if they differ. This
+permits use in a test construct within a shell script.
+
+◊anchored-example[#:anchor "cmp1"]{Using cmp to compare two files
+within a script.}
+
+◊example{
+#!/bin/bash
+# file-comparison.sh
+
+ARGS=2  # Two args to script expected.
+E_BADARGS=85
+E_UNREADABLE=86
+
+if [ $# -ne "$ARGS" ]
+then
+  echo "Usage: `basename $0` file1 file2"
+  exit $E_BADARGS
+fi
+
+if [[ ! -r "$1" || ! -r "$2" ]]
+then
+  echo "Both files to be compared must exist and be readable."
+  exit $E_UNREADABLE
+fi
+
+cmp $1 $2 &> /dev/null
+#   Redirection to /dev/null buries the output of the "cmp" command.
+#   cmp -s $1 $2  has same result ("-s" silent flag to "cmp")
+#   Thank you  Anders Gustavsson for pointing this out.
+#
+#  Also works with 'diff', i.e.,
+#+ diff $1 $2 &> /dev/null
+
+if [ $? -eq 0 ]         # Test exit status of "cmp" command.
+then
+  echo "File \"$1\" is identical to file \"$2\"."
+else
+  echo "File \"$1\" differs from file \"$2\"."
+fi
+
+exit 0
+}
+
+Tip: Use ◊command{zcmp} on gzipped files.
 
 }
 
