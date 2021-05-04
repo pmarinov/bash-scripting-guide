@@ -877,6 +877,131 @@ Tip: Use ◊command{zcmp} on gzipped files.
 
 }
 
+◊definition-entry[#:name "comm"]{
+Versatile file comparison utility. The files must be sorted for this
+to be useful.
+
+◊example{
+comm -options first-file second-file
+}
+
+comm file-1 file-2 outputs three columns:
+
+column 1 = lines unique to file-1
+
+column 2 = lines unique to file-2
+
+column 3 = lines common to both.
+
+The options allow suppressing output of one or more columns.
+
+-1 suppresses column 1
+
+-2 suppresses column 2
+
+-3 suppresses column 3
+
+-12 suppresses both columns 1 and 2, etc.
+
+This command is useful for comparing "dictionaries" or word lists --
+sorted text files with one word per line.
+
+}
+
+}
+
+◊section{Comparison}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "basename"]{
+Strips the path information from a file name, printing only the file
+name. The construction ◊command{basename $0} lets the script know its name, that
+is, the name it was invoked by. This can be used for "usage" messages
+if, for example a script is called with missing arguments:
+
+◊example{
+echo "Usage: `basename $0` arg1 arg2 ... argn"
+}
+
+}
+
+◊definition-entry[#:name "dirname"]{
+Strips the ◊code{basename} from a ◊code{filename}, printing only the
+path information.
+
+Note: ◊command{basename} and ◊command{dirname} can operate on any
+arbitrary string. The argument does not need to refer to an existing
+file, or even be a filename for that matter (see TODO Example A-7).
+
+◊anchored-example[#:anchor "basename_dirname1"]{basename and dirname}
+
+◊example{
+#!/bin/bash
+
+address=/home/bozo/daily-journal.txt
+
+echo "Basename of /home/bozo/daily-journal.txt = `basename $address`"
+echo "Dirname of /home/bozo/daily-journal.txt = `dirname $address`"
+echo
+echo "My own home is `basename ~/`."         # `basename ~` also works.
+echo "The home of my home is `dirname ~/`."  # `dirname ~`  also works.
+
+exit 0
+}
+
+}
+
+◊definition-entry[#:name "split, csplit"]{
+These are utilities for splitting a file into smaller chunks. Their
+usual use is for splitting up large files in order to back them up on
+floppies or preparatory to e-mailing or uploading them.
+
+The ◊command{csplit} command splits a file according to context, the
+◊command{split} occuring where patterns are matched.
+
+◊anchored-example[#:anchor "csplit1"]{A script that copies itself in
+sections}
+
+◊example{
+#!/bin/bash
+# splitcopy.sh
+
+#  A script that splits itself into chunks,
+#+ then reassembles the chunks into an exact copy
+#+ of the original script.
+
+CHUNKSIZE=4    #  Size of first chunk of split files.
+OUTPREFIX=xx   #  csplit prefixes, by default,
+               #+ files with "xx" ...
+
+csplit "$0" "$CHUNKSIZE"
+
+# Some comment lines for padding . . .
+# Line 15
+# Line 16
+# Line 17
+# Line 18
+# Line 19
+# Line 20
+
+cat "$OUTPREFIX"* > "$0.copy"  # Concatenate the chunks.
+rm "$OUTPREFIX"*               # Get rid of the chunks.
+
+exit $?
+}
+
+}
+
+}
+
+◊section{Encoding and Encryption}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "sum, cksum, md5sum, sha1sum"]{
+}
+
 }
 
 ◊; emacs:
