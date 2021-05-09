@@ -1000,11 +1000,182 @@ exit $?
 ◊definition-block[#:type "code"]{
 
 ◊definition-entry[#:name "sum, cksum, md5sum, sha1sum"]{
+
+These are utilities for generating checksums. A checksum is a number
+mathematically calculated from the contents of a file, for the
+purpose of checking its integrity. A script might refer to a list of
+checksums for security purposes, such as ensuring that the contents of
+key system files have not been altered or corrupted.
+
+The checksum may be expressed as a hexadecimal number, or to some
+other base.
+
+For better security, use the ◊command{sha256sum}, ◊command{sha512},
+and ◊command{sha1pass} commands.
+
+◊example{
+bash$ cksum /boot/vmlinuz
+1670054224 804083 /boot/vmlinuz
+
+bash$ echo -n "Top Secret" | cksum
+3391003827 10
+
+
+bash$ md5sum /boot/vmlinuz
+0f43eccea8f09e0a0b2b5cf1dcf333ba  /boot/vmlinuz
+
+bash$ echo -n "Top Secret" | md5sum
+8babc97a6f62a4649716f4df8d61728f  -
 }
+
+Note: The ◊command{cksum} command shows the size, in bytes, of its
+target, whether file or stdout.
+
+The ◊command{md5sum} and ◊command{sha1sum} commands display a dash
+when they receive their input from stdout.
+
+◊anchored-example[#:anchor "chksum_file1"]{Checking file integrity}
+
+◊example{
+#!/bin/bash
+# file-integrity.sh: Checking whether files in a given directory
+#                    have been tampered with.
+
+E_DIR_NOMATCH=80
+E_BAD_DBFILE=81
+
+dbfile=File_record.md5
+# Filename for storing records (database file).
+
+
+set_up_database ()
+{
+  echo ""$directory"" > "$dbfile"
+  # Write directory name to first line of file.
+  md5sum "$directory"/* >> "$dbfile"
+  # Append md5 checksums and filenames.
+}
+
+check_database ()
+{
+  local n=0
+  local filename
+  local checksum
+
+  # ------------------------------------------- #
+  #  This file check should be unnecessary,
+  #+ but better safe than sorry.
+
+  if [ ! -r "$dbfile" ]
+  then
+    echo "Unable to read checksum database file!"
+    exit $E_BAD_DBFILE
+  fi
+  # ------------------------------------------- #
+
+  while read record[n]
+  do
+
+    directory_checked="${record[0]}"
+    if [ "$directory_checked" != "$directory" ]
+    then
+      echo "Directories do not match up!"
+      # Tried to use file for a different directory.
+      exit $E_DIR_NOMATCH
+    fi
+
+    if [ "$n" -gt 0 ]   # Not directory name.
+    then
+      filename[n]=$( echo ${record[$n]} | awk '{ print $2 }' )
+      #  md5sum writes records backwards,
+      #+ checksum first, then filename.
+      checksum[n]=$( md5sum "${filename[n]}" )
+
+
+      if [ "${record[n]}" = "${checksum[n]}" ]
+      then
+        echo "${filename[n]} unchanged."
+
+        elif [ "`basename ${filename[n]}`" != "$dbfile" ]
+               #  Skip over checksum database file,
+               #+ as it will change with each invocation of script.
+               #  ---
+               #  This unfortunately means that when running
+               #+ this script on $PWD, tampering with the
+               #+ checksum database file will not be detected.
+               #  Exercise: Fix this.
+        then
+          echo "${filename[n]} : CHECKSUM ERROR!"
+        # File has been changed since last checked.
+        fi
+
+      fi
+
+
+
+    let "n+=1"
+  done <"$dbfile"       # Read from checksum database file.
 
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:
+# =================================================== #
+# main ()
+
+if [ -z  "$1" ]
+then
+  directory="$PWD"      #  If not specified,
+else                    #+ use current working directory.
+  directory="$1"
+fi
+
+clear                   # Clear screen.
+echo " Running file integrity check on $directory"
+echo
+
+# ------------------------------------------------------------------ #
+  if [ ! -r "$dbfile" ] # Need to create database file?
+  then
+    echo "Setting up database file, \""$directory"/"$dbfile"\"."; echo
+    set_up_database
+  fi
+# ------------------------------------------------------------------ #
+
+check_database          # Do the actual work.
+
+echo
+
+#  You may wish to redirect the stdout of this script to a file,
+#+ especially if the directory checked has many files in it.
+
+exit 0
+
+#  For a much more thorough file integrity check,
+#+ consider the "Tripwire" package,
+#+ http://sourceforge.net/projects/tripwire/.
+}
+
+Also see TODO Example A-19, Example 36-16, and Example 10-2 for
+creative uses of the md5sum command.
+
+Note: There have been reports that the 128-bit md5sum can be cracked,
+so the more secure 160-bit ◊command{sha1sum} is a welcome new addition
+to the checksum toolkit.
+
+◊example{
+bash$ md5sum testfile
+e181e2c8720c60522c4c4c981108e367  testfile
+
+
+bash$ sha1sum testfile
+5d7425a9c08a66c3177f1e31286fa40986ffc996  testfile
+}
+
+Security consultants have demonstrated that even ◊command{sha1sum} can
+be compromised. Fortunately, newer Linux distros include longer
+bit-length ◊command{sha224sum}, ◊command{sha256sum},
+◊command{sha384sum}, and ◊command{sha512sum} commands.
+
+}
+
+}
+
