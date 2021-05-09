@@ -287,7 +287,3 @@ tasks. Replacing the literal ("hard-wired") constants by variables is
 a step in that direction, as is replacing repetitive code blocks by
 ◊emphasize{functions}.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

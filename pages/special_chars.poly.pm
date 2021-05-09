@@ -1605,7 +1605,3 @@ character class [:space:].
 
 } ◊;definition-block
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

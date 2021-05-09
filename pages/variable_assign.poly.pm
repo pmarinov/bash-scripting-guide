@@ -97,7 +97,3 @@ arch=$(uname -m)
 }  ◊; definition entry
 }  ◊; section definitions
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

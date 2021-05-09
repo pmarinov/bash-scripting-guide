@@ -78,7 +78,3 @@ exit $?   # Exit value = 1 (error)
 # Thanks, Rich Bartell and Stephane Chazelas, for clarification.
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

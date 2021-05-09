@@ -1885,7 +1885,3 @@ exit: exit [n]
 
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

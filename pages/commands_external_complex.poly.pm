@@ -699,7 +699,3 @@ operations.
 
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

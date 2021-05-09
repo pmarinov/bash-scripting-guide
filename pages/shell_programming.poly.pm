@@ -146,7 +146,3 @@ require the reader to temporarily skip ahead for enlightenment.
 Unless otherwise noted, the author of this book wrote the example
 scripts that follow.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

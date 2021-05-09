@@ -277,7 +277,3 @@ Last background process
 
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

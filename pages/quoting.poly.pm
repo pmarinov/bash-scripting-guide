@@ -14,7 +14,3 @@ Purpose of quoting:
 
 ◊(node-menu "pages/quoting.poly.pm")
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

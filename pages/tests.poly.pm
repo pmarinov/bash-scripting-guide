@@ -11,7 +11,3 @@ condition, then act according to the result of the test. Bash has the
 
 ◊(node-menu "pages/tests.poly.pm")
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

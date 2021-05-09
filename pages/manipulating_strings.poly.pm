@@ -637,7 +637,3 @@ Example 10-13
 Example A-36
 Example A-41
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

@@ -268,8 +268,3 @@ exit 0
 See TODO Example 27-11 for an illustration of nested ◊code{while}
 loops, and TODO Example 27-13 to see a ◊code{while} loop nested inside
 an ◊code{until} loop.
-
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

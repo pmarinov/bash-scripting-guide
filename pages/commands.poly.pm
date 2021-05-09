@@ -13,7 +13,3 @@ prelude to writing effective shell scripts.
 ◊; List pages under commands.poly.pm
 ◊(node-menu "pages/commands.poly.pm")
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

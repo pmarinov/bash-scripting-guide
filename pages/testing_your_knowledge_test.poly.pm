@@ -33,7 +33,3 @@ expressions.
 
 TODO: reference links to grep, sed, and regular expressions
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

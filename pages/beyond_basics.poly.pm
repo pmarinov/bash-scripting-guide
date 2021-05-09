@@ -18,7 +18,3 @@ accomplishing this.
 ◊; List pages under beyond_basics.poly.pm
 ◊(node-menu "pages/beyond_basics.poly.pm")
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

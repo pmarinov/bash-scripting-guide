@@ -149,7 +149,3 @@ echo $?                # 0
 Caution: Certain exit status codes have reserved meanings and should
 not be user-specified in a script.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

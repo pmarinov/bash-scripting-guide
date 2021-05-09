@@ -1432,7 +1432,3 @@ the script, not the subshell.
 
 } ◊; definition-block
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

@@ -666,7 +666,3 @@ echo "v4 = $v4"         # abc1234zip1234abc
 exit 0
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

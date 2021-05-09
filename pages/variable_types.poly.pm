@@ -224,7 +224,3 @@ bash$ declare | grep Colors
 Colors=([0]="purple" [1]="reddish-orange" [2]="light green")
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

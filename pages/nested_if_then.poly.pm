@@ -28,7 +28,3 @@ fi
 
 TOOD: Example 37-4 and Example 17-11 demonstrate nested ◊code{if/then} condition tests.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

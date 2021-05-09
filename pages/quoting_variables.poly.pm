@@ -186,7 +186,3 @@ echo 'Why can'\''t I write '"'"'s between single quotes'
 # This example courtesy of Stéphane Chazelas.
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

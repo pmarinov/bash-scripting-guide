@@ -925,7 +925,3 @@ loosely structured and more flexible than its equivalent in other
 languages. Therefore, feel free to use whatever type of loop gets the
 job done in the simplest way.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

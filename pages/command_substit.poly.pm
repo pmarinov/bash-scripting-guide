@@ -391,7 +391,3 @@ let "z += 3"  #  Quotes permit the use of spaces in variable assignment.
 
 TODO put long list of examples here
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

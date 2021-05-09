@@ -523,7 +523,3 @@ The comma operator finds use mainly in for loops. See Example 11-13 (TODO)
 
 } ◊; definition-block{}
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

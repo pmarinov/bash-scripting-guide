@@ -14,7 +14,3 @@ languages represent data.
 ◊; List pages under basics.poly.pm
 ◊(node-menu "pages/basics.poly.pm")
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

@@ -450,7 +450,3 @@ bar'     # Escape character \ taken literally because of strong quoting.
 
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

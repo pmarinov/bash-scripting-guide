@@ -87,7 +87,3 @@ habits.
 To lighten the burden of keeping track of variable types in a script,
 Bash does permit ◊emphasize{declaring} variables.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

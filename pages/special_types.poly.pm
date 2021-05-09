@@ -324,7 +324,3 @@ passed to a function. TODO: See Example 36-18.
 
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

@@ -1575,7 +1575,3 @@ specifications. This has been replaced by the nonproprietary
 
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

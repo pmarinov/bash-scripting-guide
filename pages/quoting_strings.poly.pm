@@ -53,7 +53,3 @@ total 8
  -rw-rw-r--  1 bo bo  78 Aug 21 12:57 u.sh
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

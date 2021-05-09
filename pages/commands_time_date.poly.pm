@@ -268,8 +268,3 @@ system time from the hardware clock at bootup.
 }
 
 }
-
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

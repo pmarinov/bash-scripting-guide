@@ -382,7 +382,3 @@ exit 0
 The ◊command{date} command also lends itself to generating
 pseudorandom integer sequences.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

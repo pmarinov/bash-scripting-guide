@@ -400,7 +400,3 @@ Caution: But, as rihad points out:
 TODO: Refer to Example 8-3, Example 27-17, and Example A-29 to see
 compound comparison operators in action.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

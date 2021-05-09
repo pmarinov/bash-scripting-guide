@@ -492,7 +492,3 @@ exit 0
 
 See also TODO Example 37-3.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

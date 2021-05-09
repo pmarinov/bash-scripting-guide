@@ -440,7 +440,3 @@ direction, see TODO Example A-39.
 
 }
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

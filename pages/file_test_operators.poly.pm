@@ -260,7 +260,3 @@ exit $?
 TODO: See other examples that also illustrate uses of the file test
 operators.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

@@ -79,7 +79,3 @@ exit
 
 TODO See also Example 11-13 and Example 8-4.
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:

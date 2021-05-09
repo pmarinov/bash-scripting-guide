@@ -15,7 +15,3 @@ Bash has builtin operators to offers the arithmetic operations of ◊code{expr}
 
 ◊(node-menu "pages/operators.poly.pm")
 
-◊; emacs:
-◊; Local Variables:
-◊; mode: fundamental
-◊; End:
