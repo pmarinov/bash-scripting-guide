@@ -1177,5 +1177,161 @@ bit-length ◊command{sha224sum}, ◊command{sha256sum},
 
 }
 
+◊definition-entry[#:name "uuencode"]{
+This utility encodes binary files (images, sound files, compressed
+files, etc.) into ASCII characters, making them suitable for
+transmission in the body of an e-mail message or in a newsgroup
+posting. This is especially useful where MIME (multimedia) encoding is
+not available.
+
 }
+
+◊definition-entry[#:name "uudecode"]{
+This reverses the encoding, decoding uuencoded files back into the
+original binaries.
+
+◊example{
+#!/bin/bash
+# Uudecodes all uuencoded files in current working directory.
+
+lines=35        # Allow 35 lines for the header (very generous).
+
+for File in *   # Test all the files in $PWD.
+do
+  search1=`head -n $lines $File | grep begin | wc -w`
+  search2=`tail -n $lines $File | grep end | wc -w`
+  #  Uuencoded files have a "begin" near the beginning,
+  #+ and an "end" near the end.
+  if [ "$search1" -gt 0 ]
+  then
+    if [ "$search2" -gt 0 ]
+    then
+      echo "uudecoding - $File -"
+      uudecode $File
+    fi  
+  fi
+done  
+
+#  Note that running this script upon itself fools it
+#+ into thinking it is a uuencoded file,
+#+ because it contains both "begin" and "end".
+
+#  Exercise:
+#  --------
+#  Modify this script to check each file for a newsgroup header,
+#+ and skip to next if not found.
+
+exit 0
+}
+
+Tip: The ◊command{fold -s} command may be useful (possibly in a pipe)
+to process long uudecoded text messages downloaded from Usenet
+newsgroups.
+
+}
+
+◊definition-entry[#:name "mimencode, mmencode"]{
+The ◊command{mimencode} and ◊command{mmencode} commands process
+multimedia-encoded e-mail attachments. Although mail user agents (such
+as ◊command{pine} or ◊command{kmail}) normally handle this
+automatically, these particular utilities permit manipulating such
+attachments manually from the command-line or in batch processing mode
+by means of a shell script.
+}
+
+◊definition-entry[#:name "openssl"]{
+This is an Open Source implementation of Secure Sockets Layer
+encryption.
+
+◊example{
+# To encrypt a file:
+openssl aes-128-ecb -salt -in file.txt -out file.encrypted \
+-pass pass:my_password
+#          ^^^^^^^^^^^   User-selected password.
+#       aes-128-ecb      is the encryption method chosen.
+
+# To decrypt an openssl-encrypted file:
+openssl aes-128-ecb -d -salt -in file.encrypted -out file.txt \
+-pass pass:my_password
+#          ^^^^^^^^^^^   User-selected password.
+}
+
+Piping ◊command{openssl} to/from ◊command{tar} makes it possible to
+encrypt an entire directory tree.
+
+◊example{
+# To encrypt a directory:
+
+sourcedir="/home/bozo/testfiles"
+encrfile="encr-dir.tar.gz"
+password=my_secret_password
+
+tar czvf - "$sourcedir" |
+openssl des3 -salt -out "$encrfile" -pass pass:"$password"
+#       ^^^^   Uses des3 encryption.
+# Writes encrypted file "encr-dir.tar.gz" in current working directory.
+
+# To decrypt the resulting tarball:
+openssl des3 -d -salt -in "$encrfile" -pass pass:"$password" |
+tar -xzv
+# Decrypts and unpacks into current working directory.
+}
+
+Of course, openssl has many other uses, such as obtaining signed
+certificates for Web sites. See the ◊code{info} page.
+
+}
+
+◊definition-entry[#:name "shred"]{
+Securely erase a file by overwriting it multiple times with random bit
+patterns before deleting it. This command has the same effect as
+TODO Example 16-61, but does it in a more thorough and elegant manner.
+
+This is one of the GNU fileutils.
+
+Caution: Advanced forensic technology may still be able to recover the
+contents of a file, even after application of ◊command{shred}.
+
+}
+
+}
+
+◊section{Miscellaneous}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "mktemp"]{
+Create a temporary file with a "unique" filename. When invoked from
+the command-line without additional arguments, it creates a
+zero-length file in the ◊fname{/tmp} directory.
+
+Creates a temporary directory when invoked with the ◊code{-d} option.
+
+◊example{
+bash$ mktemp
+/tmp/tmp.zzsvql3154
+}
+
+◊example{
+PREFIX=filename
+tempfile=`mktemp $PREFIX.XXXXXX`
+#                        ^^^^^^ Need at least 6 placeholders
+#+                              in the filename template.
+#   If no filename template supplied,
+#+ "tmp.XXXXXXXXXX" is the default.
+
+echo "tempfile name = $tempfile"
+# tempfile name = filename.QA2ZpY
+#                 or something similar...
+
+#  Creates a file of that name in the current working directory
+#+ with 600 file permissions.
+#  A "umask 177" is therefore unnecessary,
+#+ but it's good programming practice nevertheless.
+}
+
+}
+
+}
+
 
