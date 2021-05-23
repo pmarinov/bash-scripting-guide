@@ -1332,6 +1332,68 @@ echo "tempfile name = $tempfile"
 
 }
 
+◊definition-entry[#:name "make"]{
+Utility for building and compiling binary packages. This can also be
+used for any set of operations triggered by incremental changes in
+source files.
+
+The ◊command{make} command checks a Makefile, a list of file
+dependencies and operations to be carried out.
+
+The ◊command{make} utility is, in effect, a powerful scripting
+language similar in many ways to Bash, but with the capability of
+recognizing dependencies. For in-depth coverage of this useful tool
+set, see the GNU software documentation site.
+
+◊url[#:link "http://www.gnu.org/manual/manual.html"]{}
+
+}
+
+◊definition-entry[#:name "install"]{
+Special purpose file copying command, similar to ◊command{cp}, but
+capable of setting permissions and attributes of the copied
+files. This command seems tailormade for installing software packages,
+and as such it shows up frequently in Makefiles (in the ◊command{make
+install} section). It could likewise prove useful in installation
+scripts.
+
+}
+
+◊definition-entry[#:name "dos2unix"]{
+This utility, converts DOS-formatted text files (lines terminated by
+CR-LF) to UNIX format (lines terminated by LF only), and vice-versa.
+
+}
+
+◊definition-entry[#:name "ptx"]{
+The ◊command{ptx [targetfile]} command outputs a permuted index
+(cross-reference list) of the targetfile. This may be further filtered
+and formatted in a pipe, if necessary.
+
+}
+
+◊definition-entry[#:name "more, less"]{
+Pagers that display a text file or stream to stdout, one screenful at
+a time. These may be used to filter the output of stdout . . . or of a
+script.
+
+An interesting application of more is to "test drive" a command
+sequence, to forestall potentially unpleasant consequences.
+
+◊example{
+ls /home/bozo | awk '{print "rm -rf " $1}' | more
+#                                            ^^^^
+		 
+# Testing the effect of the following (disastrous) command-line:
+#      ls /home/bozo | awk '{print "rm -rf " $1}' | sh
+#      Hand off to the shell to execute . . .       ^^
+}
+
+The ◊command{less} pager has the interesting property of doing a
+formatted display of ◊command{man} page source. See Example TODO A-39.
+
+}
+
 }
 
 
