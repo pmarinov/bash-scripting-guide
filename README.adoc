@@ -7,10 +7,10 @@
 (New Edition based on Pollen)
 
 Advanced Bash-Scripting Guide in HTML: +
-https://hangar118.sdf.org/~peter/bash-scripting-guide/
+https://hangar118.sdf.org/p/bash-scripting-guide/
 
 Home page: +
-https://hangar118.sdf.org/~peter/bash-scripting-guide-home/
+https://hangar118.sdf.org/p/bash-scripting-guide-home/
 
 == About ==
 
