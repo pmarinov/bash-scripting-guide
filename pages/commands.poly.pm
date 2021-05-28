@@ -10,6 +10,10 @@
 Mastering the commands on your Linux machine is an indispensable
 prelude to writing effective shell scripts.
 
+Standard UNIX commands make shell scripts more versatile. The power of
+scripts comes from coupling system commands and shell directives with
+simple programming constructs.
+
 ◊; List pages under commands.poly.pm
 ◊(node-menu "pages/commands.poly.pm")
 
