@@ -111,7 +111,7 @@ dig +short $1.contacts.abuse.net -c in -t txt
 
 # The following also works:
 #     whois -h whois.abuse.net $1
-#           ^^ ^^^^^^^^^^^^^^^  Specify host.  
+#           ^^ ^^^^^^^^^^^^^^^  Specify host.
 #     Can even lookup multiple spammers with this, i.e."
 #     whois -h whois.abuse.net $spamdomain1 $spamdomain2 . . .
 
@@ -311,7 +311,6 @@ traceroute to 81.9.6.2 (81.9.6.2), 30 hops max, 38 byte packets
 }
 
 ◊definition-entry[#:name "ping"]{
-
 Broadcast an ICMP ECHO_REQUEST packet to another machine, either on a
 local or remote network.
 
@@ -344,6 +343,189 @@ fi
 
 }
 
+◊definition-entry[#:name "whois"]{
+Perform a DNS (Domain Name System) lookup. The ◊code{-h} option permits
+specifying which particular whois server to query. See TODO Example 4-6 and
+Example 16-40.
 
 }
 
+◊definition-entry[#:name "finger"]{
+Retrieve information about users on a network. Optionally, this
+command can display a user's ◊fname{~/.plan}, ◊fname{~/.project}, and
+◊fname{~/.forward} files, if present.
+
+◊example{
+bash$ finger
+Login  Name           Tty      Idle  Login Time   Office     Office Phone
+bozo   Bozo Bozeman   tty1        8  Jun 25 16:59                (:0)
+bozo   Bozo Bozeman   ttyp0          Jun 25 16:59                (:0.0)
+bozo   Bozo Bozeman   ttyp1          Jun 25 17:07                (:0.0)
+
+
+bash$ finger bozo
+Login: bozo                             Name: Bozo Bozeman
+Directory: /home/bozo                   Shell: /bin/bash
+Office: 2355 Clown St., 543-1234
+On since Fri Aug 31 20:13 (MST) on tty1    1 hour 38 minutes idle
+On since Fri Aug 31 20:13 (MST) on pts/0   12 seconds idle
+On since Fri Aug 31 20:13 (MST) on pts/1
+On since Fri Aug 31 20:31 (MST) on pts/2   1 hour 16 minutes idle
+Mail last read Tue Jul  3 10:08 2007 (MST)
+No Plan.
+}
+
+Out of security considerations, many networks disable finger and its
+associated daemon. ◊footnote{A daemon is a background process not
+attached to a terminal session. Daemons perform designated services
+either at specified times or explicitly triggered by certain events.
+
+The word "daemon" means ghost in Greek, and there is certainly
+something mysterious, almost supernatural, about the way UNIX daemons
+wander about behind the scenes, silently carrying out their appointed
+tasks.}
+
+}
+
+◊definition-entry[#:name "chfn"]{
+Change information disclosed by the ◊command{finger} command.
+
+}
+
+◊definition-entry[#:name "vrfy"]{
+Verify an Internet e-mail address.
+
+This command seems to be missing from newer Linux distros.
+
+}
+
+}
+
+◊section{Remote Host Access}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "sx, rx"]{
+The ◊command{sx} and ◊command{rx} command set serves to transfer files
+to and from a remote host using the xmodem protocol. These are
+generally part of a communications package, such as minicom.
+
+}
+
+◊definition-entry[#:name "sz, rz"]{
+The ◊command{sz} and ◊command{rz} command set serves to transfer files
+to and from a remote host using the zmodem protocol. Zmodem has
+certain advantages over xmodem, such as faster transmission rate and
+resumption of interrupted file transfers. Like ◊command{sx} and
+◊command{rx}, these are generally part of a communications package.
+
+}
+
+◊definition-entry[#:name "ftp"]{
+Utility and protocol for uploading / downloading files to or from a
+remote host. An ◊command{ftp} session can be automated in a script
+(see Example TODO 19-6 and Example A-4).
+
+}
+
+◊definition-entry[#:name "uucp, uux, cu"]{
+◊command{uucp}: UNIX to UNIX copy. This is a communications package
+for transferring files between UNIX servers. A shell script is an
+effective way to handle a ◊command{uucp} command sequence.
+
+Since the advent of the Internet and e-mail, ◊command{uucp} seems to
+have faded into obscurity, but it still exists and remains perfectly
+workable in situations where an Internet connection is not available
+or appropriate. The advantage of ◊command{uucp} is that it is
+fault-tolerant, so even if there is a service interruption the copy
+operation will resume where it left off when the connection is
+restored.
+
+◊command{uux}: UNIX to UNIX execute. Execute a command on a remote
+system. This command is part of the uucp package.
+
+◊command{cu}: Call Up a remote system and connect as a simple
+terminal. It is a sort of dumbed-down version of
+◊command{telnet}. This command is part of the uucp package.
+
+}
+
+◊definition-entry[#:name "telnet"]{
+Utility and protocol for connecting to a remote host.
+
+Caution: The ◊command{telnet} protocol contains security holes and
+should therefore probably be avoided. Its use within a shell script is
+not recommended.
+
+}
+
+◊definition-entry[#:name "wget"]{
+The ◊command{wget} utility noninteractively retrieves or downloads
+files from a Web or ftp site. It works well in a script.
+
+◊example{
+wget -p http://www.xyz23.com/file01.html
+#  The -p or --page-requisite option causes wget to fetch all files
+#+ required to display the specified page.
+
+wget -r ftp://ftp.xyz24.net/~bozo/project_files/ -O $SAVEFILE
+#  The -r option recursively follows and retrieves all links
+#+ on the specified site.
+
+wget -c ftp://ftp.xyz25.net/bozofiles/filename.tar.bz2
+#  The -c option lets wget resume an interrupted download.
+#  This works with ftp servers and many HTTP sites.
+
+}
+
+◊anchored-example[#:anchor "wget_quote1"]{Getting a stock quote}
+
+◊example{
+#!/bin/bash
+# quote-fetch.sh: Download a stock quote.
+
+
+E_NOPARAMS=86
+
+if [ -z "$1" ]  # Must specify a stock (symbol) to fetch.
+  then echo "Usage: `basename $0` stock-symbol"
+  exit $E_NOPARAMS
+fi
+
+stock_symbol=$1
+
+file_suffix=.html
+# Fetches an HTML file, so name it appropriately.
+URL='http://finance.yahoo.com/q?s='
+# Yahoo finance board, with stock query suffix.
+
+# -----------------------------------------------------------
+wget -O ${stock_symbol}${file_suffix} "${URL}${stock_symbol}"
+# -----------------------------------------------------------
+
+
+# To look up stuff on http://search.yahoo.com:
+# -----------------------------------------------------------
+# URL="http://search.yahoo.com/search?fr=ush-news&p=${query}"
+# wget -O "$savefilename" "${URL}"
+# -----------------------------------------------------------
+# Saves a list of relevant URLs.
+
+exit $?
+
+# Exercises:
+# ---------
+#
+# 1) Add a test to ensure the user running the script is on-line.
+#    (Hint: parse the output of 'ps -ax' for "ppp" or "connect."
+#
+# 2) Modify this script to fetch the local weather report,
+#+   taking the user's zip code as an argument.
+}
+
+See also Example TODO A-30 and Example A-31.
+
+}
+
+
+}
