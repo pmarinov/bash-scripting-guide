@@ -909,4 +909,92 @@ script.
 
 }
 
+◊definition-entry[#:name "netconfig"]{
+A command-line utility for configuring a network adapter (using
+DHCP). This command is native to Red Hat centric Linux distros.
+
+}
+
+}
+
+◊section{Mail}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "mail"]{
+Send or read e-mail messages.
+
+This stripped-down command-line mail client works fine as a command
+embedded in a script.
+
+◊anchored-example[#:anchor "mail1"]{A script that mails itself}
+
+◊example{
+#!/bin/sh
+# self-mailer.sh: Self-mailing script
+
+adr=${1:-`whoami`}     # Default to current user, if not specified.
+#  Typing 'self-mailer.sh wiseguy@superdupergenius.com'
+#+ sends this script to that addressee.
+#  Just 'self-mailer.sh' (no argument) sends the script
+#+ to the person invoking it, for example, bozo@localhost.localdomain.
+#
+#  For more on the ${parameter:-default} construct,
+#+ see the "Parameter Substitution" section
+#+ of the "Variables Revisited" chapter.
+
+# ============================================================================
+  cat $0 | mail -s "Script \"`basename $0`\" has mailed itself to you." "$adr"
+# ============================================================================
+
+# --------------------------------------------
+#  Greetings from the self-mailing script.
+#  A mischievous person has run this script,
+#+ which has caused it to mail itself to you.
+#  Apparently, some people have nothing better
+#+ to do with their time.
+# --------------------------------------------
+
+echo "At `date`, script \"`basename $0`\" mailed to "$adr"."
+
+exit 0
+
+#  Note that the "mailx" command (in "send" mode) may be substituted
+#+ for "mail" ... but with somewhat different options.
+}
+
+}
+
+◊definition-entry[#:name "mailto"]{
+Similar to the mail command, mailto sends e-mail messages from the
+command-line or in a script. However, mailto also permits sending MIME
+(multimedia) messages.
+
+}
+
+◊definition-entry[#:name "mailstats"]{
+Show mail statistics. This command may be invoked only by root.
+
+◊example{
+root# mailstats
+Statistics from Tue Jan  1 20:32:08 2008
+M   msgsfr  bytes_from   msgsto    bytes_to  msgsrej msgsdis msgsqur  Mailer
+4     1682      24118K        0          0K        0       0       0  esmtp
+9      212        640K     1894      25131K        0       0       0  local
+=====================================================================
+T     1894      24758K     1894      25131K        0       0       0
+C      414                    0
+
+}
+
+}
+
+◊definition-entry[#:name "vacation"]{
+This utility automatically replies to e-mails that the intended
+recipient is on vacation and temporarily unavailable. It runs on a
+network, in conjunction with ◊command{sendmail}, and is not applicable
+to a dial-up POPmail account.
+
+}
+
 }
