@@ -62,6 +62,7 @@ pages/exit_status.poly.pm
   pages/commands_text_processing.poly.pm
   pages/commands_file_and_archiving.poly.pm
   pages/commands_communications.poly.pm
+  pages/commands_terminal_control.poly.pm
 }
 
 }
