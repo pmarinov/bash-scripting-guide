@@ -42,5 +42,63 @@ controlling a terminal.
 
 }
 
+◊definition-entry[#:name "infocmp"]{
+This command prints out extensive information about the current
+terminal. It references the terminfo database.
+
+◊example{
+bash$ infocmp
+#       Reconstructed via infocmp from file:
+ /usr/share/terminfo/r/rxvt
+ rxvt|rxvt terminal emulator (X Window System), 
+         am, bce, eo, km, mir, msgr, xenl, xon, 
+         colors#8, cols#80, it#8, lines#24, pairs#64, 
+         acsc=``aaffggjjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~, 
+         bel=^G, blink=\E[5m, bold=\E[1m,
+         civis=\E[?25l, 
+         clear=\E[H\E[2J, cnorm=\E[?25h, cr=^M, 
+         ...
+}
+
+}
+
+◊definition-entry[#:name "reset"]{
+Reset terminal parameters and clear text screen. As with
+◊command{clear}, the cursor and prompt reappear in the upper lefthand
+corner of the terminal.
+
+}
+
+◊definition-entry[#:name "clear"]{
+The ◊command{clear} command simply clears the text screen at the
+console or in an xterm. The prompt and cursor reappear at the upper
+lefthand corner of the screen or xterm window. This command may be
+used either at the command line or in a script. See TODO Example
+11-26.
+
+}
+
+◊definition-entry[#:name "resize"]{
+Echoes commands necessary to set ◊code{$TERM} and ◊code{$TERMCAP} to
+duplicate the size (dimensions) of the current terminal.
+
+◊example{
+bash$ resize
+set noglob;
+setenv COLUMNS '80';
+setenv LINES '24';
+unset noglob;
+
+}
+
+}
+
+◊definition-entry[#:name "script"]{
+This utility records (saves to a file) all the user keystrokes at the
+command-line in a console or an xterm window. This, in effect, creates
+a record of a session.
+
+}
+
 }
 
