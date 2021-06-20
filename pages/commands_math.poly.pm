@@ -115,7 +115,7 @@ read term
 
 
 interest_r=$(echo "scale=9; $interest_r/100.0" | bc) # Convert to decimal.
-                #           ^^^^^^^^^^^^^^^^^  Divide by 100. 
+                #           ^^^^^^^^^^^^^^^^^  Divide by 100.
                 # "scale" determines how many decimal places.
 
 interest_rate=$(echo "scale=9; $interest_r/12 + 1.0" | bc)
@@ -128,16 +128,16 @@ top=$(echo "scale=9; $principal*$interest_rate^$term" | bc)
 echo; echo "Please be patient. This may take a while."
 
 let "months = $term - 1"
-# ==================================================================== 
+# ====================================================================
 for ((x=$months; x > 0; x--))
 do
   bot=$(echo "scale=9; $interest_rate^$x" | bc)
   bottom=$(echo "scale=9; $bottom+$bot" | bc)
 #  bottom = $(($bottom + $bot"))
 done
-# ==================================================================== 
+# ====================================================================
 
-# -------------------------------------------------------------------- 
+# --------------------------------------------------------------------
 #  Rick Boivie pointed out a more efficient implementation
 #+ of the above loop, which decreases computation time by 2/3.
 
@@ -225,7 +225,7 @@ A number may be
     octal (base 8)		starting with 0  (i.e. 014)
     hexadecimal (base 16)	starting with 0x (i.e. 0xc)
     decimal			otherwise (i.e. 12)" >&2
-    exit $NOARGS 
+    exit $NOARGS
 }   # ==> Prints usage message.
 
 Msg () {
@@ -542,5 +542,169 @@ See also TODO Example A-37.
 
 }
 
+◊definition-entry[#:name "bc"]{
+The ◊command{dc} (desk calculator) utility is stack-oriented and uses
+RPN (Reverse Polish Notation). Like ◊command{bc}, it has much of the
+power of a programming language.
+
+Similar to the procedure with ◊command{bc}, echo a command-string to
+◊command{dc}.
+
+◊example{
+echo "[Printing a string ... ]P" | dc
+# The P command prints the string between the preceding brackets.
+
+# And now for some simple arithmetic.
+echo "7 8 * p" | dc     # 56
+#  Pushes 7, then 8 onto the stack,
+#+ multiplies ("*" operator), then prints the result ("p" operator).
 }
 
+Most persons avoid ◊command{dc}, because of its non-intuitive input
+and rather cryptic operators. Yet, it has its uses.
+
+◊anchored-example[#:anchor "dc_dec_hex1"]{Converting a decimal number
+to hexadecimal}
+
+◊example{
+#!/bin/bash
+# hexconvert.sh: Convert a decimal number to hexadecimal.
+
+E_NOARGS=85 # Command-line arg missing.
+BASE=16     # Hexadecimal.
+
+if [ -z "$1" ]
+then        # Need a command-line argument.
+  echo "Usage: $0 number"
+  exit $E_NOARGS
+fi          # Exercise: add argument validity checking.
+
+
+hexcvt ()
+{
+if [ -z "$1" ]
+then
+  echo 0
+  return    # "Return" 0 if no arg passed to function.
+fi
+
+echo ""$1" "$BASE" o p" | dc
+#                  o    sets radix (numerical base) of output.
+#                    p  prints the top of stack.
+# For other options: 'man dc' ...
+return
+}
+
+hexcvt "$1"
+
+exit
+}
+
+Studying the info page for ◊command{dc} is a painful path to
+understanding its intricacies. There seems to be a small, select group
+of ◊command{dc} wizards who delight in showing off their mastery of
+this powerful, but arcane utility.
+
+◊example{
+bash$ echo "16i[q]sa[ln0=aln100%Pln100/snlbx]sbA0D68736142snlbxq" | dc
+Bash
+}
+
+◊example{
+dc <<< 10k5v1+2/p # 1.6180339887
+#  ^^^            Feed operations to dc using a Here String.
+#      ^^^        Pushes 10 and sets that as the precision (10k).
+#         ^^      Pushes 5 and takes its square root
+#                 (5v, v = square root).
+#           ^^    Pushes 1 and adds it to the running total (1+).
+#             ^^  Pushes 2 and divides the running total by that (2/).
+#               ^ Pops and prints the result (p)
+#  The result is  1.6180339887 ...
+#  ... which happens to be the Pythagorean Golden Ratio, to 10 places.
+}
+
+◊anchored-example[#:anchor "dc_factoring1"]{Factoring}
+
+◊example{
+#!/bin/bash
+# factr.sh: Factor a number
+
+MIN=2       # Will not work for number smaller than this.
+E_NOARGS=85
+E_TOOSMALL=86
+
+if [ -z $1 ]
+then
+  echo "Usage: $0 number"
+  exit $E_NOARGS
+fi
+
+if [ "$1" -lt "$MIN" ]
+then
+  echo "Number to factor must be $MIN or greater."
+  exit $E_TOOSMALL
+fi
+
+# Exercise: Add type checking (to reject non-integer arg).
+
+echo "Factors of $1:"
+# -------------------------------------------------------
+echo  "$1[p]s2[lip/dli%0=1dvsr]s12sid2%0=13sidvsr[dli%0=\
+1lrli2+dsi!>.]ds.xd1<2" | dc
+# -------------------------------------------------------
+#  Above code written by Michel Charpentier <charpov@cs.unh.edu>
+#  (as a one-liner, here broken into two lines for display purposes).
+#  Used in ABS Guide with permission (thanks!).
+
+exit
+
+# $ sh factr.sh 270138
+# 2
+# 3
+# 11
+# 4093
+}
+
+}
+
+◊definition-entry[#:name "awk"]{
+Yet another way of doing floating point math in a script is using
+◊command{awk's} built-in math functions in a shell wrapper.
+
+◊anchored-example[#:anchor "awk_triangle1"]{Calculating the hypotenuse
+of a triangle}
+
+◊example{
+#!/bin/bash
+# hypotenuse.sh: Returns the "hypotenuse" of a right triangle.
+#                (square root of sum of squares of the "legs")
+
+ARGS=2                # Script needs sides of triangle passed.
+E_BADARGS=85          # Wrong number of arguments.
+
+if [ $# -ne "$ARGS" ] # Test number of arguments to script.
+then
+  echo "Usage: `basename $0` side_1 side_2"
+  exit $E_BADARGS
+fi
+
+
+AWKSCRIPT=' { printf( "%3.7f\n", sqrt($1*$1 + $2*$2) ) } '
+#             command(s) / parameters passed to awk
+
+
+# Now, pipe the parameters to awk.
+    echo -n "Hypotenuse of $1 and $2 = "
+    echo $1 $2 | awk "$AWKSCRIPT"
+#   ^^^^^^^^^^^^
+# An echo-and-pipe is an easy way of passing shell parameters to awk.
+
+exit
+
+# Exercise: Rewrite this script using 'bc' rather than awk.
+#           Which method is more intuitive?
+}
+
+}
+
+}
