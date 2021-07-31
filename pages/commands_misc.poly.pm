@@ -349,7 +349,6 @@ HOME=/home/bozo
 }
 
 ◊definition-entry[#:name "lp"]{
-
 The ◊command{lp} and ◊command{lpr} commands send file(s) to the print
 queue, to be printed as hard copy. [2] These commands trace the origin
 of their names to the line printers of another era. [3]
@@ -378,6 +377,129 @@ bash$ gs -options | lp file.ps
 
 Related commands are ◊command{lpq}, for viewing the print queue, and
 ◊command{lprm}, for removing jobs from the print queue.
+
+}
+
+◊definition-entry[#:name "tee"]{
+[UNIX borrows an idea from the plumbing trade.]
+
+This is a redirection operator, but with a difference. Like the
+plumber's tee, it permits "siphoning off" to a file the output of a
+command or commands within a pipe, but without affecting the
+result. This is useful for printing an ongoing process to a file or
+paper, perhaps to keep track of it for debugging purposes.
+
+◊example{
+                             (redirection)
+                            |----> to file
+                            |
+  ==========================|====================
+  command ---> command ---> |tee ---> command ---> ---> output of pipe
+  ===============================================
+}
+
+◊example{
+cat listfile* | sort | tee check.file | uniq > result.file
+#                      ^^^^^^^^^^^^^^   ^^^^
+
+#  The file "check.file" contains the concatenated sorted "listfiles,"
+#+ before the duplicate lines are removed by 'uniq.'
+}
+
+}
+
+◊definition-entry[#:name "mkfifo"]{
+This obscure command creates a named pipe, a temporary
+first-in-first-out buffer for transferring data between processes. [4]
+Typically, one process writes to the FIFO, and the other reads from
+it. See TODO Example A-14.
+
+◊example{
+#!/bin/bash
+# This short script by Omair Eshkenazi.
+# Used in ABS Guide with permission (thanks!).
+
+mkfifo pipe1   # Yes, pipes can be given names.
+mkfifo pipe2   # Hence the designation "named pipe."
+
+(cut -d' ' -f1 | tr "a-z" "A-Z") >pipe2 <pipe1 &
+ls -l | tr -s ' ' | cut -d' ' -f3,9- | tee pipe1 |
+cut -d' ' -f2 | paste - pipe2
+
+rm -f pipe1
+rm -f pipe2
+
+# No need to kill background processes when script terminates (why not?).
+
+exit $?
+
+Now, invoke the script and explain the output:
+sh mkfifo-example.sh
+
+4830.tar.gz          BOZO
+pipe1   BOZO
+pipe2   BOZO
+mkfifo-example.sh    BOZO
+Mixed.msg BOZO
+}
+
+}
+
+◊definition-entry[#:name "pathchk"]{
+This command checks the validity of a filename. If the filename
+exceeds the maximum allowable length (255 characters) or one or more
+of the directories in its path is not searchable, then an error
+message results.
+
+Unfortunately, ◊command{pathchk} does not return a recognizable error
+code, and it is therefore pretty much useless in a script. Consider
+instead the file test operators.
+
+}
+
+◊definition-entry[#:name "dd"]{
+Though this somewhat obscure and much feared data duplicator command
+originated as a utility for exchanging data on magnetic tapes between
+UNIX minicomputers and IBM mainframes, it still has its uses. The
+◊command{dd} command simply copies a file (or stdin/stdout), but with
+conversions. Possible conversions include ASCII/EBCDIC, [5]
+upper/lower case, swapping of byte pairs between input and output, and
+skipping and/or truncating the head or tail of the input file.
+
+◊example{
+# Converting a file to all uppercase:
+
+dd if=$filename conv=ucase > $filename.uppercase
+#                    lcase   # For lower case conversion
+}
+
+
+Some basic options to ◊command{dd} are:
+
+◊code{if=INFILE} -- INFILE is the source file.
+
+◊code{of=OUTFILE} -- OUTFILE is the target file, the file that will have
+the data written to it.
+
+◊code{bs=BLOCKSIZE} --  This is the size of each block of data being read
+and written, usually a power of 2.
+
+◊code{skip=BLOCKS} -- How many blocks of data to skip in INFILE before
+starting to copy. This is useful when the INFILE has "garbage" or
+garbled data in its header or when it is desirable to copy only a
+portion of the INFILE.
+
+◊code{seek=BLOCKS} -- How many blocks of data to skip in OUTFILE before
+starting to copy, leaving blank data at beginning of OUTFILE.
+
+◊code{count=BLOCKS} -- Copy only this many blocks of data, rather than
+the entire INFILE.
+
+◊code{conv=CONVERSION} -- Type of conversion to be applied to INFILE data
+before copying operation.
+
+A ◊command{dd --help} lists all the options this powerful utility
+takes.
 
 }
 
