@@ -501,6 +501,232 @@ before copying operation.
 A ◊command{dd --help} lists all the options this powerful utility
 takes.
 
+◊anchored-example[#:anchor "dd_kbd1"]{Capturing Keystrokes}
+
+◊example{
+#!/bin/bash
+# dd-keypress.sh: Capture keystrokes without needing to press ENTER.
+
+
+keypresses=4                      # Number of keypresses to capture.
+
+
+old_tty_setting=$(stty -g)        # Save old terminal settings.
+
+echo "Press $keypresses keys."
+stty -icanon -echo                # Disable canonical mode.
+                                  # Disable local echo.
+keys=$(dd bs=1 count=$keypresses 2> /dev/null)
+# 'dd' uses stdin, if "if" (input file) not specified.
+
+stty "$old_tty_setting"           # Restore old terminal settings.
+
+echo "You pressed the \"$keys\" keys."
+
+# Thanks, Stephane Chazelas, for showing the way.
+exit 0
+}
+
+The ◊command{dd} command can do random access on a data stream.
+
+◊example{
+echo -n . | dd bs=1 seek=4 of=file conv=notrunc
+#  The "conv=notrunc" option means that the output file
+#+ will not be truncated.
+}
+
+The ◊command{dd} command can copy raw data and disk images to and from
+devices, such as floppies and tape drives (TODO Example A-5). A common
+use is creating boot floppies.
+
+◊example{
+dd if=kernel-image of=/dev/fd0H1440
+}
+
+Similarly, ◊command{dd} can copy the entire contents of a floppy, even
+one formatted with a "foreign" OS, to the hard drive as an image file.
+
+◊example{
+dd if=/dev/fd0 of=/home/bozo/projects/floppy.img
+}
+
+Likewise, ◊command{dd} can create bootable flash drives and SD cards.
+
+◊example{
+dd if=image.iso of=/dev/sdb
+}
+
+◊anchored-example[#:anchor "dd_bootsd1"]{Preparing a bootable SD card
+for the Raspberry Pi}
+
+◊example{
+!/bin/bash
+# rp.sdcard.sh
+# Preparing an SD card with a bootable image for the Raspberry Pi.
+
+# $1 = imagefile name
+# $2 = sdcard (device file)
+# Otherwise defaults to the defaults, see below.
+
+DEFAULTbs=4M                                 # Block size, 4 mb default.
+DEFAULTif="2013-07-26-wheezy-raspbian.img"   # Commonly used distro.
+DEFAULTsdcard="/dev/mmcblk0"                 # May be different. Check!
+ROOTUSER_NAME=root                           # Must run as root!
+E_NOTROOT=81
+E_NOIMAGE=82
+
+username=$(id -nu)                           # Who is running this script?
+if [ "$username" != "$ROOTUSER_NAME" ]
+then
+  echo "This script must run as root or with root privileges."
+  exit $E_NOTROOT
+fi
+
+if [ -n "$1" ]
+then
+  imagefile="$1"
+else
+  imagefile="$DEFAULTif"
+fi
+
+if [ -n "$2" ]
+then
+  sdcard="$2"
+else
+  sdcard="$DEFAULTsdcard"
+fi
+
+if [ ! -e $imagefile ]
+then
+  echo "Image file \"$imagefile\" not found!"
+  exit $E_NOIMAGE
+fi
+
+echo "Last chance to change your mind!"; echo
+read -s -n1 -p "Hit a key to write $imagefile to $sdcard [Ctl-c to exit]."
+echo; echo
+
+echo "Writing $imagefile to $sdcard ..."
+dd bs=$DEFAULTbs if=$imagefile of=$sdcard
+
+exit $?
+
+# Exercises:
+# ---------
+# 1) Provide additional error checking.
+# 2) Have script autodetect device file for SD card (difficult!).
+# 3) Have script sutodetect image file (*img) in $PWD.
+}
+
+Oher applications of ◊command{dd} include initializing temporary swap
+files (TODO Example 31-2) and ramdisks (TODO Example 31-3). It can
+even do a low-level copy of an entire hard drive partition, although
+this is not necessarily recommended.
+
+People (with presumably nothing better to do with their time) are
+constantly thinking of interesting applications of ◊command{dd}.
+
+◊anchored-example[#:anchor "dd_securedel1"]{Securely deleting a file}
+
+◊example{
+#!/bin/bash
+# blot-out.sh: Erase "all" traces of a file.
+
+#  This script overwrites a target file alternately
+#+ with random bytes, then zeros before finally deleting it.
+#  After that, even examining the raw disk sectors by conventional methods
+#+ will not reveal the original file data.
+
+PASSES=7         #  Number of file-shredding passes.
+                 #  Increasing this slows script execution,
+                 #+ especially on large target files.
+BLOCKSIZE=1      #  I/O with /dev/urandom requires unit block size,
+                 #+ otherwise you get weird results.
+E_BADARGS=70     #  Various error exit codes.
+E_NOT_FOUND=71
+E_CHANGED_MIND=72
+
+if [ -z "$1" ]   # No filename specified.
+then
+  echo "Usage: `basename $0` filename"
+  exit $E_BADARGS
+fi
+
+file=$1
+
+if [ ! -e "$file" ]
+then
+  echo "File \"$file\" not found."
+  exit $E_NOT_FOUND
+fi  
+
+echo; echo -n "Are you absolutely sure you want to blot out \"$file\" (y/n)? "
+read answer
+case "$answer" in
+[nN]) echo "Changed your mind, huh?"
+      exit $E_CHANGED_MIND
+      ;;
+*)    echo "Blotting out file \"$file\".";;
+esac
+
+
+flength=$(ls -l "$file" | awk '{print $5}')  # Field 5 is file length.
+pass_count=1
+
+chmod u+w "$file"   # Allow overwriting/deleting the file.
+
+echo
+
+while [ "$pass_count" -le "$PASSES" ]
+do
+  echo "Pass #$pass_count"
+  sync         # Flush buffers.
+  dd if=/dev/urandom of=$file bs=$BLOCKSIZE count=$flength
+               # Fill with random bytes.
+  sync         # Flush buffers again.
+  dd if=/dev/zero of=$file bs=$BLOCKSIZE count=$flength
+               # Fill with zeros.
+  sync         # Flush buffers yet again.
+  let "pass_count += 1"
+  echo
+done  
+
+
+rm -f $file    # Finally, delete scrambled and shredded file.
+sync           # Flush buffers a final time.
+
+echo "File \"$file\" blotted out and deleted."; echo
+
+
+exit 0
+
+#  This is a fairly secure, if inefficient and slow method
+#+ of thoroughly "shredding" a file.
+#  The "shred" command, part of the GNU "fileutils" package,
+#+ does the same thing, although more efficiently.
+
+#  The file cannot not be "undeleted" or retrieved by normal methods.
+#  However . . .
+#+ this simple method would *not* likely withstand
+#+ sophisticated forensic analysis.
+
+#  This script may not play well with a journaled file system.
+#  Exercise (difficult): Fix it so it does.
+
+
+
+#  Tom Vier's "wipe" file-deletion package does a much more thorough job
+#+ of file shredding than this simple script.
+#     http://www.ibiblio.org/pub/Linux/utils/file/wipe-2.0.0.tar.bz2
+
+#  For an in-depth analysis on the topic of file deletion and security,
+#+ see Peter Gutmann's paper,
+#+     "Secure Deletion of Data From Magnetic and Solid-State Memory".
+#       http://www.cs.auckland.ac.nz/~pgut001/pubs/secure_del.html
+}
+
+See also the dd thread entry in the bibliography. (TODO)
+
 }
 
 
