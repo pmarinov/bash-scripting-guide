@@ -729,5 +729,87 @@ See also the dd thread entry in the bibliography. (TODO)
 
 }
 
+◊definition-entry[#:name "od"]{
+The ◊command{od},  or octal dump  filter converts input (or  files) to
+octal  (base-8)  or  other  bases.  This  is  useful  for  viewing  or
+processing  binary data  files or  otherwise unreadable  system device
+files, such as ◊fname{/dev/urandom}, and as a filter for binary data.
+
+◊example{
+dd if=/bin/ls | hexdump -C | less
+# The -C option nicely formats the output in tabular form.
+}
+
+}
+
+◊definition-entry[#:name "objdump"]{
+Displays information about an object file or binary executable in
+either hexadecimal form or as a disassembled listing (with the
+◊code{-d} option).
+
+◊example{
+bash$ objdump -d /bin/ls
+/bin/ls:     file format elf32-i386
+
+Disassembly of section .init:
+
+080490bc <.init>:
+ 80490bc:       55                      push   %ebp
+ 80490bd:       89 e5                   mov    %esp,%ebp
+ . . .
+}
+
+}
+
+◊definition-entry[#:name "mcookie"]{
+
+This command generates a "magic cookie," a 128-bit (32-character)
+pseudorandom hexadecimal number, normally used as an authorization
+"signature" by the X server. This also available for use in a script
+as a "quick 'n dirty" random number.
+
+◊example{
+random000=$(mcookie)
+}
+
+The ◊command{mcookie} command gives yet another way to generate a
+"unique" filename.
+
+◊example{
+#!/bin/bash
+# tempfile-name.sh:  temp filename generator
+
+BASE_STR=`mcookie`   # 32-character magic cookie.
+POS=11               # Arbitrary position in magic cookie string.
+LEN=5                # Get $LEN consecutive characters.
+
+prefix=temp          #  This is, after all, a "temp" file.
+                     #  For more "uniqueness," generate the
+                     #+ filename prefix using the same method
+                     #+ as the suffix, below.
+
+suffix=${BASE_STR:POS:LEN}
+                     #  Extract a 5-character string,
+                     #+ starting at position 11.
+
+temp_filename=$prefix.$suffix
+                     # Construct the filename.
+
+echo "Temp filename = "$temp_filename""
+
+# sh tempfile-name.sh
+# Temp filename = temp.e19ea
+
+#  Compare this method of generating "unique" filenames
+#+ with the 'date' method in ex51.sh.
+
+exit 0
+}
+
+◊definition-entry[#:name "units"]{
+}
+
+}
+
 
 }
