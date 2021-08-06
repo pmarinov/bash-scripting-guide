@@ -249,7 +249,7 @@ eval set -- "$args"
 }
 
 ◊definition-entry[#:name "run-parts"]{
-The ◊command{run-parts} command [1] executes all the scripts in a target
+The ◊command{run-parts} command executes all the scripts in a target
 directory, sequentially in ASCII-sorted filename order. Of course, the
 scripts need to have execute permission.
 
@@ -350,8 +350,8 @@ HOME=/home/bozo
 
 ◊definition-entry[#:name "lp"]{
 The ◊command{lp} and ◊command{lpr} commands send file(s) to the print
-queue, to be printed as hard copy. [2] These commands trace the origin
-of their names to the line printers of another era. [3]
+queue, to be printed as hard copy. These commands trace the origin
+of their names to the line printers of another era.
 
 ◊example{
 bash$ lp file1.txt or bash lp <file1.txt
@@ -410,7 +410,7 @@ cat listfile* | sort | tee check.file | uniq > result.file
 
 ◊definition-entry[#:name "mkfifo"]{
 This obscure command creates a named pipe, a temporary
-first-in-first-out buffer for transferring data between processes. [4]
+first-in-first-out buffer for transferring data between processes.
 Typically, one process writes to the FIFO, and the other reads from
 it. See TODO Example A-14.
 
@@ -462,7 +462,7 @@ Though this somewhat obscure and much feared data duplicator command
 originated as a utility for exchanging data on magnetic tapes between
 UNIX minicomputers and IBM mainframes, it still has its uses. The
 ◊command{dd} command simply copies a file (or stdin/stdout), but with
-conversions. Possible conversions include ASCII/EBCDIC, [5]
+conversions. Possible conversions include ASCII/EBCDIC,
 upper/lower case, swapping of byte pairs between input and output, and
 skipping and/or truncating the head or tail of the input file.
 
@@ -806,10 +806,146 @@ echo "Temp filename = "$temp_filename""
 exit 0
 }
 
+}
+
 ◊definition-entry[#:name "units"]{
+This utility converts between different units of measure. While
+normally invoked in interactive mode, units may find use in a script.
+
+◊anchored-example[#:anchor "units_mkm1"]{Converting meters to miles}
+
+◊example{
+#!/bin/bash
+# unit-conversion.sh
+# Must have 'units' utility installed.
+
+
+convert_units ()  # Takes as arguments the units to convert.
+{
+  cf=$(units "$1" "$2" | sed --silent -e '1p' | awk '{print $2}')
+  # Strip off everything except the actual conversion factor.
+  echo "$cf"
+}  
+
+Unit1=miles
+Unit2=meters
+cfactor=`convert_units $Unit1 $Unit2`
+quantity=3.73
+
+result=$(echo $quantity*$cfactor | bc)
+
+echo "There are $result $Unit2 in $quantity $Unit1."
+
+#  What happens if you pass incompatible units,
+#+ such as "acres" and "miles" to the function?
+
+exit 0
+
+# Exercise: Edit this script to accept command-line parameters,
+#           with appropriate error checking, of course.
 }
 
 }
 
+◊definition-entry[#:name "m4"]{
+A hidden treasure, ◊command{m4} is a powerful macro processing
+filter, virtually a complete language. Although originally written as
+a pre-processor for RatFor, ◊command{m4} turned out to be useful as a
+stand-alone utility. In fact, ◊command{m4} combines some of the
+functionality of ◊command{eval}, ◊command{tr}, and ◊command{awk}, in
+addition to its extensive macro expansion facilities.
+
+The April, 2002 issue of Linux Journal has a very nice article on ◊command{m4}
+and its uses.
+
+◊example{
+#!/bin/bash
+# m4.sh: Using the m4 macro processor
+
+# Strings
+string=abcdA01
+echo "len($string)" | m4                            #   7
+echo "substr($string,4)" | m4                       # A01
+echo "regexp($string,[0-1][0-1],\&Z)" | m4      # 01Z
+
+# Arithmetic
+var=99
+echo "incr($var)" | m4                              #  100
+echo "eval($var / 3)" | m4                          #   33
+
+exit
+}
+
+}
+
+◊definition-entry[#:name "xmessage"]{
+This X-based variant of ◊command{echo} pops up a message/query window
+on the desktop.
+
+◊example{
+xmessage Left click to continue -button okay
+}
+
+}
+
+◊definition-entry[#:name "zenity"]{
+The ◊command{zenity} utility is adept at displaying GTK+ dialog
+widgets and very suitable for scripting purposes.
+
+}
+
+◊definition-entry[#:name "doexec"]{
+The ◊command{doexec} command enables passing an arbitrary list of
+arguments to a binary executable. In particular, passing
+◊code{argv[0]} (which corresponds to ◊code{$0} in a script) lets the
+executable be invoked by various names, and it can then carry out
+different sets of actions, according to the name by which it was
+called. What this amounts to is roundabout way of passing options to
+an executable.
+
+For example, the ◊fname{/usr/local/bin} directory might contain a
+binary called "aaa". Invoking ◊command{doexec /usr/local/bin/aaa} list
+would list all those files in the current working directory beginning
+with an "a", while invoking (the same executable with) ◊command{doexec
+/usr/local/bin/aaa delete} would delete those files.
+
+Note: The various behaviors of the executable must be defined within
+the code of the executable itself, analogous to something like the
+following in a shell script:
+
+◊example{
+case `basename $0` in
+"name1" ) do_something;;
+"name2" ) do_something_else;;
+"name3" ) do_yet_another_thing;;
+*       ) bail_out;;
+esac
+}
+
+}
+
+◊definition-entry[#:name "dialog"]{
+The ◊command{dialog} family of tools provide a method of calling
+interactive "dialog" boxes from a script. The more elaborate
+variations of dialog -- ◊command{gdialog}, ◊command{Xdialog}, and
+◊command{kdialog} -- actually invoke X-Windows widgets.
+
+}
+
+◊definition-entry[#:name "sox"]{
+
+The ◊command{sox}, or "sound exchange" command plays and performs
+transformations on sound files. In fact, the ◊command{/usr/bin/play}
+executable (now deprecated) is nothing but a shell wrapper for
+◊command{sox}.
+
+For example, ◊command{sox soundfile.wav soundfile.au} changes a WAV
+sound file into a (Sun audio format) AU sound file.
+
+Shell scripts are ideally suited for batch-processing sox operations
+on sound files. For examples, see the Linux Radio Timeshift HOWTO and
+the MP3do Project.
+
+}
 
 }
