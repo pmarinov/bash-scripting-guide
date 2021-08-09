@@ -65,6 +65,7 @@ pages/exit_status.poly.pm
   pages/commands_terminal_control.poly.pm
   pages/commands_math.poly.pm
   pages/commands_misc.poly.pm
+  pages/commands_admin.poly.pm
 }
 
 }
