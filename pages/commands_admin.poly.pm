@@ -104,4 +104,99 @@ Also see TODO Example 9-5.
 
 }
 
+◊definition-entry[#:name "lid"]{
+The ◊command{lid} (list ID) command shows the group(s) that a given
+user belongs to, or alternately, the users belonging to a given
+group. May be invoked only by root.
+
+◊example{
+root# lid bozo
+bozo(gid=500)
+
+
+root# lid daemon
+bin(gid=1)
+daemon(gid=2)
+adm(gid=4)
+lp(gid=7)
+}
+
+}
+
+◊definition-entry[#:name "who"]{
+Show all users logged on to the system.
+
+◊example{
+bash$ who
+bozo  tty1     Apr 27 17:45
+bozo  pts/0    Apr 27 17:46
+bozo  pts/1    Apr 27 17:47
+bozo  pts/2    Apr 27 17:49
+}
+
+The ◊code{-m} gives detailed information about only the current
+user. Passing any two arguments to ◊command{who} is the equivalent of
+◊command{who -m}, as in ◊command{who am i} or ◊command{who The Man}.
+
+◊example{
+bash$ who -m
+localhost.localdomain!bozo  pts/2    Apr 27 17:49
+}
+
+◊command{whoami} is similar to ◊command{who -m}, but only lists the
+user name.
+
+◊example{
+bash$ whoami
+bozo
+}
+
+}
+
+◊definition-entry[#:name "w"]{
+Show all logged on users and the processes belonging to them. This is
+an extended version of ◊command{who}. The output of ◊command{w} may be
+piped to ◊command{grep} to find a specific user and/or process.
+
+◊example{
+bash$ w | grep startx
+bozo  tty1     -                 4:22pm  6:41   4.47s  0.45s  startx
+}
+
+}
+
+◊definition-entry[#:name "logname"]{
+Show current user's login name (as found in
+◊fname{/var/run/utmp}). This is a near-equivalent to ◊command{whoami},
+above.
+
+◊example{
+bash$ logname
+bozo
+
+bash$ whoami
+bozo
+}
+
+However . . .
+
+◊example{
+bash$ su
+Password: ......
+
+bash# whoami
+root
+bash# logname
+bozo
+}
+
+Note: While ◊command{logname} prints the name of the logged in user,
+◊command{whoami} gives the name of the user attached to the current
+process. As we have just seen, sometimes these are not the same.
+
+}
+
+◊definition-entry[#:name "su"]{
+}
+
 }
