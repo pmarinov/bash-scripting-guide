@@ -481,6 +481,93 @@ it, and moves the cursor to the begining of the line.
 }
 
 ◊definition-entry[#:name "setterm"]{
+Set certain terminal attributes. This command writes to its terminal's
+stdout a string that changes the behavior of that terminal.
+
+◊example{
+bash$ setterm -cursor off
+bash$
+}
+
+The ◊command{setterm} command can be used within a script to change the
+appearance of text written to stdout, although there are certainly
+better tools available for this purpose.
+
+◊example{
+setterm -bold on
+echo bold hello
+
+setterm -bold off
+echo normal hello
 }
 
 }
+
+◊definition-entry[#:name "tset"]{
+Show or initialize terminal settings. This is a less capable version
+of ◊command{stty}.
+
+◊example{
+bash$ tset -r
+Terminal type is xterm-xfree86.
+Kill is control-U (^U).
+Interrupt is control-C (^C).
+}
+
+}
+
+◊definition-entry[#:name "setserial"]{
+Set or display serial port parameters. This command must be run by
+root and is usually found in a system setup script.
+
+◊example{
+# From /etc/pcmcia/serial script:
+
+IRQ=`setserial /dev/$DEVICE | sed -e 's/.*IRQ: //'`
+setserial /dev/$DEVICE irq 0 ; setserial /dev/$DEVICE irq $IRQ
+}
+
+}
+
+◊definition-entry[#:name "getty, agetty"]{
+The initialization process for a terminal uses ◊command{getty} or
+◊command{agetty} to set it up for login by a user. These commands are
+not used within user shell scripts. Their scripting counterpart is
+◊command{stty}.
+
+}
+
+◊definition-entry[#:name "mesg"]{
+Enables or disables write access to the current user's
+terminal. Disabling access would prevent another user on the network
+to write to the terminal.
+
+Tip: It can be quite annoying to have a message about ordering pizza
+suddenly appear in the middle of the text file you are editing. On a
+multi-user network, you might therefore wish to disable write access
+to your terminal when you need to avoid interruptions.
+
+}
+
+◊definition-entry[#:name "wall"]{
+This is an acronym for "write all," i.e., sending a message to all
+users at every terminal logged into the network. It is primarily a
+system administrator's tool, useful, for example, when warning
+everyone that the system will shortly go down due to a problem (see
+TODO Example 19-1).
+
+◊example{
+bash$ wall System going down for maintenance in 5 minutes!
+Broadcast message from bozo (pts/1) Sun Jul  8 13:53:27 2001...
+
+System going down for maintenance in 5 minutes!
+}
+
+Note: If write access to a particular terminal has been disabled with
+◊command{mesg}, then wall cannot send a message to that terminal.
+
+}
+
+}
+
+◊section{Information and Statistics}
