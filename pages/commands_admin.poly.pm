@@ -571,3 +571,248 @@ Note: If write access to a particular terminal has been disabled with
 }
 
 ◊section{Information and Statistics}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "uname"]{
+Output system specifications (OS, kernel version, etc.) to
+stdout. Invoked with the ◊code{-a} option, gives verbose system info
+(see TODO Example 16-5). The ◊code{-s} option shows only the OS type.
+
+◊example{
+bash$ uname
+Linux
+
+bash$ uname -s
+Linux
+
+
+bash$ uname -a
+Linux iron.bozo 2.6.15-1.2054_FC5 #1 Tue Mar 14 15:48:33 EST 2006
+i686 i686 i386 GNU/Linux
+}
+
+}
+
+◊definition-entry[#:name "arch"]{
+Show system architecture. Equivalent to ◊code{uname -m}. See TODO
+Example 11-27.
+
+}
+
+◊definition-entry[#:name "lastcomm"]{
+Gives information about previous commands, as stored in the
+◊fname{/var/account/pacct} file. Command name and user name can be
+specified by options. This is one of the GNU accounting utilities.
+
+}
+
+◊definition-entry[#:name "lastlog"]{
+List the last login time of all system users. This references the
+◊fname{/var/log/lastlog} file.
+
+◊example{
+bash$ lastlog
+root          tty1                      Fri Dec  7 18:43:21 -0700 2001
+bin                                     **Never logged in**
+daemon                                  **Never logged in**
+...
+bozo          tty1                      Sat Dec  8 21:14:29 -0700 2001
+
+
+bash$ lastlog | grep root
+root          tty1                      Fri Dec  7 18:43:21 -0700 2001
+}
+
+Caution: This command will fail if the user invoking it does not have
+read permission for the ◊fname{/var/log/lastlog} file.
+
+}
+
+◊definition-entry[#:name "lsof"]{
+List open files. This command outputs a detailed table of all
+currently open files and gives information about their owner, size,
+the processes associated with them, and more. Of course,
+◊command{lsof} may be piped to ◊command{grep} and/or ◊command{awk} to
+parse and analyze its results.
+
+◊example{
+bash$ lsof
+COMMAND    PID    USER   FD   TYPE     DEVICE    SIZE     NODE NAME
+init         1    root  mem    REG        3,5   30748    30303 /sbin/init
+init         1    root  mem    REG        3,5   73120     8069 /lib/ld-2.1.3.so
+init         1    root  mem    REG        3,5  931668     8075 /lib/libc-2.1.3.so
+cardmgr    213    root  mem    REG        3,5   36956    30357 /sbin/cardmgr
+...
+}
+
+The ◊command{lsof} command is a useful, if complex administrative
+tool. If you are unable to dismount a filesystem and get an error
+message that it is still in use, then running ◊command{lsof} helps
+determine which files are still open on that filesystem. The ◊code{-i}
+option lists open network socket files, and this can help trace
+intrusion or hack attempts.
+
+◊example{
+bash$ lsof -an -i tcp
+COMMAND  PID USER  FD  TYPE DEVICE SIZE NODE NAME
+firefox 2330 bozo  32u IPv4   9956       TCP 66.0.118.137:57596->67.112.7.104:http ...
+firefox 2330 bozo  38u IPv4  10535       TCP 66.0.118.137:57708->216.79.48.24:http ...
+}
+
+See TODO Example 30-2 for an effective use of lsof.
+
+}
+
+◊definition-entry[#:name "strace"]{
+System trace: diagnostic and debugging tool for tracing system calls
+and signals. This command and ◊command{ltrace}, following, are useful
+for diagnosing why a given program or package fails to run
+. . . perhaps due to missing libraries or related causes.
+
+◊example{
+bash$ strace df
+execve("/bin/df", ["df"], [/* 45 vars */]) = 0
+uname({sys="Linux", node="bozo.localdomain", ...}) = 0
+brk(0)                                  = 0x804f5e4
+
+...
+}
+
+This is the Linux equivalent of the Solaris ◊command{truss} command.
+
+}
+
+◊definition-entry[#:name "strace"]{
+Library trace: diagnostic and debugging tool that traces library calls
+invoked by a given command.
+
+◊example{
+bash$ ltrace df
+__libc_start_main(0x804a910, 1, 0xbfb589a4, 0x804fb70, 0x804fb68 <unfinished ...>:
+ setlocale(6, "")                                 = "en_US.UTF-8"
+bindtextdomain("coreutils", "/usr/share/locale") = "/usr/share/locale"
+textdomain("coreutils")                          = "coreutils"
+__cxa_atexit(0x804b650, 0, 0, 0x8052bf0, 0xbfb58908) = 0
+getenv("DF_BLOCK_SIZE")                          = NULL
+
+...
+}
+
+}
+
+◊definition-entry[#:name "nc"]{
+The ◊command{nc} (netcat) utility is a complete toolkit for connecting
+to and listening to TCP and UDP ports. It is useful as a diagnostic
+and testing tool and as a component in simple script-based HTTP
+clients and servers.
+
+◊example{
+bash$ nc localhost.localdomain 25
+220 localhost.localdomain ESMTP Sendmail 8.13.1/8.13.1;
+Thu, 31 Mar 2005 15:41:35 -0700
+}
+
+◊anchored-example[#:anchor "nc_identd"]{Checking a remote server for
+identd}
+
+◊example{
+#! /bin/sh
+## Duplicate DaveG's ident-scan thingie using netcat. Oooh, he'll be p*ssed.
+## Args: target port [port port port ...]
+## Hose stdout _and_ stderr together.
+##
+##  Advantages: runs slower than ident-scan, giving remote inetd less cause
+##+ for alarm, and only hits the few known daemon ports you specify.
+##  Disadvantages: requires numeric-only port args, the output sleazitude,
+##+ and won't work for r-services when coming from high source ports.
+# Script author: Hobbit <hobbit@avian.org>
+# Used in ABS Guide with permission.
+
+# ---------------------------------------------------
+E_BADARGS=65       # Need at least two args.
+TWO_WINKS=2        # How long to sleep.
+THREE_WINKS=3
+IDPORT=113         # Authentication "tap ident" port.
+RAND1=999
+RAND2=31337
+TIMEOUT0=9
+TIMEOUT1=8
+TIMEOUT2=4
+# ---------------------------------------------------
+
+case "${2}" in
+  "" ) echo "Need HOST and at least one PORT." ; exit $E_BADARGS ;;
+esac
+
+# Ping 'em once and see if they *are* running identd.
+nc -z -w $TIMEOUT0 "$1" $IDPORT || \
+{ echo "Oops, $1 isn't running identd." ; exit 0 ; }
+#  -z scans for listening daemons.
+#     -w $TIMEOUT = How long to try to connect.
+
+# Generate a randomish base port.
+RP=`expr $$ % $RAND1 + $RAND2`
+
+TRG="$1"
+shift
+
+while test "$1" ; do
+  nc -v -w $TIMEOUT1 -p ${RP} "$TRG" ${1} < /dev/null > /dev/null &
+  PROC=$!
+  sleep $THREE_WINKS
+  echo "${1},${RP}" | nc -w $TIMEOUT2 -r "$TRG" $IDPORT 2>&1
+  sleep $TWO_WINKS
+
+# Does this look like a lamer script or what . . . ?
+# ABS Guide author comments: "Ain't really all that bad . . .
+#+                            kinda clever, actually."
+
+  kill -HUP $PROC
+  RP=`expr ${RP} + 1`
+  shift
+done
+
+exit $?
+
+#  Notes:
+#  -----
+
+#  Try commenting out line 30 and running this script
+#+ with "localhost.localdomain 25" as arguments.
+
+#  For more of Hobbit's 'nc' example scripts,
+#+ look in the documentation:
+#+ the /usr/share/doc/nc-X.XX/scripts directory.
+}
+
+And, of course, there's Dr. Andrew Tridgell's notorious one-line
+script in the BitKeeper Affair:
+
+◊example{
+echo clone | nc thunk.org 5000 > e2fsprogs.dat
+}
+
+}
+
+◊definition-entry[#:name "free"]{
+Shows memory and cache usage in tabular form. The output of this
+command lends itself to parsing, using ◊command{grep}, ◊command{awk}
+or ◊command{Perl}. The ◊command{procinfo} command shows all the
+information that free does, and much more.
+
+◊example{
+bash$ free
+             total       used       free     shared    buffers     cached
+Mem:         30504      28624       1880      15820       1608       16376
+-/+ buffers/cache:      10640      19864
+Swap:        68540       3128      65412
+}
+
+}
+
+◊definition-entry[#:name "procinfo"]{
+}
+
+
+}
