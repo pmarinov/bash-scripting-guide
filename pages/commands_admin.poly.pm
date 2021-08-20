@@ -812,7 +812,135 @@ Swap:        68540       3128      65412
 }
 
 ◊definition-entry[#:name "procinfo"]{
+Extract and list information and statistics from the ◊fname{/proc}
+pseudo-filesystem. This gives a very extensive and detailed listing.
+
+◊example{
+bash$ procinfo | grep Bootup
+Bootup: Wed Mar 21 15:15:50 2001    Load average: 0.04 0.21 0.34 3/47 6829
 }
 
+}
+
+◊definition-entry[#:name "lsdev"]{
+List devices, that is, show installed hardware.
+
+◊example{
+bash$ lsdev
+Device            DMA   IRQ  I/O Ports
+------------------------------------------------
+cascade             4     2 
+dma                          0080-008f
+dma1                         0000-001f
+dma2                         00c0-00df
+fpu                          00f0-00ff
+ide0                     14  01f0-01f7 03f6-03f6
+...
+}
+
+}
+
+◊definition-entry[#:name "du"]{
+Show (disk) file usage, recursively. Defaults to current working
+directory, unless otherwise specified.
+
+◊example{
+bash$ du -ach
+1.0k    ./wi.sh
+1.0k    ./tst.sh
+1.0k    ./random.file
+6.0k    .
+6.0k    total
+}
+
+}
+
+◊definition-entry[#:name "df"]{
+Shows filesystem usage in tabular form.
+
+◊example{
+bash$ df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/hda5               273262     92607    166547  36% /
+/dev/hda8               222525    123951     87085  59% /home
+/dev/hda7              1408796   1075744    261488  80% /usr
+}
+
+}
+
+◊definition-entry[#:name "dmesg"]{
+Lists all system bootup messages to stdout. Handy for debugging and
+ascertaining which device drivers were installed and which system
+interrupts in use. The output of ◊command{dmesg} may, of course, be
+parsed with ◊command{grep}, ◊command{sed}, or ◊command{awk} from
+within a script.
+
+◊example{
+bash$ dmesg | grep hda
+Kernel command line: ro root=/dev/hda2
+hda: IBM-DLGA-23080, ATA DISK drive
+hda: 6015744 sectors (3080 MB) w/96KiB Cache, CHS=746/128/63
+hda: hda1 hda2 hda3 < hda5 hda6 hda7 > hda4
+}
+
+}
+
+◊definition-entry[#:name "stat"]{
+Gives detailed and verbose statistics on a given file (even a
+directory or device file) or set of files.
+
+◊example{
+bash$ stat test.cru
+ File: "test.cru"
+ Size: 49970        Allocated Blocks: 100          Filetype: Regular File
+ Mode: (0664/-rw-rw-r--)         Uid: (  501/ bozo)  Gid: (  501/ bozo)
+Device:  3,8   Inode: 18185     Links: 1    
+Access: Sat Jun  2 16:40:24 2001
+Modify: Sat Jun  2 16:40:24 2001
+Change: Sat Jun  2 16:40:24 2001
+
+}
+
+In a script, you can use stat to extract information about files (and
+filesystems) and set variables accordingly.
+
+◊example{
+#!/bin/bash
+# fileinfo2.sh
+
+# Per suggestion of Joël Bourquard and . . .
+# http://www.linuxquestions.org/questions/showthread.php?t=410766
+
+
+FILENAME=testfile.txt
+file_name=$(stat -c%n "$FILENAME")   # Same as "$FILENAME" of course.
+file_owner=$(stat -c%U "$FILENAME")
+file_size=$(stat -c%s "$FILENAME")
+#  Certainly easier than using "ls -l $FILENAME"
+#+ and then parsing with sed.
+file_inode=$(stat -c%i "$FILENAME")
+file_type=$(stat -c%F "$FILENAME")
+file_access_rights=$(stat -c%A "$FILENAME")
+
+echo "File name:          $file_name"
+echo "File owner:         $file_owner"
+echo "File size:          $file_size"
+echo "File inode:         $file_inode"
+echo "File type:          $file_type"
+echo "File access rights: $file_access_rights"
+
+exit 0
+
+sh fileinfo2.sh
+
+File name:          testfile.txt
+File owner:         bozo
+File size:          418
+File inode:         1730378
+File type:          regular file
+File access rights: -rw-rw-r--
+}
+
+}
 
 }
