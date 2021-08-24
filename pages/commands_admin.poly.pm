@@ -943,4 +943,142 @@ File access rights: -rw-rw-r--
 
 }
 
+◊definition-entry[#:name "vmstat"]{
+Display virtual memory statistics.
+
+◊example{
+bash$ vmstat
+  procs                      memory    swap          io system         cpu
+r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy id
+0  0  0      0  11040   2636  38952   0   0    33     7  271    88   8   3 89
+
 }
+
+}
+
+◊definition-entry[#:name "uptime"]{
+Shows how long the system has been running, along with associated statistics.
+
+◊example{
+bash$ uptime
+10:28pm  up  1:57,  3 users,  load average: 0.17, 0.34, 0.27
+}
+
+}
+
+◊definition-entry[#:name "hostname"]{
+Lists the system's host name. This command sets the host name in an
+◊fname{/etc/rc.d} setup script (◊fname{/etc/rc.d/rc.sysinit} or
+similar). It is equivalent to ◊command{uname -n}, and a counterpart to
+the $HOSTNAME internal variable.
+
+◊example{
+bash$ hostname
+localhost.localdomain
+
+bash$ echo $HOSTNAME
+localhost.localdomain
+}
+
+Similar to the ◊command{hostname} command are the
+◊command{domainname}, ◊command{dnsdomainname},
+◊command{nisdomainname}, and ◊command{ypdomainname} commands. Use
+these to display or set the system DNS or NIS/YP domain name. Various
+options to ◊command{hostname} also perform these functions.
+
+}
+
+◊definition-entry[#:name "hostid"]{
+Echo a 32-bit hexadecimal numerical identifier for the host machine.
+
+◊example{
+bash$ hostid
+7f0100
+}
+
+Note: This command allegedly fetches a "unique" serial number for a
+particular system. Certain product registration procedures use this
+number to brand a particular user license. Unfortunately,
+◊command{hostid} only returns the machine network address in
+hexadecimal, with pairs of bytes transposed.
+
+The network address of a typical non-networked Linux machine, is found
+in ◊fname{/etc/hosts}.
+
+◊example{
+bash$ cat /etc/hosts
+127.0.0.1               localhost.localdomain localhost
+}
+
+As it happens, transposing the bytes of 127.0.0.1, we get 0.127.1.0,
+which translates in hex to 007f0100, the exact equivalent of what
+◊command{hostid} returns, above. There exist only a few million other Linux
+machines with this identical ◊command{hostid}.
+
+}
+
+◊definition-entry[#:name "sar"]{
+Invoking ◊command{sar} (System Activity Reporter) gives a very
+detailed rundown on system statistics. The Santa Cruz Operation ("Old"
+SCO) released sar as Open Source in June, 1999.
+
+This command is not part of the base Linux distribution, but may be
+obtained as part of the ◊code{sysstat} utilities package, written by
+Sebastien Godard.
+
+◊example{
+bash$ sar
+Linux 2.4.9 (brooks.seringas.fr) 	09/26/03
+
+10:30:00          CPU     %user     %nice   %system   %iowait     %idle
+10:40:00          all      2.21     10.90     65.48      0.00     21.41
+10:50:00          all      3.36      0.00     72.36      0.00     24.28
+11:00:00          all      1.12      0.00     80.77      0.00     18.11
+Average:          all      2.23      3.63     72.87      0.00     21.27
+
+14:32:30          LINUX RESTART
+
+15:00:00          CPU     %user     %nice   %system   %iowait     %idle
+15:10:00          all      8.59      2.40     17.47      0.00     71.54
+15:20:00          all      4.07      1.00     11.95      0.00     82.98
+15:30:00          all      0.79      2.94      7.56      0.00     88.71
+Average:          all      6.33      1.70     14.71      0.00     77.26
+}
+
+}
+
+◊definition-entry[#:name "readelf"]{
+Show information and statistics about a designated elf binary. This is
+part of the binutils package.
+
+◊example{
+bash$ readelf -h /bin/bash
+ELF Header:
+   Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+   Class:                             ELF32
+   Data:                              2's complement, little endian
+   Version:                           1 (current)
+   OS/ABI:                            UNIX - System V
+   ABI Version:                       0
+   Type:                              EXEC (Executable file)
+   . . .
+}
+
+}
+
+◊definition-entry[#:name "size"]{
+The ◊command{size [/path/to/binary]} command gives the segment sizes
+of a binary executable or archive file. This is mainly of use to
+programmers.
+
+◊example{
+bash$ size /bin/bash
+   text    data     bss     dec     hex filename
+  495971   22496   17392  535859   82d33 /bin/bash
+}
+
+}
+
+}
+
+◊section{System Logs}
