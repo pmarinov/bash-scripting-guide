@@ -1082,3 +1082,81 @@ bash$ size /bin/bash
 }
 
 ◊section{System Logs}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "logger"]{
+Appends a user-generated message to the system log
+(◊fname{/var/log/messages}). You do not have to be root to invoke
+logger.
+
+◊example{
+logger Experiencing instability in network connection at 23:10, 05/21.
+# Now, do a 'tail /var/log/messages'.
+}
+
+By embedding a logger command in a script, it is possible to write
+debugging information to ◊fname{/var/log/messages}.
+
+◊example{
+logger -t $0 -i Logging at line "$LINENO".
+# The "-t" option specifies the tag for the logger entry.
+# The "-i" option records the process ID.
+
+# tail /var/log/message
+# ...
+# Jul  7 20:48:58 localhost ./test.sh[1712]: Logging at line 3.
+}
+
+On a Linux with systemd, use ◊command{journalctl} to access the system
+log:
+
+◊example{
+bash$ logger "Zzz"
+
+bash$ journalctl | tail
+...
+Aug 24 21:44:50 bongo-vm bongo-user[196586]: Zzz
+
+}
+
+}
+
+◊definition-entry[#:name "logrotate"]{
+This utility manages the system log files, rotating, compressing,
+deleting, and/or e-mailing them, as appropriate. This keeps the
+◊fname{/var/log} from getting cluttered with old log files. Usually
+◊command{cron} runs ◊command{logrotate} on a daily basis.
+
+Adding an appropriate entry to ◊fname{/etc/logrotate.conf} makes it
+possible to manage personal log files, as well as system-wide ones.
+
+Note: Stefano Falsetto has created ◊command{rottlog}, which he
+considers to be an improved version of ◊command{logrotate}.
+
+}
+
+}
+
+◊section{Job Control}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "ps"]{
+
+Process Statistics: lists currently executing processes by owner and
+PID (process ID). This is usually invoked with ax or aux options, and
+may be piped to grep or sed to search for a specific process (see
+TODO Example 15-14 and Example 29-3).
+
+◊example{
+bash$  ps ax | grep sendmail
+295 ?  S  0:00 sendmail: accepting connections on port 25
+}
+
+To display system processes in graphical "tree" format: ◊command{ps
+afjx} or ◊command{ps ax --forest.}
+
+}
+
+}
