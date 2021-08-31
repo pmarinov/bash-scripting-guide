@@ -1159,4 +1159,194 @@ afjx} or ◊command{ps ax --forest.}
 
 }
 
+◊definition-entry[#:name "pgrep, pkill"]{
+Combining the ◊command{ps} command with ◊command{grep} or
+◊command{kill}.
+
+bash$ ps a | grep mingetty
+2212 tty2     Ss+    0:00 /sbin/mingetty tty2
+2213 tty3     Ss+    0:00 /sbin/mingetty tty3
+2214 tty4     Ss+    0:00 /sbin/mingetty tty4
+2215 tty5     Ss+    0:00 /sbin/mingetty tty5
+2216 tty6     Ss+    0:00 /sbin/mingetty tty6
+4849 pts/2    S+     0:00 grep mingetty
+
+bash$ pgrep mingetty
+2212 mingetty
+2213 mingetty
+2214 mingetty
+2215 mingetty
+2216 mingetty
+
+Compare the action of ◊command{pkill} with ◊command{killall}.
+
 }
+
+◊definition-entry[#:name "pstree"]{
+Lists currently executing processes in "tree" format. The ◊code{-p}
+option shows the PIDs, as well as the process names.
+
+}
+
+◊definition-entry[#:name "top"]{
+Continuously updated display of most cpu-intensive processes. The
+◊code{-b} option displays in text mode, so that the output may be
+parsed or accessed from a script.
+
+◊example{
+bash$ top -b
+8:30pm  up 3 min,  3 users,  load average: 0.49, 0.32, 0.13
+45 processes: 44 sleeping, 1 running, 0 zombie, 0 stopped
+CPU states: 13.6% user,  7.3% system,  0.0% nice, 78.9% idle
+Mem:    78396K av,   65468K used,   12928K free,       0K shrd,    2352K buff
+Swap:  157208K av,       0K used,  157208K free                   37244K cached
+
+PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+848 bozo      17   0   996  996   800 R     5.6  1.2   0:00 top
+  1 root       8   0   512  512   444 S     0.0  0.6   0:04 init
+  2 root       9   0     0    0     0 SW    0.0  0.0   0:00 keventd
+...  
+}
+
+}
+
+◊definition-entry[#:name "nice"]{
+Run a background job with an altered priority. Priorities run from 19
+(lowest) to -20 (highest). Only root may set the negative (higher)
+priorities. Related commands are ◊command{renice} and ◊command{snice},
+which change the priority of a running process or processes, and
+◊command{skill}, which sends a kill signal to a process or processes.
+
+}
+
+◊definition-entry[#:name "nohup"]{
+Keeps a command running even after user logs off. The command will run
+as a foreground process unless followed by ◊code{&}. If you use
+◊command{nohup} within a script, consider coupling it with a
+◊command{wait} to avoid creating an orphan or zombie process.
+
+}
+
+◊definition-entry[#:name "pidof"]{
+Identifies process ID (PID) of a running job. Since job control
+commands, such as ◊command{kill} and ◊command{renice} act on the PID
+of a process (not its name), it is sometimes necessary to identify
+that PID. The pidof command is the approximate counterpart to the
+$PPID internal variable.
+
+◊example{
+bash$ pidof xclock
+880
+}
+
+◊anchored-example[#:anchor "pid_kill1"]{pidof helps kill a process}
+
+◊example{
+#!/bin/bash
+# kill-process.sh
+
+NOPROCESS=2
+
+process=xxxyyyzzz  # Use nonexistent process.
+# For demo purposes only...
+# ... don't want to actually kill any actual process with this script.
+#
+# If, for example, you wanted to use this script to logoff the Internet,
+#     process=pppd
+
+t=`pidof $process`       # Find pid (process id) of $process.
+# The pid is needed by 'kill' (can't 'kill' by program name).
+
+if [ -z "$t" ]           # If process not present, 'pidof' returns null.
+then
+  echo "Process $process was not running."
+  echo "Nothing killed."
+  exit $NOPROCESS
+fi  
+
+kill $t                  # May need 'kill -9' for stubborn process.
+
+# Need a check here to see if process allowed itself to be killed.
+# Perhaps another " t=`pidof $process` " or ...
+
+
+# This entire script could be replaced by
+#        kill $(pidof -x process_name)
+# or
+#        killall process_name
+# but it would not be as instructive.
+
+exit 0
+}
+
+}
+
+◊definition-entry[#:name "fuser"]{
+Identifies the processes (by PID) that are accessing a given file, set
+of files, or directory. May also be invoked with the ◊code{-k} option,
+which kills those processes. This has interesting implications for
+system security, especially in scripts preventing unauthorized users
+from accessing system services.
+
+◊example{
+bash$ fuser -u /usr/bin/vim
+/usr/bin/vim:         3207e(bozo)
+
+bash$ fuser -u /dev/null
+/dev/null:            3009(bozo)  3010(bozo)  3197(bozo)  3199(bozo)
+}
+
+One important application for ◊command{fuser} is when physically
+inserting or removing storage media, such as CD ROM disks or USB flash
+drives. Sometimes trying a ◊command{umount} fails with a device is
+busy error message. This means that some user(s) and/or process(es)
+are accessing the device. An ◊command{fuser -um /dev/device_name} will
+clear up the mystery, so you can kill any relevant processes.
+
+◊example{
+bash$ umount /mnt/usbdrive
+umount: /mnt/usbdrive: device is busy
+
+bash$ fuser -um /dev/usbdrive
+/mnt/usbdrive:        1772c(bozo)
+
+bash$ kill -9 1772
+bash$ umount /mnt/usbdrive
+}
+
+The ◊command{fuser} command, invoked with the ◊code{-n} option
+identifies the processes accessing a port. This is especially useful
+in combination with ◊command{nmap}.
+
+◊example{
+root# nmap localhost.localdomain
+PORT     STATE SERVICE
+25/tcp   open  smtp
+
+root# fuser -un tcp 25
+25/tcp:               2095(root)
+
+root# ps ax | grep 2095 | grep -v grep
+2095 ?        Ss     0:00 sendmail: accepting connections
+}
+
+}
+
+◊definition-entry[#:name "cron"]{
+
+Administrative program scheduler, performing such duties as cleaning
+up and deleting system log files and updating the slocate
+database. This is the superuser version of ◊command{at} (although each
+user may have their own ◊fname{crontab} file which can be changed with
+the ◊command{crontab} command). It runs as a daemon and executes
+scheduled entries from ◊fname{/etc/crontab}.
+
+Note: Some flavors of Linux run ◊command{crond}, Matthew Dillon's
+version of ◊command{cron}.
+
+}
+
+}
+
+◊section{Process Control and Booting}
+
