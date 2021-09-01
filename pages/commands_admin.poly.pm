@@ -1333,7 +1333,6 @@ root# ps ax | grep 2095 | grep -v grep
 }
 
 ◊definition-entry[#:name "cron"]{
-
 Administrative program scheduler, performing such duties as cleaning
 up and deleting system log files and updating the slocate
 database. This is the superuser version of ◊command{at} (although each
@@ -1350,3 +1349,240 @@ version of ◊command{cron}.
 
 ◊section{Process Control and Booting}
 
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "init"]{
+The ◊command{init} command is the parent of all processes. Called in
+the final step of a bootup, ◊command{init} determines the runlevel of
+the system from ◊fname{/etc/inittab}. Invoked by its alias
+◊command{telinit}, and by root only.
+
+}
+
+◊definition-entry[#:name "telinit"]{
+Symlinked to ◊command{init}, this is a means of changing the system
+runlevel, usually done for system maintenance or emergency filesystem
+repairs. Invoked only by root. This command can be dangerous -- be
+certain you understand it well before using!
+
+}
+
+◊definition-entry[#:name "runlevel"]{
+Shows the current and last runlevel, that is, whether the system is
+halted (runlevel 0), in single-user mode (1), in multi-user mode (2 or
+3), in X Windows (5), or rebooting (6). This command accesses the
+◊fname{/var/run/utmp} file.
+
+}
+
+◊definition-entry[#:name "halt, shutdown, reboot"]{
+Command set to shut the system down, usually just prior to a power
+down.
+
+Warning: On some Linux distros, the ◊command{halt} command has 755
+permissions, so it can be invoked by a non-root user. A careless halt
+in a terminal or a script may shut down the system!
+
+}
+
+◊definition-entry[#:name "service"]{
+Starts or stops a system service. The startup scripts in
+◊fname{/etc/init.d} and ◊fname{/etc/rc.d} use this command to start
+services at bootup.
+
+◊example{
+root# /sbin/service iptables stop
+Flushing firewall rules:                                   [  OK  ]
+Setting chains to policy ACCEPT: filter                    [  OK  ]
+Unloading iptables modules:                                [  OK  ]
+}
+
+}
+
+}
+
+◊section{Network}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "nmap"]{
+Network mapper and port scanner. This command scans a server to locate
+open ports and the services associated with those ports. It can also
+report information about packet filters and firewalls. This is an
+important security tool for locking down a network against hacking
+attempts.
+
+◊example{
+#!/bin/bash
+
+SERVER=$HOST                           # localhost.localdomain (127.0.0.1).
+PORT_NUMBER=25                         # SMTP port.
+
+nmap $SERVER | grep -w "$PORT_NUMBER"  # Is that particular port open?
+#              grep -w matches whole words only,
+#+             so this wouldn't match port 1025, for example.
+
+exit 0
+
+# 25/tcp     open        smtp
+}
+
+}
+
+◊definition-entry[#:name "ifconfig"]{
+Network interface configuration and tuning utility.
+
+◊example{
+bash$ ifconfig -a
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:10 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:10 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:700 (700.0 b)  TX bytes:700 (700.0 b)
+}
+
+The ◊command{ifconfig} command is most often used at bootup to set up
+the interfaces, or to shut them down when rebooting.
+
+◊example{
+# Code snippets from /etc/rc.d/init.d/network
+
+# ...
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 0
+
+[ -x /sbin/ifconfig ] || exit 0
+
+# ...
+
+for i in $interfaces ; do
+  if ifconfig $i 2>/dev/null | grep -q "UP" >/dev/null 2>&1 ; then
+    action "Shutting down interface $i: " ./ifdown $i boot
+  fi
+#  The GNU-specific "-q" option to "grep" means "quiet", i.e.,
+#+ producing no output.
+#  Redirecting output to /dev/null is therefore not strictly necessary.
+       
+# ...
+
+echo "Currently active devices:"
+echo `/sbin/ifconfig | grep ^[a-z] | awk '{print $1}'`
+#                            ^^^^^  should be quoted to prevent globbing.
+#  The following also work.
+#    echo $(/sbin/ifconfig | awk '/^[a-z]/ { print $1 })'
+#    echo $(/sbin/ifconfig | sed -e 's/ .*//')
+#  Thanks, S.C., for additional comments
+}
+
+See also TODO  Example 32-6.
+
+}
+
+◊definition-entry[#:name "netstat"]{
+Show current network statistics and information, such as routing
+tables and active connections. This utility accesses information in
+◊fname{/proc/net} (TODO Chapter 29). See TODO Example 29-4.
+
+◊command{netstat -r} is equivalent to ◊command{route}.
+
+◊example{
+bash$ netstat
+Active Internet connections (w/o servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+Active UNIX domain sockets (w/o servers)
+Proto RefCnt Flags       Type       State         I-Node Path
+unix  11     [ ]         DGRAM                    906    /dev/log
+unix  3      [ ]         STREAM     CONNECTED     4514   /tmp/.X11-unix/X0
+unix  3      [ ]         STREAM     CONNECTED     4513
+. . .
+}
+
+Note: A ◊command{netstat -lptu} shows sockets that are listening to
+ports, and the associated processes. This can be useful for
+determining whether a computer has been hacked or compromised.
+
+}
+
+◊definition-entry[#:name "iwconfig"]{
+This is the command set for configuring a wireless network. It is the
+wireless equivalent of ◊command{ifconfig}, above.
+
+}
+
+◊definition-entry[#:name "ip"]{
+General purpose utility for setting up, changing, and analyzing IP
+(Internet Protocol) networks and attached devices. This command is
+part of the iproute2 package.
+
+◊example{
+bash$ ip link show
+1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast qlen 1000
+    link/ether 00:d0:59:ce:af:da brd ff:ff:ff:ff:ff:ff
+3: sit0: <NOARP> mtu 1480 qdisc noop 
+    link/sit 0.0.0.0 brd 0.0.0.0
+
+
+bash$ ip route list
+169.254.0.0/16 dev lo  scope link
+}
+
+Or, in a script:
+
+◊example{
+#!/bin/bash
+# Script by Juan Nicolas Ruiz
+# Used with his kind permission.
+
+# Setting up (and stopping) a GRE tunnel.
+
+
+# --- start-tunnel.sh ---
+
+LOCAL_IP="192.168.1.17"
+REMOTE_IP="10.0.5.33"
+OTHER_IFACE="192.168.0.100"
+REMOTE_NET="192.168.3.0/24"
+
+/sbin/ip tunnel add netb mode gre remote $REMOTE_IP \
+  local $LOCAL_IP ttl 255
+/sbin/ip addr add $OTHER_IFACE dev netb
+/sbin/ip link set netb up
+/sbin/ip route add $REMOTE_NET dev netb
+
+exit 0  #############################################
+
+# --- stop-tunnel.sh ---
+
+REMOTE_NET="192.168.3.0/24"
+
+/sbin/ip route del $REMOTE_NET dev netb
+/sbin/ip link set netb down
+/sbin/ip tunnel del netb
+
+exit 0
+}
+
+}
+
+◊definition-entry[#:name "route"]{
+Show info about or make changes to the kernel routing table.
+
+◊example{
+bash$ route
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+pm3-67.bozosisp *               255.255.255.255 UH       40 0          0 ppp0
+127.0.0.0       *               255.0.0.0       U        40 0          0 lo
+default         pm3-67.bozosisp 0.0.0.0         UG       40 0          0 ppp0
+}
+
+}
+
+◊definition-entry[#:name "iptables"]{
+}
+
+}
