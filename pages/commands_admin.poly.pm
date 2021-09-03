@@ -829,7 +829,7 @@ List devices, that is, show installed hardware.
 bash$ lsdev
 Device            DMA   IRQ  I/O Ports
 ------------------------------------------------
-cascade             4     2 
+cascade             4     2
 dma                          0080-008f
 dma1                         0000-001f
 dma2                         00c0-00df
@@ -894,7 +894,7 @@ bash$ stat test.cru
  File: "test.cru"
  Size: 49970        Allocated Blocks: 100          Filetype: Regular File
  Mode: (0664/-rw-rw-r--)         Uid: (  501/ bozo)  Gid: (  501/ bozo)
-Device:  3,8   Inode: 18185     Links: 1    
+Device:  3,8   Inode: 18185     Links: 1
 Access: Sat Jun  2 16:40:24 2001
 Modify: Sat Jun  2 16:40:24 2001
 Change: Sat Jun  2 16:40:24 2001
@@ -1054,7 +1054,7 @@ part of the binutils package.
 ◊example{
 bash$ readelf -h /bin/bash
 ELF Header:
-   Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+   Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00
    Class:                             ELF32
    Data:                              2's complement, little endian
    Version:                           1 (current)
@@ -1205,7 +1205,7 @@ PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
 848 bozo      17   0   996  996   800 R     5.6  1.2   0:00 top
   1 root       8   0   512  512   444 S     0.0  0.6   0:04 init
   2 root       9   0     0    0     0 SW    0.0  0.0   0:00 keventd
-...  
+...
 }
 
 }
@@ -1262,7 +1262,7 @@ then
   echo "Process $process was not running."
   echo "Nothing killed."
   exit $NOPROCESS
-fi  
+fi
 
 kill $t                  # May need 'kill -9' for stubborn process.
 
@@ -1439,7 +1439,7 @@ lo        Link encap:Local Loopback
           UP LOOPBACK RUNNING  MTU:16436  Metric:1
           RX packets:10 errors:0 dropped:0 overruns:0 frame:0
           TX packets:10 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0 
+          collisions:0 txqueuelen:0
           RX bytes:700 (700.0 b)  TX bytes:700 (700.0 b)
 }
 
@@ -1465,7 +1465,7 @@ for i in $interfaces ; do
 #  The GNU-specific "-q" option to "grep" means "quiet", i.e.,
 #+ producing no output.
 #  Redirecting output to /dev/null is therefore not strictly necessary.
-       
+
 # ...
 
 echo "Currently active devices:"
@@ -1491,7 +1491,7 @@ tables and active connections. This utility accesses information in
 ◊example{
 bash$ netstat
 Active Internet connections (w/o servers)
-Proto Recv-Q Send-Q Local Address           Foreign Address         State      
+Proto Recv-Q Send-Q Local Address           Foreign Address         State
 Active UNIX domain sockets (w/o servers)
 Proto RefCnt Flags       Type       State         I-Node Path
 unix  11     [ ]         DGRAM                    906    /dev/log
@@ -1519,11 +1519,11 @@ part of the iproute2 package.
 
 ◊example{
 bash$ ip link show
-1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue 
+1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 2: eth0: <BROADCAST,MULTICAST> mtu 1500 qdisc pfifo_fast qlen 1000
     link/ether 00:d0:59:ce:af:da brd ff:ff:ff:ff:ff:ff
-3: sit0: <NOARP> mtu 1480 qdisc noop 
+3: sit0: <NOARP> mtu 1480 qdisc noop
     link/sit 0.0.0.0 brd 0.0.0.0
 
 
@@ -1583,6 +1583,148 @@ default         pm3-67.bozosisp 0.0.0.0         UG       40 0          0 ppp0
 }
 
 ◊definition-entry[#:name "iptables"]{
+The ◊command{iptables} command set is a packet filtering tool used mainly for
+such security purposes as setting up network firewalls. This is a
+complex tool, and a detailed explanation of its use is beyond the
+scope of this document. Oskar Andreasson's tutorial is a reasonable
+starting point.
+
+See also shutting down iptables and TODO Example 30-2.
+
+}
+
+◊definition-entry[#:name "chkconfig"]{
+Check network and system configuration. This command lists and manages
+the network and system services started at bootup in the
+◊command{/etc/rc?.d} directory.
+
+Originally a port from IRIX to Red Hat Linux, ◊command{chkconfig} may
+not be part of the core installation of some Linux flavors.
+
+◊example{
+bash$ chkconfig --list
+atd             0:off   1:off   2:off   3:on    4:on    5:on    6:off
+rwhod           0:off   1:off   2:off   3:off   4:off   5:off   6:off
+...
+}
+
+}
+
+◊definition-entry[#:name "tcpdump"]{
+Network packet "sniffer." This is a tool for analyzing and
+troubleshooting traffic on a network by dumping packet headers that
+match specified criteria.
+
+Dump ip packet traffic between hosts bozoville and caduceus:
+
+◊example{
+bash$ tcpdump ip host bozoville and caduceus
+}
+
+Of course, the output of tcpdump can be parsed with certain of the
+previously discussed text processing utilities.
+
+}
+
+}
+
+◊section{Filesystem}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "mount"]{
+Mount a filesystem, usually on an external device, such as a floppy or
+CDROM. The file ◊fname{/etc/fstab} provides a handy listing of
+available filesystems, partitions, and devices, including options,
+that may be automatically or manually mounted. The file
+◊fname{/etc/mtab} shows the currently mounted filesystems and
+partitions (including the virtual ones, such as ◊fname{/proc}).
+
+◊command{mount -a} mounts all filesystems and partitions listed in
+◊fname{/etc/fstab}, except those with a ◊code{noauto} option. At
+bootup, a startup script in ◊fname{/etc/rc.d} (◊code{rc.sysinit} or
+something similar) invokes this to get everything mounted.
+
+◊example{
+mount -t iso9660 /dev/cdrom /mnt/cdrom
+# Mounts CD ROM. ISO 9660 is a standard CD ROM filesystem.
+mount /mnt/cdrom
+# Shortcut, if /mnt/cdrom listed in /etc/fstab
+}
+
+◊anchored-example[#:anchor "mount_cd1"]{Checking a CD image}
+The versatile ◊command{mount} command can even mount an ordinary file
+on a block device, and the file will act as if it were a
+filesystem. Mount accomplishes that by associating the file with a
+loopback device. One application of this is to mount and examine an
+ISO9660 filesystem image before burning it onto a CD-R. [3]
+
+◊example{
+# As root...
+
+mkdir /mnt/cdtest  # Prepare a mount point, if not already there.
+
+mount -r -t iso9660 -o loop cd-image.iso /mnt/cdtest   # Mount the image.
+#                  "-o loop" option equivalent to "losetup /dev/loop0"
+cd /mnt/cdtest     # Now, check the image.
+ls -alR            # List the files in the directory tree there.
+                   # And so forth.
+}
+
+}
+
+◊definition-entry[#:name "umount"]{
+Unmount a currently mounted filesystem. Before physically removing a
+previously mounted floppy or CDROM disk, the device must be umounted,
+else filesystem corruption may result.
+
+◊example{
+umount /mnt/cdrom
+# You may now press the eject button and safely remove the disk.
+}
+
+Note: The ◊command{automount} utility, if properly installed, can mount and
+unmount floppies or CDROM disks as they are accessed or removed. On
+"multispindle" laptops with swappable floppy and optical drives, this
+can cause problems, however.
+
+}
+
+◊definition-entry[#:name "gnome-mount"]{
+The newer Linux distros have deprecated ◊command{mount} and
+◊command{umount}. The successor, for command-line mounting of
+removable storage devices, is ◊command{gnome-mount}. It can take the
+◊code{-d} option to mount a device file by its listing in
+◊fname{/dev}.
+
+For example, to mount a USB flash drive:
+
+◊example{
+bash$ gnome-mount -d /dev/sda1
+gnome-mount 0.4
+
+bash$ df
+. . .
+/dev/sda1                63584     12034     51550  19% /media/disk
+}
+
+}
+
+◊definition-entry[#:name "sync"]{
+Forces an immediate write of all updated data from buffers to hard
+drive (synchronize drive with buffers). While not strictly necessary,
+a ◊command{sync} assures the sys admin or user that the data just
+changed will survive a sudden power failure. In the olden days, a
+◊command{sync; sync} (twice, just to make absolutely sure) was a
+useful precautionary measure before a system reboot.
+
+At times, you may wish to force an immediate buffer flush, as when
+securely deleting a file (see Example 16-61) or when the lights begin
+to flicker.
+
+}
+
+◊definition-entry[#:name "losetup"]{
 }
 
 }
