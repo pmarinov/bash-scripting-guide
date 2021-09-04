@@ -1725,6 +1725,129 @@ to flicker.
 }
 
 ◊definition-entry[#:name "losetup"]{
+Sets up and configures loopback devices.
+
+◊anchored-example[#:anchor "mount_lpback1"]{Creating a filesystem in a file}
+
+◊example{
+SIZE=1000000  # 1 meg
+
+head -c $SIZE < /dev/zero > file  # Set up file of designated size.
+losetup /dev/loop0 file           # Set it up as loopback device.
+mke2fs /dev/loop0                 # Create filesystem.
+mount -o loop /dev/loop0 /mnt     # Mount it.
+}
+
+}
+
+◊definition-entry[#:name "mkswap"]{
+Creates a swap partition or file. The swap area must subsequently be
+enabled with ◊command{swapon}.
+
+}
+
+◊definition-entry[#:name "swapon, swapoff"]{
+Enable / disable swap partitition or file. These commands usually take
+effect at bootup and shutdown.
+
+}
+
+◊definition-entry[#:name "mke2fs"]{
+Create a Linux ext2 filesystem. This command must be invoked as root.
+
+◊anchored-example[#:anchor "mkfs_hdd1"]{Adding a new hard drive}
+
+◊example{
+#!/bin/bash
+
+# Adding a second hard drive to system.
+# Software configuration. Assumes hardware already mounted.
+# From an article by the author of the ABS Guide.
+# In issue #38 of _Linux Gazette_, http://www.linuxgazette.com.
+
+ROOT_UID=0     # This script must be run as root.
+E_NOTROOT=67   # Non-root exit error.
+
+if [ "$UID" -ne "$ROOT_UID" ]
+then
+  echo "Must be root to run this script."
+  exit $E_NOTROOT
+fi
+
+# Use with extreme caution!
+# If something goes wrong, you may wipe out your current filesystem.
+
+
+NEWDISK=/dev/hdb         # Assumes /dev/hdb vacant. Check!
+MOUNTPOINT=/mnt/newdisk  # Or choose another mount point.
+
+
+fdisk $NEWDISK
+mke2fs -cv $NEWDISK1   # Check for bad blocks (verbose output).
+#  Note:           ^     /dev/hdb1, *not* /dev/hdb!
+mkdir $MOUNTPOINT
+chmod 777 $MOUNTPOINT  # Makes new drive accessible to all users.
+
+
+# Now, test ...
+# mount -t ext2 /dev/hdb1 /mnt/newdisk
+# Try creating a directory.
+# If it works, umount it, and proceed.
+
+# Final step:
+# Add the following line to /etc/fstab.
+# /dev/hdb1  /mnt/newdisk  ext2  defaults  1 1
+
+exit
+}
+
+See also TODO Example 17-8 and Example 31-3.
+
+}
+
+◊definition-entry[#:name "mkdosfs"]{
+Create a DOS FAT filesystem.
+
+}
+
+◊definition-entry[#:name "tune2fs"]{
+Tune ext2 filesystem. May be used to change filesystem parameters,
+such as maximum mount count. This must be invoked as root.
+
+Warning: This is an extremely dangerous command. Use it at your own
+risk, as you may inadvertently destroy your filesystem.
+
+}
+
+◊definition-entry[#:name "dumpe2fs"]{
+Dump (list to stdout) very verbose filesystem info. This must be
+invoked as root.
+
+◊example{
+root# dumpe2fs /dev/hda7 | grep 'ount count'
+dumpe2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
+Mount count:              6
+Maximum mount count:      20
+}
+
+}
+
+◊definition-entry[#:name "hdparm"]{
+List or change hard disk parameters. This command must be invoked as
+root, and it may be dangerous if misused.
+
+}
+
+◊definition-entry[#:name "fdisk"]{
+Create or change a partition table on a storage device, usually a hard
+drive. This command must be invoked as root.
+
+Warning: Use this command with extreme caution. If something goes
+wrong, you may destroy an existing filesystem.
+
+}
+
+◊definition-entry[#:name "fsck, e2fsck, debugfs"]{
 }
 
 }
