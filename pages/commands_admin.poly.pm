@@ -1848,6 +1848,130 @@ wrong, you may destroy an existing filesystem.
 }
 
 ◊definition-entry[#:name "fsck, e2fsck, debugfs"]{
+Filesystem check, repair, and debug command set.
+
+◊command{fsck}: a front end for checking a UNIX filesystem (may invoke
+other utilities). The actual filesystem type generally defaults to
+ext2.
+
+◊command{e2fsck}: ext2 filesystem checker.
+
+◊command{debugfs}: ext2 filesystem debugger. One of the uses of this
+versatile, but dangerous command is to (attempt to) recover deleted
+files. For advanced users only!
+
+Caution: All of these should be invoked as root, and they can damage
+or destroy a filesystem if misused.
+
+}
+
+◊definition-entry[#:name "badblocks"]{
+Checks for bad blocks (physical media flaws) on a storage device. This
+command finds use when formatting a newly installed hard drive or
+testing the integrity of backup media. [4] As an example, badblocks
+◊fname{/dev/fd0} tests a floppy disk.
+
+The ◊command{badblocks} command may be invoked destructively
+(overwrite all data) or in non-destructive read-only mode. If root
+user owns the device to be tested, as is generally the case, then root
+must invoke this command.
+
+}
+
+◊definition-entry[#:name "lsusb, usbmodules"]{
+The ◊command{lsusb} command lists all USB (Universal Serial Bus) buses
+and the devices hooked up to them.
+
+The ◊command{usbmodules} command outputs information about the driver
+modules for connected USB devices.
+
+◊example{
+bash$ lsusb
+Bus 001 Device 001: ID 0000:0000
+ Device Descriptor:
+   bLength                18
+   bDescriptorType         1
+   bcdUSB               1.00
+   bDeviceClass            9 Hub
+   bDeviceSubClass         0
+   bDeviceProtocol         0
+   bMaxPacketSize0         8
+   idVendor           0x0000
+   idProduct          0x0000
+
+   . . .
+}
+
+}
+
+◊definition-entry[#:name "lspci"]{
+Lists pci busses present.
+
+◊example{
+bash$ lspci
+00:00.0 Host bridge: Intel Corporation 82845 845
+(Brookdale) Chipset Host Bridge (rev 04)
+00:01.0 PCI bridge: Intel Corporation 82845 845
+(Brookdale) Chipset AGP Bridge (rev 04)
+00:1d.0 USB Controller: Intel Corporation 82801CA/CAM USB (Hub #1) (rev 02)
+00:1d.1 USB Controller: Intel Corporation 82801CA/CAM USB (Hub #2) (rev 02)
+00:1d.2 USB Controller: Intel Corporation 82801CA/CAM USB (Hub #3) (rev 02)
+00:1e.0 PCI bridge: Intel Corporation 82801 Mobile PCI Bridge (rev 42)
+
+. . .
+}
+
+}
+
+◊definition-entry[#:name "mkbootdisk"]{
+Creates a boot floppy which can be used to bring up the system if, for
+example, the MBR (master boot record) becomes corrupted. Of special
+interest is the ◊code{--iso} option, which uses ◊command{mkisofs} to
+create a bootable ISO9660 filesystem image suitable for burning a
+bootable CDR.
+
+The ◊command{mkbootdisk} command is actually a Bash script, written by
+Erik Troan, in the ◊command{/sbin} directory.
+
+}
+
+◊definition-entry[#:name "mkisofs"]{
+Creates an ISO9660 filesystem suitable for a CDR image.
+
+}
+
+◊definition-entry[#:name "chroot"]{
+CHange ROOT directory. Normally commands are fetched from $PATH,
+relative to ◊fname{/}, the default root directory. This changes the
+root directory to a different one (and also changes the working
+directory to there). This is useful for security purposes, for
+instance when the system administrator wishes to restrict certain
+users, such as those telnetting in, to a secured portion of the
+filesystem (this is sometimes referred to as confining a guest user to
+a "chroot jail"). Note that after a ◊command{chroot}, the execution
+path for system binaries is no longer valid.
+
+A ◊command{chroot /opt} would cause references to ◊fname{/usr/bin} to
+be translated to ◊fname{/opt/usr/bin}. Likewise, ◊command{chroot
+/aaa/bbb /bin/ls} would redirect future instances of ◊command{ls} to
+◊fname{/aaa/bbb} as the base directory, rather than ◊fname{/} as is
+normally the case. An ◊command{alias XX 'chroot /aaa/bbb ls'} in a
+user's ◊fname{~/.bashrc} effectively restricts which portion of the
+filesystem she may run command "XX" on.
+
+The ◊command{chroot} command is also handy when running from an
+emergency boot floppy (◊command{chroot} to ◊fname{/dev/fd0}), or as an
+option to lilo when recovering from a system crash. Other uses include
+installation from a different filesystem (an rpm option) or running a
+readonly filesystem from a CD ROM. Invoke only as root, and use with
+care.
+
+Caution: It might be necessary to copy certain system files to a
+chrooted directory, since the normal $PATH can no longer be relied
+upon.
+}
+
+◊definition-entry[#:name "lockfile"]{
 }
 
 }
