@@ -1972,6 +1972,95 @@ upon.
 }
 
 ◊definition-entry[#:name "lockfile"]{
+This utility is part of the procmail package (www.procmail.org). It
+creates a lock file, a semaphore that controls access to a file,
+device, or resource.
+
+Definition: A semaphore is a flag or signal. (The usage originated in
+railroading, where a colored flag, lantern, or striped movable arm
+semaphore indicated whether a particular track was in use and
+therefore unavailable for another train.) A UNIX process can check the
+appropriate semaphore to determine whether a particular resource is
+available/accessible.
+
+The lock file serves as a flag that this particular file, device, or
+resource is in use by a process (and is therefore "busy"). The
+presence of a lock file permits only restricted access (or no access)
+to other processes.
+
+◊example{
+lockfile /home/bozo/lockfiles/$0.lock
+# Creates a write-protected lockfile prefixed with the name of the script.
+
+lockfile /home/bozo/lockfiles/${0##*/}.lock
+# A safer version of the above, as pointed out by E. Choroba.
+}
+
+Lock files are used in such applications as protecting system mail
+folders from simultaneously being changed by multiple users,
+indicating that a modem port is being accessed, and showing that an
+instance of Firefox is using its cache. Scripts may check for the
+existence of a lock file created by a certain process to check if that
+process is running. Note that if a script attempts to create a lock
+file that already exists, the script will likely hang.
+
+Normally, applications create and check for lock files in the
+◊fname{/var/lock} directory. A script can test for the presence of a
+lock file by something like the following. Since only root has write
+permission in the ◊fname{/var/lock} directory, a user script cannot
+set a lock file there.
+
+◊example{
+appname=xyzip
+# Application "xyzip" created lock file "/var/lock/xyzip.lock".
+
+if [ -e "/var/lock/$appname.lock" ]
+then   #+ Prevent other programs & scripts
+       #  from accessing files/resources used by xyzip.
+  ...
 }
 
 }
+
+◊definition-entry[#:name "flock"]{
+Much less useful than the ◊command{lockfile} command is flock. It sets
+an "advisory" lock on a file and then executes a command while the
+lock is on. This is to prevent any other process from setting a lock
+on that file until completion of the specified command.
+
+◊example{
+flock $0 cat $0 > lockfile__$0
+#  Set a lock on the script the above line appears in,
+#+ while listing the script to stdout.
+}
+
+Note: Unlike ◊command{lockfile}, ◊command{flock} does not
+automatically create a lock file.
+
+}
+
+◊definition-entry[#:name "mknod"]{
+Creates block or character device files (may be necessary when
+installing new hardware on the system). The MAKEDEV utility has
+virtually all of the functionality of mknod, and is easier to use.
+
+}
+
+◊definition-entry[#:name "MAKEDEV"]{
+Utility for creating device files. It must be run as root, and in the
+◊fname{/dev} directory. It is a sort of advanced version of
+◊command{mknod}.
+
+}
+
+◊definition-entry[#:name "tmpwatch"]{
+Automatically deletes files which have not been accessed within a
+specified period of time. Usually invoked by ◊command{cron} to remove
+stale log files.
+
+}
+
+}
+
+◊section{Backup}
+
