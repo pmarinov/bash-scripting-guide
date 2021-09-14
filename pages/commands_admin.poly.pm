@@ -2064,3 +2064,121 @@ stale log files.
 
 ◊section{Backup}
 
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "dump, restore"]{
+The ◊command{dump} command is an elaborate filesystem backup utility,
+generally used on larger installations and
+networks. ◊footnote{Operators of single-user Linux systems generally
+prefer something simpler for backups, such as ◊command{tar}.} It reads
+raw disk partitions and writes a backup file in a binary format. Files
+to be backed up may be saved to a variety of storage media, including
+disks and tape drives. The ◊command{restore} command restores backups
+made with ◊command{dump}.
+
+}
+
+◊definition-entry[#:name "fdformat"]{
+Perform a low-level format on a floppy disk, such as ◊fname{/dev/fd0*}.
+
+}
+
+}
+
+◊section{System Resources}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "ulimit"]{
+Sets an upper limit on use of system resources. Usually invoked with
+the ◊code{-f} option, which sets a limit on file size (◊command{ulimit
+-f 1000} limits files to 1 meg maximum). The ◊code{-t} option limits
+the coredump size (◊command{ulimit -c 0} eliminates
+coredumps). Normally, the value of ulimit would be set in
+◊fname{/etc/profile} and/or ◊fname{~/.bash_profile} (see TODO Appendix
+H).
+
+As of the version 4 update of Bash, the ◊code{-f} and ◊code{-c}
+options take a block size of 512 when in POSIX mode. Additionally,
+there are two new options: ◊code{-b} for socket buffer size, and
+◊code{-T} for the limit on the number of threads.
+
+Important: Judicious use of ulimit can protect a system against the
+dreaded fork bomb.
+
+◊example{
+#!/bin/bash
+# This script is for illustrative purposes only.
+# Run it at your own peril -- it WILL freeze your system.
+
+while true  #  Endless loop.
+do
+  $0 &      #  This script invokes itself . . .
+            #+ forks an infinite number of times . . .
+            #+ until the system freezes up because all resources exhausted.
+done        #  This is the notorious "sorcerer's appentice" scenario.
+
+exit 0      #  Will not exit here, because this script will never terminate.
+}
+
+A ◊command{ulimit -Hu XX} (where XX is the user process limit) in
+◊fname{/etc/profile} would abort this script when it exceeded the
+preset limit.
+
+}
+
+◊definition-entry[#:name "quota"]{
+Display user or group disk quotas.
+
+}
+
+◊definition-entry[#:name "setquota"]{
+Set user or group disk quotas from the command-line.
+
+}
+
+◊definition-entry[#:name "umask"]{
+User file creation permissions mask. Limit the default file attributes
+for a particular user. All files created by that user take on the
+attributes specified by ◊command{umask}. The (octal) value passed to
+umask defines the file permissions disabled. For example,
+◊command{umask 022} ensures that new files will have at most 755
+permissions (777 NAND 022). ◊footnote{NAND is the logical not-and
+operator. Its effect is somewhat similar to subtraction.} Of course,
+the user may later change the attributes of particular files with
+◊command{chmod}. The usual practice is to set the value of
+◊command{umask} in ◊fname{/etc/profile} and/or ◊fname{~/.bash_profile}
+(see TODO Appendix H).
+
+◊anchored-example[#:anchor "umask_hide1"]{Using umask to hide an
+output file from prying eyes}
+
+◊example{
+#!/bin/bash
+# rot13a.sh: Same as "rot13.sh" script, but writes output to "secure" file.
+
+# Usage: ./rot13a.sh filename
+# or     ./rot13a.sh <filename
+# or     ./rot13a.sh and supply keyboard input (stdin)
+
+umask 177               #  File creation mask.
+                        #  Files created by this script
+                        #+ will have 600 permissions.
+
+OUTFILE=decrypted.txt   #  Results output to file "decrypted.txt"
+                        #+ which can only be read/written
+                        #  by invoker of script (or root).
+
+cat "$@" | tr 'a-zA-Z' 'n-za-mN-ZA-M' > $OUTFILE 
+#    ^^ Input from stdin or a file.   ^^^^^^^^^^ Output redirected to file. 
+
+exit 0
+}
+
+◊definition-entry[#:name "rdev"]{
+}
+
+}
+
+
+}
