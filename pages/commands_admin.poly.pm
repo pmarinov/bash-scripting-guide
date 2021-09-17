@@ -2175,10 +2175,89 @@ cat "$@" | tr 'a-zA-Z' 'n-za-mN-ZA-M' > $OUTFILE
 exit 0
 }
 
+}
+
 ◊definition-entry[#:name "rdev"]{
+Get info about or make changes to root device, swap space, or video
+mode. The functionality of ◊command{rdev} has generally been taken
+over by ◊command{lilo}, but ◊command{rdev} remains useful for setting
+up a ram disk. This is a dangerous command, if misused.
+
+}
+
+}
+
+◊section{Modules}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "lsmod"]{
+List installed kernel modules.
+
+◊example{
+bash$ lsmod
+Module                  Size  Used by
+autofs                  9456   2 (autoclean)
+opl3                   11376   0
+serial_cs               5456   0 (unused)
+sb                     34752   0
+uart401                 6384   0 [sb]
+sound                  58368   0 [opl3 sb uart401]
+soundlow                 464   0 [sound]
+soundcore               2800   6 [sb sound]
+ds                      6448   2 [serial_cs]
+i82365                 22928   2
+pcmcia_core            45984   0 [serial_cs ds i82365]
+
+}
+
+Note: Doing a ◊command{cat /proc/modules} gives the same information.
+
+}
+
+◊definition-entry[#:name "insmod"]{
+Force installation of a kernel module (use modprobe instead, when
+possible). Must be invoked as root.
+
+}
+
+◊definition-entry[#:name "rmmod"]{
+Force unloading of a kernel module. Must be invoked as root.
+
+}
+
+◊definition-entry[#:name "modprobe"]{
+Module loader that is normally invoked automatically in a startup
+script. Must be invoked as root.
+
+}
+
+◊definition-entry[#:name "depmod"]{
+Creates module dependency file. Usually invoked from a startup script.
+
+}
+
+◊definition-entry[#:name "modinfo"]{
+
+Output information about a loadable module.
+
+◊example{
+bash$ modinfo hid
+filename:    /lib/modules/2.4.20-6/kernel/drivers/usb/hid.o
+description: "USB HID support drivers"
+author:      "Andreas Gal, Vojtech Pavlik <vojtech@suse.cz>"
+license:     "GPL"
 }
 
 }
 
+}
+
+◊section{Miscellaneous}
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "env"]{
+}
 
 }
