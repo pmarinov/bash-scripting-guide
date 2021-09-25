@@ -68,4 +68,8 @@ pages/exit_status.poly.pm
   pages/commands_admin.poly.pm
 }
 
+◊pages/advanced_topics.poly.pm{
+  pages/regexp_intro.poly.pm
+}
+
 }
