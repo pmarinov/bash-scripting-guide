@@ -85,31 +85,31 @@ context, negates the meaning of a set of characters in an RE.
 ◊definition-entry[#:name "$"]{
 The dollar sign at the end of an RE matches the end of a line.
 
-◊code{"XXX$"} matches XXX at the end of a line.
+◊code{XXX$} matches XXX at the end of a line.
 
-◊code{"^$"} matches blank lines.
+◊code{^$} matches blank lines.
 
 }
 
 ◊definition-entry[#:name "[...]"]{
 Brackets enclose a set of characters to match in a single RE.
 
-◊code{"[xyz]"} matches any one of the characters x, y, or z.
+◊code{[xyz]} matches any one of the characters x, y, or z.
 
-◊code{"[c-n]"} matches any one of the characters in the range c to n.
+◊code{[c-n]} matches any one of the characters in the range c to n.
 
-◊code{"[B-Pk-y]"} matches any one of the characters in the ranges B to
+◊code{[B-Pk-y]} matches any one of the characters in the ranges B to
 P and k to y.
 
-◊code{"[a-z0-9]"} matches any single lowercase letter or any digit.
+◊code{[a-z0-9]} matches any single lowercase letter or any digit.
 
-◊code{"[^b-d]"} matches any character except those in the range b to
+◊code{[^b-d]} matches any character except those in the range b to
 d. This is an instance of ^ negating or inverting the meaning of the
 following RE (taking on a role similar to ! in a different context).
 
 Combined sequences of bracketed characters match common word
-patterns. ◊code{"[Yy][Ee][Ss]"} matches yes, Yes, YES, yEs, and so
-forth. ◊code{"[0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9]"}
+patterns. ◊code{[Yy][Ee][Ss]} matches yes, Yes, YES, yEs, and so
+forth. ◊code{[0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9]}
 matches any Social Security number.
 
 }
@@ -118,9 +118,9 @@ matches any Social Security number.
 The backslash escapes a special character, which means that character
 gets interpreted literally (and is therefore no longer special).
 
-A ◊code{"\$"} reverts back to its literal meaning of ◊code{"$"}, rather than its RE
-meaning of end-of-line. Likewise a ◊code{"\\"} has the literal meaning of
-◊code{"\"}.
+A ◊code{\$} reverts back to its literal meaning of ◊code{$}, rather than its RE
+meaning of end-of-line. Likewise a ◊code{\\} has the literal meaning of
+◊code{\}.
 
 }
 
@@ -130,7 +130,7 @@ Escaped "angle brackets" mark word boundaries.
 The angle brackets must be escaped, since otherwise they have only
 their literal character meaning.
 
-◊code{"\<the\>"} matches the word "the," but not the words "them," "there," "other," etc.
+◊code{\<the\>} matches the word "the," but not the words "them," "there," "other," etc.
 
 ◊example{
 bash$ cat textfile
@@ -180,4 +180,83 @@ Run   grep "1133*"  on this file.           # Match.
 
 ◊section{Extended RE}
 
-Additional metacharacters added to the basic set. Used in ◊command{egrep}, ◊command{awk}, and ◊command{perl}.
+Additional metacharacters added to the basic set. Used in
+◊command{egrep}, ◊command{awk}, and ◊command{perl}.
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "?"]{
+The question mark matches zero or one of the previous RE. It is
+generally used for matching single characters.
+
+}
+
+◊definition-entry[#:name "+"]{
+The plus matches one or more of the previous RE. It serves a role
+similar to the ◊code{*}, but does not match zero occurrences.
+
+◊example{
+# GNU versions of sed and awk can use "+",
+# but it needs to be escaped.
+
+echo a111b | sed -ne '/a1\+b/p'
+echo a111b | grep 'a1\+b'
+echo a111b | gawk '/a1+b/'
+# All of above are equivalent.
+}
+
+}
+
+◊definition-entry[#:name "\\{...\\}"]{
+Escaped "curly brackets" indicate the number of occurrences of a
+preceding RE to match.
+
+It is necessary to escape the curly brackets since they have only
+their literal character meaning otherwise. This usage is technically
+not part of the basic RE set.
+
+◊code{[0-9]\◊escaped{◊"{"}5\◊escaped{◊"}"}} matches exactly five
+digits (characters in the range of 0 to 9).
+
+Note: Curly brackets are not available as an RE in the "classic"
+(non-POSIX compliant) version of ◊command{awk}. However, the GNU
+extended version of ◊command{awk}, ◊command{gawk}, has the
+◊code{--re-interval} option that permits them (without being escaped).
+
+◊example{
+bash$ echo 2222 | gawk --re-interval '/2{3}/'
+2222
+}
+
+◊command{Perl} and some ◊command{egrep} versions do not require
+escaping the curly brackets.
+
+}
+
+◊definition-entry[#:name "()"]{
+Parentheses enclose a group of REs. They are useful with the following
+◊code{|} operator and in substring extraction using expr.
+
+}
+
+◊definition-entry[#:name "|"]{
+The "or" RE operator matches any of a set of alternate characters.
+
+◊example{
+bash$ egrep 're(a|e)d' misc.txt
+People who read seem to be better informed than those who do not.
+The clarinet produces sound by the vibration of its reed.
+}
+
+Note: Some versions of ◊command{sed}, ◊command{ed}, and ◊command{ex}
+support escaped versions of the extended Regular Expressions described
+above, as do the GNU utilities.
+
+}
+
+}
+
+◊section{POSIX Character Classes.}
+
+This is an alternate method of specifying a range of characters to
+match.
