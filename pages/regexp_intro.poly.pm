@@ -260,3 +260,104 @@ above, as do the GNU utilities.
 
 This is an alternate method of specifying a range of characters to
 match.
+
+◊definition-block[#:type "code"]{
+
+◊definition-entry[#:name "[:alnum:]"]{
+Matches alphabetic or numeric characters. This is equivalent to
+◊code{A-Za-z0-9}.
+
+}
+
+◊definition-entry[#:name "[:alpha:]"]{
+Matches alphabetic characters. This is equivalent to ◊code{A-Za-z}.
+
+}
+
+◊definition-entry[#:name "[:blank:]"]{
+Matches a space or a tab.
+
+}
+
+◊definition-entry[#:name "[:cntrl:]"]{
+Matches control characters.
+
+}
+
+◊definition-entry[#:name "[:digit:]"]{
+Matches (decimal) digits. This is equivalent to ◊code{0-9}.
+
+}
+
+◊definition-entry[#:name "[:graph:]"]{
+(graphic printable characters). Matches characters in the range of
+ASCII 33 - 126. This is the same as ◊code{[:print:]}, below, but
+excluding the space character.
+
+}
+
+◊definition-entry[#:name "[:lower:]"]{
+Matches lowercase alphabetic characters. This is equivalent to
+◊code{a-z}.
+
+}
+
+◊definition-entry[#:name "[:print:]"]{
+(printable characters). Matches characters in the range of ASCII 32 -
+126. This is the same as ◊code{[:graph:]}, above, but adding the space
+character.
+
+}
+
+◊definition-entry[#:name "[:space:]"]{
+Matches whitespace characters (space and horizontal tab).
+
+}
+
+◊definition-entry[#:name "[:upper:]"]{
+Matches uppercase alphabetic characters. This is equivalent to
+◊code{A-Z}.
+
+}
+
+◊definition-entry[#:name "[:xdigit:]"]{
+Matches hexadecimal digits. This is equivalent to ◊code{0-9A-Fa-f}.
+
+}
+
+}
+
+Important: POSIX character classes generally require quoting or double
+brackets (◊code{[[ ]]}).
+
+◊example{
+bash$ grep [[:digit:]] test.file
+abc=723
+}
+
+◊example{
+# ...
+if [[ $arow =~ [[:digit:]] ]]   #  Numerical input?
+then       #  POSIX char class
+  if [[ $acol =~ [[:alpha:]] ]] # Number followed by a letter? Illegal!
+# ...
+# From ktour.sh example script.
+
+}
+
+These character classes may even be used with globbing, to a limited
+extent.
+
+◊example{
+bash$ ls -l ?[[:digit:]][[:digit:]]?
+-rw-rw-r--    1 bozo  bozo         0 Aug 21 14:47 a33b
+
+}
+
+POSIX character classes are used in TODO Example 16-21 and Example
+16-22.
+
+◊command{Sed}, ◊command{awk}, and ◊command{perl}, used as filters in
+scripts, take REs as arguments when "sifting" or transforming files or
+I/O streams. See TODO Example A-12 and Example A-16 for illustrations
+of this.
