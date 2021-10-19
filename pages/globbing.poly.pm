@@ -39,3 +39,76 @@ explicitly includes the dot as a literal character.
 
 # Setting the "dotglob" option turns this off.
 }
+
+◊anchored-example[#:anchor "glob1"]{Examples of globbing}
+
+◊example{
+bash$ ls -l
+total 2
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 a.1
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 b.1
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 c.1
+-rw-rw-r--    1 bozo  bozo       466 Aug  6 17:48 t2.sh
+-rw-rw-r--    1 bozo  bozo       758 Jul 30 09:02 test1.txt
+
+bash$ ls -l t?.sh
+-rw-rw-r--    1 bozo  bozo       466 Aug  6 17:48 t2.sh
+
+bash$ ls -l [ab]*
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 a.1
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 b.1
+
+bash$ ls -l [a-c]*
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 a.1
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 b.1
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 c.1
+
+bash$ ls -l [^ab]*
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 c.1
+-rw-rw-r--    1 bozo  bozo       466 Aug  6 17:48 t2.sh
+-rw-rw-r--    1 bozo  bozo       758 Jul 30 09:02 test1.txt
+
+bash$ ls -l {b*,c*,*est*}
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 b.1
+-rw-rw-r--    1 bozo  bozo         0 Aug  6 18:42 c.1
+-rw-rw-r--    1 bozo  bozo       758 Jul 30 09:02 test1.txt
+}
+
+Bash performs filename expansion on unquoted command-line
+arguments. The ◊command{echo} command demonstrates this.
+
+◊example{
+bash$ echo *
+a.1 b.1 c.1 t2.sh test1.txt
+
+bash$ echo t*
+t2.sh test1.txt
+
+bash$ echo t?.sh
+t2.sh
+}
+
+Note: It is possible to modify the way Bash interprets special
+characters in globbing. A ◊command{set -f command} disables globbing,
+and the ◊code{nocaseglob} and ◊code{nullglob} options to shopt change
+globbing behavior.
+
+See also TODO Example 11-5.
+
+Caution: Filenames with embedded whitespace can cause globbing to
+choke.
+
+◊example{
+IFS="$(printf '\n\t')"   # Remove space.
+
+#  Correct glob use:
+#  Always use for-loop, prefix glob, check if exists file.
+for file in ./* ; do         # Use ./* ... NEVER bare *
+  if [ -e "$file" ] ; then   # Check whether file exists.
+     COMMAND ... "$file" ...
+  fi
+done
+
+# This example taken from David Wheeler's site, with permission.
+}
+
