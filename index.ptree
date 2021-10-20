@@ -71,6 +71,7 @@ pages/exit_status.poly.pm
 ◊pages/advanced_topics.poly.pm{
   pages/regexp_intro.poly.pm
   pages/globbing.poly.pm
+  pages/here_docs.poly.pm
 }
 
 }
