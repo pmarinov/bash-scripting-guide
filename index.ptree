@@ -72,6 +72,7 @@ pages/exit_status.poly.pm
   pages/regexp_intro.poly.pm
   pages/globbing.poly.pm
   pages/here_docs.poly.pm
+  pages/here_strings.poly.pm
 }
 
 }
