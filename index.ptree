@@ -75,6 +75,7 @@ pages/exit_status.poly.pm
   pages/here_strings.poly.pm
   pages/redirection_io.poly.pm
   pages/redirection_exec.poly.pm
+  pages/redirection_blocks.poly.pm
 }
 
 }
