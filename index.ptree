@@ -78,6 +78,7 @@ pages/exit_status.poly.pm
   pages/redirection_blocks.poly.pm
   pages/subshells.poly.pm
   pages/restricted_shells.poly.pm
+  pages/process_subst.poly.pm
 }
 
 }
