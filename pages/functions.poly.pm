@@ -4,7 +4,12 @@
 ◊define-meta[page-title]{Functions}
 ◊define-meta[page-description]{Functions}
 
-Like "real" programming languages, Bash has functions, though in a somewhat limited implementation. A function is a subroutine, a code block that implements a set of operations, a "black box" that performs a specified task. Wherever there is repetitive code, when a task repeats with only slight variations in procedure, then consider using a function.
+Like "real" programming languages, Bash has functions, though in a
+somewhat limited implementation. A function is a subroutine, a code
+block that implements a set of operations, a "black box" that performs
+a specified task. Wherever there is repetitive code, when a task
+repeats with only slight variations in procedure, then consider using
+a function.
 
 ◊example{
 function function_name {
@@ -98,7 +103,7 @@ f1                 # Still an error message.
 
 # However...
 
-	  
+
 f1 ()
 {
   echo "Calling function \"f2\" from within function \"f1\"."
@@ -173,12 +178,12 @@ f1 ()
     echo "Function \"f2\", inside \"f1\"."
   }
 
-}  
+}
 
 f2  #  Gives an error message.
     #  Even a preceding "declare -f f2" wouldn't help.
 
-echo    
+echo
 
 f1  #  Does nothing, since calling "f1" does not automatically call "f2".
 f2  #  Now, it's all right to call "f2",
@@ -199,7 +204,7 @@ then
   {
     echo "Hello, Bozo."
   }
-fi  
+fi
 
 bozo_greet        # Works only for Bozo, and other users get an error.
 
@@ -235,7 +240,7 @@ Function names can take strange forms.
 
 # Now, let's invoke the function.
   _         # __________
-#             ^^^^^^^^^^   10 underscores (10 x function name)!  
+#             ^^^^^^^^^^   10 underscores (10 x function name)!
 # A "naked" underscore is an acceptable function name.
 
 
