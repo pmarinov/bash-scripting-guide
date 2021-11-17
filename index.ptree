@@ -81,6 +81,7 @@ pages/exit_status.poly.pm
   pages/process_subst.poly.pm
   pages/functions.poly.pm
   pages/functions_complex.poly.pm
+  pages/functions_vars.poly.pm
 }
 
 }
