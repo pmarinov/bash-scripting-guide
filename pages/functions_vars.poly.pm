@@ -312,3 +312,167 @@ recursive_function 1 50000  # Recurse 50,000 levels!
 echo "This will probably not print."
 exit 0  # This script will not exit normally.
 }
+
+◊section{Recursion Without Local Variables}
+
+A function may recursively call itself even without use of local variables.
+
+◊anchored-example[#:anchor "func_rec_novars1"]{The Fibonacci Sequence}
+
+◊example{
+#!/bin/bash
+# fibo.sh : Fibonacci sequence (recursive)
+# Author: M. Cooper
+# License: GPL3
+
+# ----------algorithm--------------
+# Fibo(0) = 0
+# Fibo(1) = 1
+# else
+#   Fibo(j) = Fibo(j-1) + Fibo(j-2)
+# ---------------------------------
+
+MAXTERM=15       # Number of terms (+1) to generate.
+MINIDX=2         # If idx is less than 2, then Fibo(idx) = idx.
+
+Fibonacci ()
+{
+  idx=$1   # Doesn't need to be local. Why not?
+  if [ "$idx" -lt "$MINIDX" ]
+  then
+    echo "$idx"  # First two terms are 0 1 ... see above.
+  else
+    (( --idx ))  # j-1
+    term1=$( Fibonacci $idx )   #  Fibo(j-1)
+
+    (( --idx ))  # j-2
+    term2=$( Fibonacci $idx )   #  Fibo(j-2)
+
+    echo $(( term1 + term2 ))
+  fi
+  #  An ugly, ugly kludge.
+  #  The more elegant implementation of recursive fibo in C
+  #+ is a straightforward translation of the algorithm in lines 7 - 10.
+}
+
+for i in $(seq 0 $MAXTERM)
+do  # Calculate $MAXTERM+1 terms.
+  FIBO=$(Fibonacci $i)
+  echo -n "$FIBO "
+done
+# 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377 610
+# Takes a while, doesn't it? Recursion in a script is slow.
+
+echo
+
+exit 0
+}
+
+◊anchored-examples[#:anchor "func_hanoir_towers"]{The Towers of Hanoi}
+
+◊example{
+#! /bin/bash
+#
+# The Towers Of Hanoi
+# Bash script
+# Copyright (C) 2000 Amit Singh. All Rights Reserved.
+# http://hanoi.kernelthread.com
+#
+# Tested under Bash version 2.05b.0(13)-release.
+# Also works under Bash version 3.x.
+#
+#  Used in "Advanced Bash Scripting Guide"
+#+ with permission of script author.
+#  Slightly modified and commented by ABS author.
+
+#=================================================================#
+#  The Tower of Hanoi is a mathematical puzzle attributed to
+#+ Edouard Lucas, a nineteenth-century French mathematician.
+#
+#  There are three vertical posts set in a base.
+#  The first post has a set of annular rings stacked on it.
+#  These rings are disks with a hole drilled out of the center,
+#+ so they can slip over the posts and rest flat.
+#  The rings have different diameters, and they stack in ascending
+#+ order, according to size.
+#  The smallest ring is on top, and the largest on the bottom.
+#
+#  The task is to transfer the stack of rings
+#+ to one of the other posts.
+#  You can move only one ring at a time to another post.
+#  You are permitted to move rings back to the original post.
+#  You may place a smaller ring atop a larger one,
+#+ but *not* vice versa.
+#  Again, it is forbidden to place a larger ring atop a smaller one.
+#
+#  For a small number of rings, only a few moves are required.
+#+ For each additional ring,
+#+ the required number of moves approximately doubles,
+#+ and the "strategy" becomes increasingly complicated.
+#
+#  For more information, see http://hanoi.kernelthread.com
+#+ or pp. 186-92 of _The Armchair Universe_ by A.K. Dewdney.
+#
+#
+#         ...                   ...                    ...
+#         | |                   | |                    | |
+#        _|_|_                  | |                    | |
+#       |_____|                 | |                    | |
+#      |_______|                | |                    | |
+#     |_________|               | |                    | |
+#    |___________|              | |                    | |
+#   |             |             | |                    | |
+# .--------------------------------------------------------------.
+# |**************************************************************|
+#          #1                   #2                      #3
+#
+#=================================================================#
+
+
+E_NOPARAM=66  # No parameter passed to script.
+E_BADPARAM=67 # Illegal number of disks passed to script.
+Moves=        # Global variable holding number of moves.
+              # Modification to original script.
+
+dohanoi() {   # Recursive function.
+    case $1 in
+    0)
+        ;;
+    *)
+        dohanoi "$(($1-1))" $2 $4 $3
+        echo move $2 "-->" $3
+        ((Moves++))          # Modification to original script.
+        dohanoi "$(($1-1))" $4 $3 $2
+        ;;
+    esac
+}
+
+case $# in
+    1) case $(($1>0)) in     # Must have at least one disk.
+       1)  # Nested case statement.
+           dohanoi $1 1 3 2
+           echo "Total moves = $Moves"   # 2^n - 1, where n = # of disks.
+           exit 0;
+           ;;
+       *)
+           echo "$0: illegal value for number of disks";
+           exit $E_BADPARAM;
+           ;;
+       esac
+    ;;
+    *)
+       echo "usage: $0 N"
+       echo "       Where \"N\" is the number of disks."
+       exit $E_NOPARAM;
+       ;;
+esac
+
+# Exercises:
+# ---------
+# 1) Would commands beyond this point ever be executed?
+#    Why not? (Easy)
+# 2) Explain the workings of the workings of the "dohanoi" function.
+#    (Difficult -- see the Dewdney reference, above.)
+}
+
+
