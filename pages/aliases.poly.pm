@@ -1,8 +1,8 @@
 #lang pollen
 
 ◊page-init{}
-◊define-meta[page-title]{Aliaeses}
-◊define-meta[page-description]{Aliaeses}
+◊define-meta[page-title]{Aliases}
+◊define-meta[page-description]{Aliases}
 
 A Bash alias is essentially nothing more than a keyboard shortcut, an
 abbreviation, a means of avoiding typing a long command sequence. If,
