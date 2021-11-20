@@ -84,6 +84,7 @@ pages/exit_status.poly.pm
   pages/functions_vars.poly.pm
   pages/aliases.poly.pm
   pages/list_constructs.poly.pm
+  pages/arrays.poly.pm
 }
 
 }
