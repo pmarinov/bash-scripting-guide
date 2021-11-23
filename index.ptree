@@ -87,6 +87,7 @@ pages/exit_status.poly.pm
   pages/arrays.poly.pm
   pages/indirect_refs.poly.pm
   pages/dir_dev.poly.pm
+  pages/dir_proc.poly.pm
 }
 
 }
