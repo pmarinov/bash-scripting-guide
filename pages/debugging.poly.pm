@@ -690,7 +690,7 @@ debugger.
 to script, similar to ◊code{$#}.}
 
 ◊list-entry{◊code{$BASH_ARGV}: Final command-line parameter passed to
-script, equivalent ◊code{$◊escaped{◊"{"}}!#◊escaped{◊"}"}.}
+script, equivalent ◊code{$◊escaped{◊"{"}!#◊escaped{◊"}"}}.}
 
 ◊list-entry{◊code{$BASH_COMMAND}: Command currently executing.}
 
