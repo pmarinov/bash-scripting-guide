@@ -88,6 +88,7 @@ pages/exit_status.poly.pm
   pages/indirect_refs.poly.pm
   pages/dir_dev.poly.pm
   pages/dir_proc.poly.pm
+  pages/net_programming.poly.pm
 }
 
 }
