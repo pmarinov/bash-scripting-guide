@@ -90,6 +90,7 @@ pages/exit_status.poly.pm
   pages/dir_proc.poly.pm
   pages/net_programming.poly.pm
   pages/debugging.poly.pm
+  pages/options.poly.pm
 }
 
 }
