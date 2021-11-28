@@ -92,6 +92,7 @@ pages/exit_status.poly.pm
   pages/debugging.poly.pm
   pages/options.poly.pm
   pages/gotchas.poly.pm
+  pages/style.poly.pm
 }
 
 }
