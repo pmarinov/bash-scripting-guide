@@ -106,10 +106,10 @@ else
 fi
 }
 
-Note: Scripts may be forced to run in interactive mode with the -i
-option or with a #!/bin/bash -i header. Be aware that this can cause
-erratic script behavior or show error messages even when no error is
-present.
+Note: Scripts may be forced to run in interactive mode with the
+◊code{-i} option or with a ◊code{#!/bin/bash -i} header. Be aware that
+this can cause erratic script behavior or show error messages even
+when no error is present.
 
 
 
