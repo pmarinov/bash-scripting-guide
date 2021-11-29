@@ -95,4 +95,8 @@ pages/exit_status.poly.pm
   pages/style.poly.pm
 }
 
+◊pages/misc.poly.pm{
+  pages/interactive_or_no.poly.pm
+}
+
 }
