@@ -98,6 +98,7 @@ pages/exit_status.poly.pm
 ◊pages/misc.poly.pm{
   pages/interactive_or_no.poly.pm
   pages/wrappers.poly.pm
+  pages/optimizations.poly.pm
 }
 
 }
