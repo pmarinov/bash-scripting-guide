@@ -101,6 +101,7 @@ pages/exit_status.poly.pm
   pages/optimizations.poly.pm
   pages/colorizing.poly.pm
   pages/tips.poly.pm
+  pages/portability.poly.pm
 }
 
 }
