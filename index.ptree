@@ -106,6 +106,7 @@ pages/exit_status.poly.pm
 
 ◊pages/bash_versions.poly.pm{
   pages/bash_v2.poly.pm
+  pages/bash_v3.poly.pm
 }
 
 }
