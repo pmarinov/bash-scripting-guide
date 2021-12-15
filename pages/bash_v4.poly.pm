@@ -6,7 +6,9 @@
 
 ◊section{Bash, version 4.0}
 
-Chet Ramey announced Version 4 of Bash on the 20th of February, 2009. This release has a number of significant new features, as well as some important bugfixes.
+Chet Ramey announced Version 4 of Bash on the 20th of February,
+2009. This release has a number of significant new features, as well
+as some important bugfixes.
 
 Among the new goodies:
 ◊list-block[#:type "bullet"]{
@@ -169,7 +171,7 @@ echo
 
 ◊list-entry{The new ◊command{coproc} builtin enables two parallel
 processes to communicate and interact. As Chet Ramey states in the
-Bash FAQ [2] , ver. 4.01:
+Bash FAQ, ver. 4.01:
 
 There is a new 'coproc' reserved word that specifies a coprocess: an
 asynchronous command run with two pipes connected to the creating
@@ -182,7 +184,8 @@ George Dimitriu explains,
 which now is made publicly available."
 This means it can be explicitly invoked in a script, rather than
 just being a behind-the-scenes mechanism used by Bash.
-          
+
+(Copyright 1995-2009 by Chester Ramey.)
 
 Coprocesses use file descriptors. File descriptors enable processes
 and pipes to communicate.
@@ -279,6 +282,39 @@ echo $cpname_PID
 #+ apparent that each process, the executing shell and the coprocess,
 #+ waits for the other to finish writing in its own write-enabled pipe.
 }
+
+}
+
+◊list-entry{The new ◊code{mapfile} builtin makes it possible to load
+an array with the contents of a text file without using a loop or
+command substitution.
+
+◊example{
+#!/bin/bash4
+
+mapfile Arr1 < $0
+# Same result as     Arr1=( $(cat $0) )
+echo "${Arr1[@]}"  # Copies this entire script out to stdout.
+
+echo "--"; echo
+
+# But, not the same as   read -a   !!!
+read -a Arr2 < $0
+echo "${Arr2[@]}"  # Reads only first line of script into the array.
+
+exit
+}
+
+}
+
+◊list-entry{The read builtin got a minor facelift. The ◊code{-t
+timeout} option now accepts (decimal) fractional values and the
+◊code{-i} option permits preloading the edit buffer. Unfortunately,
+these enhancements are still a work in progress and not (yet) usable
+in scripts.
+
+This only works with pipes and certain other special files. But only
+in conjunction with ◊command{readline}, i.e., from the command-line.
 
 }
 
