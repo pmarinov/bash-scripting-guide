@@ -110,4 +110,6 @@ pages/exit_status.poly.pm
   pages/bash_v4.poly.pm
 }
 
+pages/authors_note.poly.pm
+
 }
