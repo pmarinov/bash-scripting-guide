@@ -318,4 +318,112 @@ in conjunction with ◊command{readline}, i.e., from the command-line.
 
 }
 
+◊list-entry{Parameter substitution gets case-modification operators.
+
+◊example{
+#!/bin/bash4
+
+var=veryMixedUpVariable
+echo ${var}            # veryMixedUpVariable
+echo ${var^}           # VeryMixedUpVariable
+#         *              First char --> uppercase.
+echo ${var^^}          # VERYMIXEDUPVARIABLE
+#         **             All chars  --> uppercase.
+echo ${var,}           # veryMixedUpVariable
+#         *              First char --> lowercase.
+echo ${var,,}          # verymixedupvariable
+#         **             All chars  --> lowercase.
+}
+
+}
+
+◊list-entry{The ◊command{declare} builtin now accepts the ◊code{-l}
+lowercase and ◊code{-c} capitalize options.
+
+◊example{
+#!/bin/bash4
+
+declare -l var1            # Will change to lowercase
+var1=MixedCaseVARIABLE
+echo "$var1"               # mixedcasevariable
+# Same effect as             echo $var1 | tr A-Z a-z
+
+declare -c var2            # Changes only initial char to uppercase.
+var2=originally_lowercase
+echo "$var2"               # Originally_lowercase
+# NOT the same effect as     echo $var2 | tr a-z A-Z
+}
+
+}
+
+◊list-entry{Brace expansion has more options.
+
+Increment/decrement, specified in the final term within braces.
+
+◊example{
+#!/bin/bash4
+
+echo {40..60..2}
+# 40 42 44 46 48 50 52 54 56 58 60
+# All the even numbers, between 40 and 60.
+
+echo {60..40..2}
+# 60 58 56 54 52 50 48 46 44 42 40
+# All the even numbers, between 40 and 60, counting backwards.
+# In effect, a decrement.
+echo {60..40..-2}
+# The same output. The minus sign is not necessary.
+
+# But, what about letters and symbols?
+echo {X..d}
+# X Y Z [  ] ^ _ ` a b c d
+# Does not echo the \ which escapes a space.
+}
+
+Zero-padding, specified in the first term within braces, prefixes each
+term in the output with the same number of zeroes.
+
+◊example{
+bash4$ echo {010..15}
+010 011 012 013 014 015
+
+
+bash4$ echo {000..10}
+000 001 002 003 004 005 006 007 008 009 010
+}
+
+}
+
+◊list-entry{Substring extraction on positional parameters now starts
+with ◊code{$0} as the zero-index. (This corrects an inconsistency in
+the treatment of positional parameters.)
+
+◊example{
+#!/bin/bash
+# show-params.bash
+# Requires version 4+ of Bash.
+
+# Invoke this scripts with at least one positional parameter.
+
+E_BADPARAMS=99
+
+if [ -z "$1" ]
+then
+  echo "Usage $0 param1 ..."
+  exit $E_BADPARAMS
+fi
+
+echo ${@:0}
+
+# bash3 show-params.bash4 one two three
+# one two three
+
+# bash4 show-params.bash4 one two three
+# show-params.bash4 one two three
+
+# $0                $1  $2  $3
+}
+
+}
+
 }
