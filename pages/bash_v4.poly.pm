@@ -426,4 +426,137 @@ echo ${@:0}
 
 }
 
+◊list-entry{The new ◊code{**} globbing operator matches filenames and
+directories recursively.
+
+◊example{
+#!/bin/bash4
+# filelist.bash4
+
+shopt -s globstar  # Must enable globstar, otherwise ** doesn't work.
+                   # The globstar shell option is new to version 4 of Bash.
+
+echo "Using *"; echo
+for filename in *
+do
+  echo "$filename"
+done   # Lists only files in current directory ($PWD).
+
+echo; echo "--------------"; echo
+
+echo "Using **"
+for filename in **
+do
+  echo "$filename"
+done   # Lists complete file tree, recursively.
+
+exit
+
+Using *
+
+allmyfiles
+filelist.bash4
+
+--------------
+
+Using **
+
+allmyfiles
+allmyfiles/file.index.txt
+allmyfiles/my_music
+allmyfiles/my_music/me-singing-60s-folksongs.ogg
+allmyfiles/my_music/me-singing-opera.ogg
+allmyfiles/my_music/piano-lesson.1.ogg
+allmyfiles/my_pictures
+allmyfiles/my_pictures/at-beach-with-Jade.png
+allmyfiles/my_pictures/picnic-with-Melissa.png
+filelist.bash4
+}
+
+}
+
+◊list-entry{The new $BASHPID internal variable.
+}
+
+◊list-entry{There is a new builtin error-handling function named
+◊code{command_not_found_handle}.
+
+◊example{
+#!/bin/bash4
+
+command_not_found_handle ()
+{ # Accepts implicit parameters.
+  echo "The following command is not valid: \""$1\"""
+  echo "With the following argument(s): \""$2\"" \""$3\"""   # $4, $5 ...
+} # $1, $2, etc. are not explicitly passed to the function.
+
+bad_command arg1 arg2
+
+# The following command is not valid: "bad_command"
+# With the following argument(s): "arg1" "arg2"
+}
+
+}
+
+}
+
+◊section{Editorial comment}
+
+Associative arrays? Coprocesses? Whatever happened to the lean and
+mean Bash we have come to know and love? Could it be suffering from
+(horrors!) "feature creep"? Or perhaps even Korn shell envy?
+
+Note to Chet Ramey: Please add only essential features in future Bash
+releases -- perhaps for-each loops and support for multi-dimensional
+arrays. ◊footnote{And while you're at it, consider fixing the
+notorious piped read problem.} Most Bash users won't need, won't use,
+and likely won't greatly appreciate complex "features" like built-in
+debuggers, Perl interfaces, and bolt-on rocket boosters.
+
+
+◊section{Bash, version 4.1}
+
+Version 4.1 of Bash, released in May, 2010, was primarily a bugfix
+update.
+
+◊list-block[#:type "bullet"]{
+
+◊list-entry{The ◊command{printf} command now accepts a ◊code{-v}
+option for setting array indices.
+
+}
+
+◊list-entry{Within double brackets, the ◊code{>} and ◊code{<} string
+comparison operators now conform to the locale. Since the locale
+setting may affect the sorting order of string expressions, this has
+side-effects on comparison tests within ◊code{[[ ... ]]} expressions.
+
+}
+
+◊list-entry{The ◊command{read} builtin now takes a ◊code{-N} option
+(◊command{read -N chars}), which causes the read to terminate after
+◊code{chars} characters.
+
+◊anchored-example[#:anchor "read_n1"]{Reading N characters}
+
+◊example{
+#!/bin/bash
+# Requires Bash version -ge 4.1 ...
+
+num_chars=61
+
+read -N $num_chars var < $0   # Read first 61 characters of script!
+echo "$var"
+exit
+
+####### Output of Script #######
+
+#!/bin/bash
+# Requires Bash version -ge 4.1 ...
+
+num_chars=61
+}
+
+}
+
 }
