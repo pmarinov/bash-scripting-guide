@@ -559,4 +559,232 @@ num_chars=61
 
 }
 
+◊list-entry{Here documents embedded in ◊command{$( ... )} command
+substitution constructs may terminate with a simple ◊code{)}.
+
+◊anchored-example[#:anchor "hdoc_var1"]{Using a here document to set a
+variable}
+
+◊example{
+#!/bin/bash
+# here-commsub.sh
+# Requires Bash version -ge 4.1 ...
+
+multi_line_var=$( cat <<ENDxxx
+------------------------------
+This is line 1 of the variable
+This is line 2 of the variable
+This is line 3 of the variable
+------------------------------
+ENDxxx)
+
+#  Rather than what Bash 4.0 requires:
+#+ that the terminating limit string and
+#+ the terminating close-parenthesis be on separate lines.
+
+# ENDxxx
+# )
+
+
+echo "$multi_line_var"
+
+#  Bash still emits a warning, though.
+#  warning: here-document at line 10 delimited
+#+ by end-of-file (wanted `ENDxxx')
+}
+
+}
+
+}
+
+◊section{Bash, version 4.2}
+
+Version 4.2 of Bash, released in February, 2011, contains a number of
+new features and enhancements, in addition to bugfixes.
+
+
+◊list-block[#:type "bullet"]{
+
+◊list-entry{Bash now supports the the ◊code{\u} and ◊code{\U} Unicode
+escape.
+
+◊example{
+echo -e '\u2630'   # Horizontal triple bar character.
+# Equivalent to the more roundabout:
+echo -e "\xE2\x98\xB0"
+                   # Recognized by earlier Bash versions.
+
+echo -e '\u220F'   # PI (Greek letter and mathematical symbol)
+echo -e '\u0416'   # Capital "ZHE" (Cyrillic letter)
+echo -e '\u2708'   # Airplane (Dingbat font) symbol
+echo -e '\u2622'   # Radioactivity trefoil
+
+echo -e "The amplifier circuit requires a 100 \u2126 pull-up resistor."
+
+
+unicode_var='\u2640'
+echo -e $unicode_var      # Female symbol
+printf "$unicode_var \n"  # Female symbol, with newline
+
+
+#  And for something a bit more elaborate . . .
+
+#  We can store Unicode symbols in an associative array,
+#+ then retrieve them by name.
+#  Run this in a gnome-terminal or a terminal with a large, bold font
+#+ for better legibility.
+
+declare -A symbol  # Associative array.
+
+symbol[script_E]='\u2130'
+symbol[script_F]='\u2131'
+symbol[script_J]='\u2110'
+symbol[script_M]='\u2133'
+symbol[Rx]='\u211E'
+symbol[TEL]='\u2121'
+symbol[FAX]='\u213B'
+symbol[care_of]='\u2105'
+symbol[account]='\u2100'
+symbol[trademark]='\u2122'
+
+
+echo -ne "${symbol[script_E]}   "
+echo -ne "${symbol[script_F]}   "
+echo -ne "${symbol[script_J]}   "
+echo -ne "${symbol[script_M]}   "
+echo -ne "${symbol[Rx]}   "
+echo -ne "${symbol[TEL]}   "
+echo -ne "${symbol[FAX]}   "
+echo -ne "${symbol[care_of]}   "
+echo -ne "${symbol[account]}   "
+echo -ne "${symbol[trademark]}   "
+echo
+}
+
+Note: The above example uses the ◊command{$' ... '} string-expansion
+construct.
+
+}
+
+◊list-entry{When the ◊code{lastpipe} shell option is set, the last
+command in a pipe doesn't run in a subshell.
+
+◊anchored-example[#:anchor "pipe_read1"]{Piping input to a read}
+
+◊example{
+!/bin/bash
+# lastpipe-option.sh
+
+line=''                   # Null value.
+echo "\$line = "$line""   # $line =
+
+echo
+
+shopt -s lastpipe         # Error on Bash version -lt 4.2.
+echo "Exit status of attempting to set \"lastpipe\" option is $?"
+#     1 if Bash version -lt 4.2, 0 otherwise.
+
+echo
+
+head -1 $0 | read line    # Pipe the first line of the script to read.
+#            ^^^^^^^^^      Not in a subshell!!!
+
+echo "\$line = "$line""
+# Older Bash releases       $line =
+# Bash version 4.2          $line = #!/bin/bash
+}
+
+This option offers possible "fixups" for these example scripts:
+TODO Example 34-3 and Example 15-8.
+
+}
+
+◊list-entry{Negative array indices permit counting backwards from the
+end of an array.
+
+◊anchored-example[#:anchor "neg_array1"]{Negative array indices}
+
+◊example{
+#!/bin/bash
+# neg-array.sh
+# Requires Bash, version -ge 4.2.
+
+array=( zero one two three four five )   # Six-element array.
+#         0    1   2    3    4    5
+#        -6   -5  -4   -3   -2   -1
+
+# Negative array indices now permitted.
+echo ${array[-1]}   # five
+echo ${array[-2]}   # four
+# ...
+echo ${array[-6]}   # zero
+# Negative array indices count backward from the last element+1.
+
+# But, you cannot index past the beginning of the array.
+echo ${array[-7]}   # array: bad array subscript
+
+
+# So, what is this new feature good for?
+
+echo "The last element in the array is "${array[-1]}""
+# Which is quite a bit more straightforward than:
+echo "The last element in the array is "${array[${#array[*]}-1]}""
+echo
+
+# And ...
+
+index=0
+let "neg_element_count = 0 - ${#array[*]}"
+# Number of elements, converted to a negative number.
+
+while [ $index -gt $neg_element_count ]; do
+  ((index--)); echo -n "${array[index]} "
+done  # Lists the elements in the array, backwards.
+      # We have just simulated the "tac" command on this array.
+
+echo
+
+# See also neg-offset.sh.
+}
+
+}
+
+◊list-entry{Substring extraction uses a negative length parameter to
+specify an offset from the end of the target string.
+
+◊anchored-example[#:anchor "neg-str1"]{Negative parameter in
+string-extraction construct}
+
+◊example{
+#!/bin/bash
+# Bash, version -ge 4.2
+# Negative length-index in substring extraction.
+# Important: It changes the interpretation of this construct!
+
+stringZ=abcABC123ABCabc
+
+echo ${stringZ}                              # abcABC123ABCabc
+#                   Position within string:    0123456789.....
+echo ${stringZ:2:3}                          #   cAB
+#  Count 2 chars forward from string beginning, and extract 3 chars.
+#  ${string:position:length}
+
+#  So far, nothing new, but now ...
+
+                                             # abcABC123ABCabc
+#                   Position within string:    0123....6543210
+echo ${stringZ:3:-6}                         #    ABC123
+#                ^
+#  Index 3 chars forward from beginning and 6 chars backward from end,
+#+ and extract everything in between.
+#  ${string:offset-from-front:offset-from-end}
+#  When the "length" parameter is negative, 
+#+ it serves as an offset-from-end parameter.
+
+#  See also neg-array.sh.
+}
+
+}
+
+
 }
