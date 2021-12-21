@@ -33,7 +33,7 @@ have been any good, who knows, but does that really matter? Here's a
 fellow who lived his dream, even if he was obsessed by it, driven by
 it . . . and somehow I can't help admiring the old coot.
 
-◊section{Hardare used}
+◊section{Hardware used}
 
 A used IBM Thinkpad, model 760XL laptop (P166, 104 meg RAM) running
 Red Hat 7.1/7.3. Sure, it's slow and has a funky keyboard, but it
