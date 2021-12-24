@@ -269,4 +269,78 @@ See: ◊url[#:link "http://shelldorado.com/"]{}
 
 }
 
+◊list-entry{Example shell scripts at Noah Friedman's script site.
+
+See: ◊url[#:link "http://www.splode.com/~friedman/software/scripts/src/"]{}
+
+}
+
+◊list-entry{Examples from the The Bash Scripting Cookbook, by Albing,
+Vossen, and Newham.
+
+See: ◊url[#:link "http://bashcookbook.com/bashinfo/"]{}
+
+}
+
+◊list-entry{Steve Parker's Shell Programming Stuff. In fact, all of
+his shell scripting books are highly recommended.
+
+See: ◊url[#:link "https://www.shellscript.sh/"]{}
+
+See: ◊url[#:link "https://nixshell.wordpress.com/"]{}
+
+}
+
+◊list-entry{An excellent collection of Bash scripting tips, tricks,
+and resources at the Bash Hackers Wiki.
+
+See: ◊url[#:link "https://wiki.bash-hackers.org/"]{}
+
+}
+
+◊list-entry{Giles Orr's "Bash-Prompt HOWTO".
+
+See: ◊url[#:link "https://tldp.org/HOWTO/Bash-Prompt-HOWTO/"]{}
+
+}
+
+◊list-entry{The Pixelbeat command-line reference.
+
+See: ◊url[#:link "https://www.pixelbeat.org/cmdline.html"]{}
+
+}
+
+◊list-entry{Very nice sed, awk, and regular expression tutorials at
+The UNIX Grymoire.
+
+See: ◊url[#:link ""]{https://www.grymoire.com/Unix/index.html}
+
+}
+
+◊list-entry{The GNU sed and gawk manuals. As you recall, gawk is the enhanced GNU version of awk.
+
+See: ◊url[#:link "https://www.gnu.org/software/sed/manual/"]{}
+
+See: ◊url[#:link "https://www.gnu.org/software/gawk/manual/"]{}
+
+}
+
+◊list-entry{Tips and tricks at Linux Reviews.
+
+See: ◊url[#:link "https://linuxreviews.org/LinuxReviews"]{}
+
+}
+
+◊list-entry{Trent Fisher's groff tutorial.
+
+See: ◊url[#:link "http://web.cecs.pdx.edu/~trent/gnu/groff/groff.html"]{}
+
+}
+
+◊list-entry{David Wheeler's Filenames in Shell essay.
+
+See: ◊url[#:link "https://dwheeler.com/essays/filenames-in-shell.html"]{}
+
+}
+
 }
