@@ -7,6 +7,151 @@
 ◊quotation[#:author "Henry Spencer"]{Those who do not understand UNIX
 are condemned to reinvent it, poorly.}
 
+◊section{Resources online}
+
+◊list-block[#:type "bullet"]{
+
+◊list-entry{Chet Ramey's Bash - The GNU Shell, a two-part series
+published in issues 3 and 4 of the Linux Journal, July-August 1994.
+
+}
+
+◊list-entry{Mike G's "Bash-Programming-Intro HOWTO".
+
+See: ◊url[#:link
+"https://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO.html"]{}
+
+}
+
+◊list-entry{Chet Ramey's "Bash FAQ".
+
+See: ◊url[#:link "http://tiswww.case.edu/php/chet/bash/FAQ"]{}
+
+}
+
+◊list-entry{Greg's Wiki, many Bash related pages
+
+See: ◊url[#:link "http://mywiki.wooledge.org/"]{}
+
+}
+
+◊list-entry{Shell scripts at SHELLdorado
+
+See: ◊url[#:link "http://shelldorado.com/"]{}
+
+}
+
+◊list-entry{Example shell scripts at Noah Friedman's script site.
+
+See: ◊url[#:link "http://www.splode.com/~friedman/software/scripts/src/"]{}
+
+}
+
+◊list-entry{Examples from the The Bash Scripting Cookbook, by Albing,
+Vossen, and Newham.
+
+See: ◊url[#:link "http://bashcookbook.com/bashinfo/"]{}
+
+}
+
+◊list-entry{Steve Parker's Shell Programming Stuff. In fact, all of
+his shell scripting books are highly recommended.
+
+See: ◊url[#:link "https://www.shellscript.sh/"]{}
+
+See: ◊url[#:link "https://nixshell.wordpress.com/"]{}
+
+}
+
+◊list-entry{An excellent collection of Bash scripting tips, tricks,
+and resources at the Bash Hackers Wiki.
+
+See: ◊url[#:link "https://wiki.bash-hackers.org/"]{}
+
+}
+
+◊list-entry{Giles Orr's "Bash-Prompt HOWTO".
+
+See: ◊url[#:link "https://tldp.org/HOWTO/Bash-Prompt-HOWTO/"]{}
+
+}
+
+◊list-entry{The Pixelbeat command-line reference.
+
+See: ◊url[#:link "https://www.pixelbeat.org/cmdline.html"]{}
+
+}
+
+◊list-entry{Very nice sed, awk, and regular expression tutorials at
+The UNIX Grymoire.
+
+See: ◊url[#:link "https://www.grymoire.com/Unix/index.html"]{}
+
+}
+
+◊list-entry{The GNU sed and gawk manuals. As you recall, gawk is the enhanced GNU version of awk.
+
+See: ◊url[#:link "https://www.gnu.org/software/sed/manual/"]{}
+
+See: ◊url[#:link "https://www.gnu.org/software/gawk/manual/"]{}
+
+}
+
+◊list-entry{Tips and tricks at Linux Reviews.
+
+See: ◊url[#:link "https://linuxreviews.org/LinuxReviews"]{}
+
+}
+
+◊list-entry{Trent Fisher's groff tutorial.
+
+See: ◊url[#:link "http://web.cecs.pdx.edu/~trent/gnu/groff/groff.html"]{}
+
+}
+
+◊list-entry{David Wheeler's Filenames in Shell essay.
+
+See: ◊url[#:link "https://dwheeler.com/essays/filenames-in-shell.html"]{}
+
+}
+
+◊list-entry{"Shelltris" and "shellitaire" at Shell Script Games.
+
+See: ◊url[#:link "http://www.shellscriptgames.com/"]{}
+
+}
+
+◊list-entry{YongYe's wonderfully complex Tetris game script. (In Bash
+script and other languages)
+
+See: ◊url[#:link "https://github.com/deepgrace/tetris"]{}
+
+}
+
+◊list-entry{The Linux USB subsystem (helpful in writing scripts
+affecting USB peripherals).
+
+See: ◊url[#:link "http://www.linux-usb.org/USB-guide/book1.html"]{}
+
+}
+
+◊list-entry{Aurelio Marinho Jargas has written a Regular expression
+wizard. He has also written an informative book on Regular
+Expressions, in Portuguese.
+
+See: ◊url[#:link "http://txt2regex.sf.net/"]{}
+
+}
+
+◊list-entry{Ben Tomkins has created the Bash Navigator directory
+management tool.
+
+See: ◊url[#:link "http://bashnavigator.sourceforge.net/"]{}
+
+}
+
+}
+
 ◊section{Books}
 
 ◊list-block[#:type "bullet"]{
@@ -225,121 +370,6 @@ still buy the dead-tree editions of these books.
 
 ◊list-entry{The O'Reilly books on Perl. (Actually, any O'Reilly
 books.)
-
-}
-
-}
-
-◊section{Other resources}
-
-◊list-block[#:type "bullet"]{
-
-◊list-entry{Fioretti, Marco, "Scripting for X Productivity," Linux
-Journal, Issue 113, September, 2003, pp. 86-9.
-
-}
-
-◊list-entry{Chet Ramey's Bash - The GNU Shell, a two-part series
-published in issues 3 and 4 of the Linux Journal, July-August 1994.
-
-}
-
-◊list-entry{Mike G's "Bash-Programming-Intro HOWTO".
-
-See: ◊url[#:link
-"https://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO.html"]{}
-
-}
-
-◊list-entry{Chet Ramey's "Bash FAQ".
-
-See: ◊url[#:link "http://tiswww.case.edu/php/chet/bash/FAQ"]{}
-
-}
-
-◊list-entry{Greg's Wiki, many Bash related pages
-
-See: ◊url[#:link "http://mywiki.wooledge.org/"]{}
-
-}
-
-◊list-entry{Shell scripts at SHELLdorado
-
-See: ◊url[#:link "http://shelldorado.com/"]{}
-
-}
-
-◊list-entry{Example shell scripts at Noah Friedman's script site.
-
-See: ◊url[#:link "http://www.splode.com/~friedman/software/scripts/src/"]{}
-
-}
-
-◊list-entry{Examples from the The Bash Scripting Cookbook, by Albing,
-Vossen, and Newham.
-
-See: ◊url[#:link "http://bashcookbook.com/bashinfo/"]{}
-
-}
-
-◊list-entry{Steve Parker's Shell Programming Stuff. In fact, all of
-his shell scripting books are highly recommended.
-
-See: ◊url[#:link "https://www.shellscript.sh/"]{}
-
-See: ◊url[#:link "https://nixshell.wordpress.com/"]{}
-
-}
-
-◊list-entry{An excellent collection of Bash scripting tips, tricks,
-and resources at the Bash Hackers Wiki.
-
-See: ◊url[#:link "https://wiki.bash-hackers.org/"]{}
-
-}
-
-◊list-entry{Giles Orr's "Bash-Prompt HOWTO".
-
-See: ◊url[#:link "https://tldp.org/HOWTO/Bash-Prompt-HOWTO/"]{}
-
-}
-
-◊list-entry{The Pixelbeat command-line reference.
-
-See: ◊url[#:link "https://www.pixelbeat.org/cmdline.html"]{}
-
-}
-
-◊list-entry{Very nice sed, awk, and regular expression tutorials at
-The UNIX Grymoire.
-
-See: ◊url[#:link ""]{https://www.grymoire.com/Unix/index.html}
-
-}
-
-◊list-entry{The GNU sed and gawk manuals. As you recall, gawk is the enhanced GNU version of awk.
-
-See: ◊url[#:link "https://www.gnu.org/software/sed/manual/"]{}
-
-See: ◊url[#:link "https://www.gnu.org/software/gawk/manual/"]{}
-
-}
-
-◊list-entry{Tips and tricks at Linux Reviews.
-
-See: ◊url[#:link "https://linuxreviews.org/LinuxReviews"]{}
-
-}
-
-◊list-entry{Trent Fisher's groff tutorial.
-
-See: ◊url[#:link "http://web.cecs.pdx.edu/~trent/gnu/groff/groff.html"]{}
-
-}
-
-◊list-entry{David Wheeler's Filenames in Shell essay.
-
-See: ◊url[#:link "https://dwheeler.com/essays/filenames-in-shell.html"]{}
 
 }
 
