@@ -11,11 +11,6 @@ are condemned to reinvent it, poorly.}
 
 ◊list-block[#:type "bullet"]{
 
-◊list-entry{Chet Ramey's Bash - The GNU Shell, a two-part series
-published in issues 3 and 4 of the Linux Journal, July-August 1994.
-
-}
-
 ◊list-entry{Mike G's "Bash-Programming-Intro HOWTO".
 
 See: ◊url[#:link

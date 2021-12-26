@@ -113,4 +113,8 @@ pages/exit_status.poly.pm
 pages/authors_note.poly.pm
 pages/bibliography.poly.pm
 
+◊pages/appendix.poly.pm{
+  pages/contributed_scripts.poly.pm
+}
+
 }
