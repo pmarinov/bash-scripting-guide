@@ -1343,7 +1343,8 @@ echo "Total directories = $numdirs"
 exit 0
 }
 
-◊anchored-example[#:anchor "dir_tree2"]{tree2: Alternate directory tree script}
+◊anchored-example[#:anchor "dir_tree2"]{tree2: Alternate directory
+tree script}
 
 ◊example{
 #!/bin/bash
@@ -1451,4 +1452,1392 @@ rm "$TMP" 2>/dev/null
      # Clean up TMP file.
 
 exit $?
+}
+
+◊anchored-example[#:anchor "str_c1"]{string functions: C-style string
+functions}
+
+◊example{
+#!/bin/bash
+
+# string.bash --- bash emulation of string(3) library routines
+# Author: Noah Friedman <friedman@prep.ai.mit.edu>
+# ==>     Used with his kind permission in this document.
+# Created: 1992-07-01
+# Last modified: 1993-09-29
+# Public domain
+
+# Conversion to bash v2 syntax done by Chet Ramey
+
+# Commentary:
+# Code:
+
+#:docstring strcat:
+# Usage: strcat s1 s2
+#
+# Strcat appends the value of variable s2 to variable s1. 
+#
+# Example:
+#    a="foo"
+#    b="bar"
+#    strcat a b
+#    echo $a
+#    => foobar
+#
+#:end docstring:
+
+###;;;autoload   ==> Autoloading of function commented out.
+function strcat ()
+{
+    local s1_val s2_val
+
+    s1_val=${!1}                        # indirect variable expansion
+    s2_val=${!2}
+    eval "$1"=\'"${s1_val}${s2_val}"\'
+    # ==> eval $1='${s1_val}${s2_val}' avoids problems,
+    # ==> if one of the variables contains a single quote.
+}
+
+#:docstring strncat:
+# Usage: strncat s1 s2 $n
+# 
+# Line strcat, but strncat appends a maximum of n characters from the value
+# of variable s2.  It copies fewer if the value of variabl s2 is shorter
+# than n characters.  Echoes result on stdout.
+#
+# Example:
+#    a=foo
+#    b=barbaz
+#    strncat a b 3
+#    echo $a
+#    => foobar
+#
+#:end docstring:
+
+###;;;autoload
+function strncat ()
+{
+    local s1="$1"
+    local s2="$2"
+    local -i n="$3"
+    local s1_val s2_val
+
+    s1_val=${!s1}                       # ==> indirect variable expansion
+    s2_val=${!s2}
+
+    if [ ${#s2_val} -gt ${n} ]; then
+       s2_val=${s2_val:0:$n}            # ==> substring extraction
+    fi
+
+    eval "$s1"=\'"${s1_val}${s2_val}"\'
+    # ==> eval $1='${s1_val}${s2_val}' avoids problems,
+    # ==> if one of the variables contains a single quote.
+}
+
+#:docstring strcmp:
+# Usage: strcmp $s1 $s2
+#
+# Strcmp compares its arguments and returns an integer less than, equal to,
+# or greater than zero, depending on whether string s1 is lexicographically
+# less than, equal to, or greater than string s2.
+#:end docstring:
+
+###;;;autoload
+function strcmp ()
+{
+    [ "$1" = "$2" ] && return 0
+
+    [ "${1}" '<' "${2}" ] > /dev/null && return -1
+
+    return 1
+}
+
+#:docstring strncmp:
+# Usage: strncmp $s1 $s2 $n
+# 
+# Like strcmp, but makes the comparison by examining a maximum of n
+# characters (n less than or equal to zero yields equality).
+#:end docstring:
+
+###;;;autoload
+function strncmp ()
+{
+    if [ -z "${3}" -o "${3}" -le "0" ]; then
+       return 0
+    fi
+   
+    if [ ${3} -ge ${#1} -a ${3} -ge ${#2} ]; then
+       strcmp "$1" "$2"
+       return $?
+    else
+       s1=${1:0:$3}
+       s2=${2:0:$3}
+       strcmp $s1 $s2
+       return $?
+    fi
+}
+
+#:docstring strlen:
+# Usage: strlen s
+#
+# Strlen returns the number of characters in string literal s.
+#:end docstring:
+
+###;;;autoload
+function strlen ()
+{
+    eval echo "\${#${1}}"
+    # ==> Returns the length of the value of the variable
+    # ==> whose name is passed as an argument.
+}
+
+#:docstring strspn:
+# Usage: strspn $s1 $s2
+# 
+# Strspn returns the length of the maximum initial segment of string s1,
+# which consists entirely of characters from string s2.
+#:end docstring:
+
+###;;;autoload
+function strspn ()
+{
+    # Unsetting IFS allows whitespace to be handled as normal chars. 
+    local IFS=
+    local result="${1%%[!${2}]*}"
+ 
+    echo ${#result}
+}
+
+#:docstring strcspn:
+# Usage: strcspn $s1 $s2
+#
+# Strcspn returns the length of the maximum initial segment of string s1,
+# which consists entirely of characters not from string s2.
+#:end docstring:
+
+###;;;autoload
+function strcspn ()
+{
+    # Unsetting IFS allows whitspace to be handled as normal chars. 
+    local IFS=
+    local result="${1%%[${2}]*}"
+ 
+    echo ${#result}
+}
+
+#:docstring strstr:
+# Usage: strstr s1 s2
+# 
+# Strstr echoes a substring starting at the first occurrence of string s2 in
+# string s1, or nothing if s2 does not occur in the string.  If s2 points to
+# a string of zero length, strstr echoes s1.
+#:end docstring:
+
+###;;;autoload
+function strstr ()
+{
+    # if s2 points to a string of zero length, strstr echoes s1
+    [ ${#2} -eq 0 ] && { echo "$1" ; return 0; }
+
+    # strstr echoes nothing if s2 does not occur in s1
+    case "$1" in
+    *$2*) ;;
+    *) return 1;;
+    esac
+
+    # use the pattern matching code to strip off the match and everything
+    # following it
+    first=${1/$2*/}
+
+    # then strip off the first unmatched portion of the string
+    echo "${1##$first}"
+}
+
+#:docstring strtok:
+# Usage: strtok s1 s2
+#
+# Strtok considers the string s1 to consist of a sequence of zero or more
+# text tokens separated by spans of one or more characters from the
+# separator string s2.  The first call (with a non-empty string s1
+# specified) echoes a string consisting of the first token on stdout. The
+# function keeps track of its position in the string s1 between separate
+# calls, so that subsequent calls made with the first argument an empty
+# string will work through the string immediately following that token.  In
+# this way subsequent calls will work through the string s1 until no tokens
+# remain.  The separator string s2 may be different from call to call.
+# When no token remains in s1, an empty value is echoed on stdout.
+#:end docstring:
+
+###;;;autoload
+function strtok ()
+{
+ :
+}
+
+#:docstring strtrunc:
+# Usage: strtrunc $n $s1 {$s2} {$...}
+#
+# Used by many functions like strncmp to truncate arguments for comparison.
+# Echoes the first n characters of each string s1 s2 ... on stdout. 
+#:end docstring:
+
+###;;;autoload
+function strtrunc ()
+{
+    n=$1 ; shift
+    for z; do
+        echo "${z:0:$n}"
+    done
+}
+
+# provide string
+
+# string.bash ends here
+
+
+# ========================================================================== #
+# ==> Everything below here added by the document author.
+
+# ==> Suggested use of this script is to delete everything below here,
+# ==> and "source" this file into your own scripts.
+
+# strcat
+string0=one
+string1=two
+echo
+echo "Testing \"strcat\" function:"
+echo "Original \"string0\" = $string0"
+echo "\"string1\" = $string1"
+strcat string0 string1
+echo "New \"string0\" = $string0"
+echo
+
+# strlen
+echo
+echo "Testing \"strlen\" function:"
+str=123456789
+echo "\"str\" = $str"
+echo -n "Length of \"str\" = "
+strlen str
+echo
+
+
+
+# Exercise:
+# --------
+# Add code to test all the other string functions above.
+
+
+exit 0
+}
+
+◊anchored-example[#:anchor "dir_info1"]{Directory information}
+
+◊example{
+#! /bin/bash
+# directory-info.sh
+# Parses and lists directory information.
+
+# NOTE: Change lines 273 and 353 per "README" file.
+
+# Michael Zick is the author of this script.
+# Used here with his permission.
+
+# Controls
+# If overridden by command arguments, they must be in the order:
+#   Arg1: "Descriptor Directory"
+#   Arg2: "Exclude Paths"
+#   Arg3: "Exclude Directories"
+#
+# Environment Settings override Defaults.
+# Command arguments override Environment Settings.
+
+# Default location for content addressed file descriptors.
+MD5UCFS=${1:-${MD5UCFS:-'/tmpfs/ucfs'}}
+
+# Directory paths never to list or enter
+declare -a \
+  EXCLUDE_PATHS=${2:-${EXCLUDE_PATHS:-'(/proc /dev /devfs /tmpfs)'}}
+
+# Directories never to list or enter
+declare -a \
+  EXCLUDE_DIRS=${3:-${EXCLUDE_DIRS:-'(ucfs lost+found tmp wtmp)'}}
+
+# Files never to list or enter
+declare -a \
+  EXCLUDE_FILES=${3:-${EXCLUDE_FILES:-'(core "Name with Spaces")'}}
+
+
+# Here document used as a comment block.
+: <<LSfieldsDoc
+# # # # # List Filesystem Directory Information # # # # #
+#
+#	ListDirectory "FileGlob" "Field-Array-Name"
+# or
+#	ListDirectory -of "FileGlob" "Field-Array-Filename"
+#	'-of' meaning 'output to filename'
+# # # # #
+
+String format description based on: ls (GNU fileutils) version 4.0.36
+
+Produces a line (or more) formatted:
+inode permissions hard-links owner group ...
+32736 -rw-------    1 mszick   mszick
+
+size    day month date hh:mm:ss year path
+2756608 Sun Apr 20 08:53:06 2003 /home/mszick/core
+
+Unless it is formatted:
+inode permissions hard-links owner group ...
+266705 crw-rw----    1    root  uucp
+
+major minor day month date hh:mm:ss year path
+4,  68 Sun Apr 20 09:27:33 2003 /dev/ttyS4
+NOTE: that pesky comma after the major number
+
+NOTE: the 'path' may be multiple fields:
+/home/mszick/core
+/proc/982/fd/0 -> /dev/null
+/proc/982/fd/1 -> /home/mszick/.xsession-errors
+/proc/982/fd/13 -> /tmp/tmpfZVVOCs (deleted)
+/proc/982/fd/7 -> /tmp/kde-mszick/ksycoca
+/proc/982/fd/8 -> socket:[11586]
+/proc/982/fd/9 -> pipe:[11588]
+
+If that isn't enough to keep your parser guessing,
+either or both of the path components may be relative:
+../Built-Shared -> Built-Static
+../linux-2.4.20.tar.bz2 -> ../../../SRCS/linux-2.4.20.tar.bz2
+
+The first character of the 11 (10?) character permissions field:
+'s' Socket
+'d' Directory
+'b' Block device
+'c' Character device
+'l' Symbolic link
+NOTE: Hard links not marked - test for identical inode numbers
+on identical filesystems.
+All information about hard linked files are shared, except
+for the names and the name's location in the directory system.
+NOTE: A "Hard link" is known as a "File Alias" on some systems.
+'-' An undistingushed file
+
+Followed by three groups of letters for: User, Group, Others
+Character 1: '-' Not readable; 'r' Readable
+Character 2: '-' Not writable; 'w' Writable
+Character 3, User and Group: Combined execute and special
+'-' Not Executable, Not Special
+'x' Executable, Not Special
+'s' Executable, Special
+'S' Not Executable, Special
+Character 3, Others: Combined execute and sticky (tacky?)
+'-' Not Executable, Not Tacky
+'x' Executable, Not Tacky
+'t' Executable, Tacky
+'T' Not Executable, Tacky
+
+Followed by an access indicator
+Haven't tested this one, it may be the eleventh character
+or it may generate another field
+' ' No alternate access
+'+' Alternate access
+LSfieldsDoc
+
+
+ListDirectory()
+{
+	local -a T
+	local -i of=0		# Default return in variable
+#	OLD_IFS=$IFS		# Using BASH default ' \t\n'
+
+	case "$#" in
+	3)	case "$1" in
+		-of)	of=1 ; shift ;;
+		 * )	return 1 ;;
+		esac ;;
+	2)	: ;;		# Poor man's "continue"
+	*)	return 1 ;;
+	esac
+
+	# NOTE: the (ls) command is NOT quoted (")
+	T=( $(ls --inode --ignore-backups --almost-all --directory \
+	--full-time --color=none --time=status --sort=none \
+	--format=long $1) )
+
+	case $of in
+	# Assign T back to the array whose name was passed as $2
+		0) eval $2=\( \"\$\{T\[@\]\}\" \) ;;
+	# Write T into filename passed as $2
+		1) echo "${T[@]}" > "$2" ;;
+	esac
+	return 0
+   }
+
+# # # # # Is that string a legal number? # # # # #
+#
+#	IsNumber "Var"
+# # # # # There has to be a better way, sigh...
+
+IsNumber()
+{
+	local -i int
+	if [ $# -eq 0 ]
+	then
+		return 1
+	else
+		(let int=$1)  2>/dev/null
+		return $?	# Exit status of the let thread
+	fi
+}
+
+# # # # # Index Filesystem Directory Information # # # # #
+#
+#	IndexList "Field-Array-Name" "Index-Array-Name"
+# or
+#	IndexList -if Field-Array-Filename Index-Array-Name
+#	IndexList -of Field-Array-Name Index-Array-Filename
+#	IndexList -if -of Field-Array-Filename Index-Array-Filename
+# # # # #
+
+: <<IndexListDoc
+Walk an array of directory fields produced by ListDirectory
+
+Having suppressed the line breaks in an otherwise line oriented
+report, build an index to the array element which starts each line.
+
+Each line gets two index entries, the first element of each line
+(inode) and the element that holds the pathname of the file.
+
+The first index entry pair (Line-Number==0) are informational:
+Index-Array-Name[0] : Number of "Lines" indexed
+Index-Array-Name[1] : "Current Line" pointer into Index-Array-Name
+
+The following index pairs (if any) hold element indexes into
+the Field-Array-Name per:
+Index-Array-Name[Line-Number * 2] : The "inode" field element.
+NOTE: This distance may be either +11 or +12 elements.
+Index-Array-Name[(Line-Number * 2) + 1] : The "pathname" element.
+NOTE: This distance may be a variable number of elements.
+Next line index pair for Line-Number+1.
+IndexListDoc
+
+
+
+IndexList()
+{
+	local -a LIST			# Local of listname passed
+	local -a -i INDEX=( 0 0 )	# Local of index to return
+	local -i Lidx Lcnt
+	local -i if=0 of=0		# Default to variable names
+
+	case "$#" in			# Simplistic option testing
+		0) return 1 ;;
+		1) return 1 ;;
+		2) : ;;			# Poor man's continue
+		3) case "$1" in
+			-if) if=1 ;;
+			-of) of=1 ;;
+			 * ) return 1 ;;
+		   esac ; shift ;;
+		4) if=1 ; of=1 ; shift ; shift ;;
+		*) return 1
+	esac
+
+	# Make local copy of list
+	case "$if" in
+		0) eval LIST=\( \"\$\{$1\[@\]\}\" \) ;;
+		1) LIST=( $(cat $1) ) ;;
+	esac
+
+	# Grok (grope?) the array
+	Lcnt=${#LIST[@]}
+	Lidx=0
+	until (( Lidx >= Lcnt ))
+	do
+	if IsNumber ${LIST[$Lidx]}
+	then
+		local -i inode name
+		local ft
+		inode=Lidx
+		local m=${LIST[$Lidx+2]}	# Hard Links field
+		ft=${LIST[$Lidx+1]:0:1} 	# Fast-Stat
+		case $ft in
+		b)	((Lidx+=12)) ;;		# Block device
+		c)	((Lidx+=12)) ;;		# Character device
+		*)	((Lidx+=11)) ;;		# Anything else
+		esac
+		name=Lidx
+		case $ft in
+		-)	((Lidx+=1)) ;;		# The easy one
+		b)	((Lidx+=1)) ;;		# Block device
+		c)	((Lidx+=1)) ;;		# Character device
+		d)	((Lidx+=1)) ;;		# The other easy one
+		l)	((Lidx+=3)) ;;		# At LEAST two more fields
+#  A little more elegance here would handle pipes,
+#+ sockets, deleted files - later.
+		*)	until IsNumber ${LIST[$Lidx]} || ((Lidx >= Lcnt))
+			do
+				((Lidx+=1))
+			done
+			;;			# Not required
+		esac
+		INDEX[${#INDEX[*]}]=$inode
+		INDEX[${#INDEX[*]}]=$name
+		INDEX[0]=${INDEX[0]}+1		# One more "line" found
+# echo "Line: ${INDEX[0]} Type: $ft Links: $m Inode: \
+# ${LIST[$inode]} Name: ${LIST[$name]}"
+
+	else
+		((Lidx+=1))
+	fi
+	done
+	case "$of" in
+		0) eval $2=\( \"\$\{INDEX\[@\]\}\" \) ;;
+		1) echo "${INDEX[@]}" > "$2" ;;
+	esac
+	return 0				# What could go wrong?
+}
+
+# # # # # Content Identify File # # # # #
+#
+#	DigestFile Input-Array-Name Digest-Array-Name
+# or
+#	DigestFile -if Input-FileName Digest-Array-Name
+# # # # #
+
+# Here document used as a comment block.
+: <<DigestFilesDoc
+
+The key (no pun intended) to a Unified Content File System (UCFS)
+is to distinguish the files in the system based on their content.
+Distinguishing files by their name is just so 20th Century.
+
+The content is distinguished by computing a checksum of that content.
+This version uses the md5sum program to generate a 128 bit checksum
+representative of the file's contents.
+There is a chance that two files having different content might
+generate the same checksum using md5sum (or any checksum).  Should
+that become a problem, then the use of md5sum can be replace by a
+cyrptographic signature.  But until then...
+
+The md5sum program is documented as outputting three fields (and it
+does), but when read it appears as two fields (array elements).  This
+is caused by the lack of whitespace between the second and third field.
+So this function gropes the md5sum output and returns:
+	[0]	32 character checksum in hexidecimal (UCFS filename)
+	[1]	Single character: ' ' text file, '*' binary file
+	[2]	Filesystem (20th Century Style) name
+	Note: That name may be the character '-' indicating STDIN read.
+
+DigestFilesDoc
+
+
+
+DigestFile()
+{
+	local if=0		# Default, variable name
+	local -a T1 T2
+
+	case "$#" in
+	3)	case "$1" in
+		-if)	if=1 ; shift ;;
+		 * )	return 1 ;;
+		esac ;;
+	2)	: ;;		# Poor man's "continue"
+	*)	return 1 ;;
+	esac
+
+	case $if in
+	0) eval T1=\( \"\$\{$1\[@\]\}\" \)
+	   T2=( $(echo ${T1[@]} | md5sum -) )
+	   ;;
+	1) T2=( $(md5sum $1) )
+	   ;;
+	esac
+
+	case ${#T2[@]} in
+	0) return 1 ;;
+	1) return 1 ;;
+	2) case ${T2[1]:0:1} in		# SanScrit-2.0.5
+	   \*) T2[${#T2[@]}]=${T2[1]:1}
+	       T2[1]=\*
+	       ;;
+	    *) T2[${#T2[@]}]=${T2[1]}
+	       T2[1]=" "
+	       ;;
+	   esac
+	   ;;
+	3) : ;; # Assume it worked
+	*) return 1 ;;
+	esac
+
+	local -i len=${#T2[0]}
+	if [ $len -ne 32 ] ; then return 1 ; fi
+	eval $2=\( \"\$\{T2\[@\]\}\" \)
+}
+
+# # # # # Locate File # # # # #
+#
+#	LocateFile [-l] FileName Location-Array-Name
+# or
+#	LocateFile [-l] -of FileName Location-Array-FileName
+# # # # #
+
+# A file location is Filesystem-id and inode-number
+
+# Here document used as a comment block.
+: <<StatFieldsDoc
+	Based on stat, version 2.2
+	stat -t and stat -lt fields
+	[0]	name
+	[1]	Total size
+		File - number of bytes
+		Symbolic link - string length of pathname
+	[2]	Number of (512 byte) blocks allocated
+	[3]	File type and Access rights (hex)
+	[4]	User ID of owner
+	[5]	Group ID of owner
+	[6]	Device number
+	[7]	Inode number
+	[8]	Number of hard links
+	[9]	Device type (if inode device) Major
+	[10]	Device type (if inode device) Minor
+	[11]	Time of last access
+		May be disabled in 'mount' with noatime
+		atime of files changed by exec, read, pipe, utime, mknod (mmap?)
+		atime of directories changed by addition/deletion of files
+	[12]	Time of last modification
+		mtime of files changed by write, truncate, utime, mknod
+		mtime of directories changed by addtition/deletion of files
+	[13]	Time of last change
+		ctime reflects time of changed inode information (owner, group
+		permissions, link count
+-*-*- Per:
+	Return code: 0
+	Size of array: 14
+	Contents of array
+	Element 0: /home/mszick
+	Element 1: 4096
+	Element 2: 8
+	Element 3: 41e8
+	Element 4: 500
+	Element 5: 500
+	Element 6: 303
+	Element 7: 32385
+	Element 8: 22
+	Element 9: 0
+	Element 10: 0
+	Element 11: 1051221030
+	Element 12: 1051214068
+	Element 13: 1051214068
+
+	For a link in the form of linkname -> realname
+	stat -t  linkname returns the linkname (link) information
+	stat -lt linkname returns the realname information
+
+	stat -tf and stat -ltf fields
+	[0]	name
+	[1]	ID-0?		# Maybe someday, but Linux stat structure
+	[2]	ID-0?		# does not have either LABEL nor UUID
+				# fields, currently information must come
+				# from file-system specific utilities
+	These will be munged into:
+	[1]	UUID if possible
+	[2]	Volume Label if possible
+	Note: 'mount -l' does return the label and could return the UUID
+
+	[3]	Maximum length of filenames
+	[4]	Filesystem type
+	[5]	Total blocks in the filesystem
+	[6]	Free blocks
+	[7]	Free blocks for non-root user(s)
+	[8]	Block size of the filesystem
+	[9]	Total inodes
+	[10]	Free inodes
+
+-*-*- Per:
+	Return code: 0
+	Size of array: 11
+	Contents of array
+	Element 0: /home/mszick
+	Element 1: 0
+	Element 2: 0
+	Element 3: 255
+	Element 4: ef53
+	Element 5: 2581445
+	Element 6: 2277180
+	Element 7: 2146050
+	Element 8: 4096
+	Element 9: 1311552
+	Element 10: 1276425
+
+StatFieldsDoc
+
+
+#	LocateFile [-l] FileName Location-Array-Name
+#	LocateFile [-l] -of FileName Location-Array-FileName
+
+LocateFile()
+{
+	local -a LOC LOC1 LOC2
+	local lk="" of=0
+
+	case "$#" in
+	0) return 1 ;;
+	1) return 1 ;;
+	2) : ;;
+	*) while (( "$#" > 2 ))
+	   do
+	      case "$1" in
+	       -l) lk=-1 ;;
+	      -of) of=1 ;;
+	        *) return 1 ;;
+	      esac
+	   shift
+           done ;;
+	esac
+
+# More Sanscrit-2.0.5
+      # LOC1=( $(stat -t $lk $1) )
+      # LOC2=( $(stat -tf $lk $1) )
+      # Uncomment above two lines if system has "stat" command installed.
+	LOC=( ${LOC1[@]:0:1} ${LOC1[@]:3:11}
+	      ${LOC2[@]:1:2} ${LOC2[@]:4:1} )
+
+	case "$of" in
+		0) eval $2=\( \"\$\{LOC\[@\]\}\" \) ;;
+		1) echo "${LOC[@]}" > "$2" ;;
+	esac
+	return 0
+# Which yields (if you are lucky, and have "stat" installed)
+# -*-*- Location Discriptor -*-*-
+#	Return code: 0
+#	Size of array: 15
+#	Contents of array
+#	Element 0: /home/mszick		20th Century name
+#	Element 1: 41e8			Type and Permissions
+#	Element 2: 500			User
+#	Element 3: 500			Group
+#	Element 4: 303			Device
+#	Element 5: 32385		inode
+#	Element 6: 22			Link count
+#	Element 7: 0			Device Major
+#	Element 8: 0			Device Minor
+#	Element 9: 1051224608		Last Access
+#	Element 10: 1051214068		Last Modify
+#	Element 11: 1051214068		Last Status
+#	Element 12: 0			UUID (to be)
+#	Element 13: 0			Volume Label (to be)
+#	Element 14: ef53		Filesystem type
+}
+
+
+
+# And then there was some test code
+
+ListArray() # ListArray Name
+{
+	local -a Ta
+
+	eval Ta=\( \"\$\{$1\[@\]\}\" \)
+	echo
+	echo "-*-*- List of Array -*-*-"
+	echo "Size of array $1: ${#Ta[*]}"
+	echo "Contents of array $1:"
+	for (( i=0 ; i<${#Ta[*]} ; i++ ))
+	do
+	    echo -e "\tElement $i: ${Ta[$i]}"
+	done
+	return 0
+}
+
+declare -a CUR_DIR
+# For small arrays
+ListDirectory "${PWD}" CUR_DIR
+ListArray CUR_DIR
+
+declare -a DIR_DIG
+DigestFile CUR_DIR DIR_DIG
+echo "The new \"name\" (checksum) for ${CUR_DIR[9]} is ${DIR_DIG[0]}"
+
+declare -a DIR_ENT
+# BIG_DIR # For really big arrays - use a temporary file in ramdisk
+# BIG-DIR # ListDirectory -of "${CUR_DIR[11]}/*" "/tmpfs/junk2"
+ListDirectory "${CUR_DIR[11]}/*" DIR_ENT
+
+declare -a DIR_IDX
+# BIG-DIR # IndexList -if "/tmpfs/junk2" DIR_IDX
+IndexList DIR_ENT DIR_IDX
+
+declare -a IDX_DIG
+# BIG-DIR # DIR_ENT=( $(cat /tmpfs/junk2) )
+# BIG-DIR # DigestFile -if /tmpfs/junk2 IDX_DIG
+DigestFile DIR_ENT IDX_DIG
+# Small (should) be able to parallize IndexList & DigestFile
+# Large (should) be able to parallize IndexList & DigestFile & the assignment
+echo "The \"name\" (checksum) for the contents of ${PWD} is ${IDX_DIG[0]}"
+
+declare -a FILE_LOC
+LocateFile ${PWD} FILE_LOC
+ListArray FILE_LOC
+
+exit 0
+}
+
+◊anchored-example[#:anchor "lib1"]{Library of hash functions}
+
+Mariusz Gniazdowski contributed a hash library for use in scripts.
+
+◊example{
+# Hash:
+# Hash function library
+# Author: Mariusz Gniazdowski <mariusz.gn-at-gmail.com>
+# Date: 2005-04-07
+
+# Functions making emulating hashes in Bash a little less painful.
+
+
+#    Limitations:
+#  * Only global variables are supported.
+#  * Each hash instance generates one global variable per value.
+#  * Variable names collisions are possible
+#+   if you define variable like __hash__hashname_key
+#  * Keys must use chars that can be part of a Bash variable name
+#+   (no dashes, periods, etc.).
+#  * The hash is created as a variable:
+#    ... hashname_keyname
+#    So if somone will create hashes like:
+#      myhash_ + mykey = myhash__mykey
+#      myhash + _mykey = myhash__mykey
+#    Then there will be a collision.
+#    (This should not pose a major problem.)
+
+
+Hash_config_varname_prefix=__hash__
+
+
+# Emulates:  hash[key]=value
+#
+# Params:
+# 1 - hash
+# 2 - key
+# 3 - value
+function hash_set {
+	eval "${Hash_config_varname_prefix}${1}_${2}=\"${3}\""
+}
+
+
+# Emulates:  value=hash[key]
+#
+# Params:
+# 1 - hash
+# 2 - key
+# 3 - value (name of global variable to set)
+function hash_get_into {
+	eval "$3=\"\$${Hash_config_varname_prefix}${1}_${2}\""
+}
+
+
+# Emulates:  echo hash[key]
+#
+# Params:
+# 1 - hash
+# 2 - key
+# 3 - echo params (like -n, for example)
+function hash_echo {
+	eval "echo $3 \"\$${Hash_config_varname_prefix}${1}_${2}\""
+}
+
+
+# Emulates:  hash1[key1]=hash2[key2]
+#
+# Params:
+# 1 - hash1
+# 2 - key1
+# 3 - hash2
+# 4 - key2
+function hash_copy {
+eval "${Hash_config_varname_prefix}${1}_${2}\
+=\"\$${Hash_config_varname_prefix}${3}_${4}\""
+}
+
+
+# Emulates:  hash[keyN-1]=hash[key2]=...hash[key1]
+#
+# Copies first key to rest of keys.
+#
+# Params:
+# 1 - hash1
+# 2 - key1
+# 3 - key2
+# . . .
+# N - keyN
+function hash_dup {
+  local hashName="$1" keyName="$2"
+  shift 2
+  until [ ${#} -le 0 ]; do
+    eval "${Hash_config_varname_prefix}${hashName}_${1}\
+=\"\$${Hash_config_varname_prefix}${hashName}_${keyName}\""
+  shift;
+  done;
+}
+
+
+# Emulates:  unset hash[key]
+#
+# Params:
+# 1 - hash
+# 2 - key
+function hash_unset {
+	eval "unset ${Hash_config_varname_prefix}${1}_${2}"
+}
+
+
+# Emulates something similar to:  ref=&hash[key]
+#
+# The reference is name of the variable in which value is held.
+#
+# Params:
+# 1 - hash
+# 2 - key
+# 3 - ref - Name of global variable to set.
+function hash_get_ref_into {
+	eval "$3=\"${Hash_config_varname_prefix}${1}_${2}\""
+}
+
+
+# Emulates something similar to:  echo &hash[key]
+#
+# That reference is name of variable in which value is held.
+#
+# Params:
+# 1 - hash
+# 2 - key
+# 3 - echo params (like -n for example)
+function hash_echo_ref {
+	eval "echo $3 \"${Hash_config_varname_prefix}${1}_${2}\""
+}
+
+
+
+# Emulates something similar to:  $$hash[key](param1, param2, ...)
+#
+# Params:
+# 1 - hash
+# 2 - key
+# 3,4, ... - Function parameters
+function hash_call {
+  local hash key
+  hash=$1
+  key=$2
+  shift 2
+  eval "eval \"\$${Hash_config_varname_prefix}${hash}_${key} \\\"\\\$@\\\"\""
+}
+
+
+# Emulates something similar to:  isset(hash[key]) or hash[key]==NULL
+#
+# Params:
+# 1 - hash
+# 2 - key
+# Returns:
+# 0 - there is such key
+# 1 - there is no such key
+function hash_is_set {
+  eval "if [[ \"\${${Hash_config_varname_prefix}${1}_${2}-a}\" = \"a\" && 
+  \"\${${Hash_config_varname_prefix}${1}_${2}-b}\" = \"b\" ]]
+    then return 1; else return 0; fi"
+}
+
+
+# Emulates something similar to:
+#   foreach($hash as $key => $value) { fun($key,$value); }
+#
+# It is possible to write different variations of this function.
+# Here we use a function call to make it as "generic" as possible.
+#
+# Params:
+# 1 - hash
+# 2 - function name
+function hash_foreach {
+  local keyname oldIFS="$IFS"
+  IFS=' '
+  for i in $(eval "echo \${!${Hash_config_varname_prefix}${1}_*}"); do
+    keyname=$(eval "echo \${i##${Hash_config_varname_prefix}${1}_}")
+    eval "$2 $keyname \"\$$i\""
+  done
+IFS="$oldIFS"
+}
+
+#  NOTE: In lines 103 and 116, ampersand changed.
+#  But, it doesn't matter, because these are comment lines anyhow.
+}
+
+◊anchored-example[#:anchor "hash_color1"]{Colorizing text using hash
+functions}
+
+Here is an example script using the foregoing hash library.
+
+◊example{
+#!/bin/bash
+# hash-example.sh: Colorizing text.
+# Author: Mariusz Gniazdowski <mariusz.gn-at-gmail.com>
+
+. Hash.lib      # Load the library of functions.
+
+hash_set colors red          "\033[0;31m"
+hash_set colors blue         "\033[0;34m"
+hash_set colors light_blue   "\033[1;34m"
+hash_set colors light_red    "\033[1;31m"
+hash_set colors cyan         "\033[0;36m"
+hash_set colors light_green  "\033[1;32m"
+hash_set colors light_gray   "\033[0;37m"
+hash_set colors green        "\033[0;32m"
+hash_set colors yellow       "\033[1;33m"
+hash_set colors light_purple "\033[1;35m"
+hash_set colors purple       "\033[0;35m"
+hash_set colors reset_color  "\033[0;00m"
+
+
+# $1 - keyname
+# $2 - value
+try_colors() {
+	echo -en "$2"
+	echo "This line is $1."
+}
+hash_foreach colors try_colors
+hash_echo colors reset_color -en
+
+echo -e '\nLet us overwrite some colors with yellow.\n'
+# It's hard to read yellow text on some terminals.
+hash_dup colors yellow   red light_green blue green light_gray cyan
+hash_foreach colors try_colors
+hash_echo colors reset_color -en
+
+echo -e '\nLet us delete them and try colors once more . . .\n'
+
+for i in red light_green blue green light_gray cyan; do
+	hash_unset colors $i
+done
+hash_foreach colors try_colors
+hash_echo colors reset_color -en
+
+hash_set other txt "Other examples . . ."
+hash_echo other txt
+hash_get_into other txt text
+echo $text
+
+hash_set other my_fun try_colors
+hash_call other my_fun   purple "`hash_echo colors purple`"
+hash_echo colors reset_color -en
+
+echo; echo "Back to normal?"; echo
+
+exit $?
+
+#  On some terminals, the "light" colors print in bold,
+#  and end up looking darker than the normal ones.
+#  Why is this?
+}
+
+◊anchored-example[#:anchor "hash1"]{More on hash functions}
+
+An example illustrating the mechanics of hashing, but from a different
+point of view.
+
+◊example{
+#!/bin/bash
+# $Id: ha.sh,v 1.2 2005/04/21 23:24:26 oliver Exp $
+# Copyright 2005 Oliver Beckstein
+# Released under the GNU Public License
+# Author of script granted permission for inclusion in ABS Guide.
+# (Thank you!)
+
+#----------------------------------------------------------------
+# pseudo hash based on indirect parameter expansion
+# API: access through functions:
+# 
+# create the hash:
+#  
+#      newhash Lovers
+#
+# add entries (note single quotes for spaces)
+#    
+#      addhash Lovers Tristan Isolde
+#      addhash Lovers 'Romeo Montague' 'Juliet Capulet'
+#
+# access value by key
+#
+#      gethash Lovers Tristan   ---->  Isolde
+#
+# show all keys
+#
+#      keyshash Lovers         ----> 'Tristan'  'Romeo Montague'
+#
+#
+# Convention: instead of perls' foo{bar} = boing' syntax,
+# use
+#       '_foo_bar=boing' (two underscores, no spaces)
+#
+# 1) store key   in _NAME_keys[]
+# 2) store value in _NAME_values[] using the same integer index
+# The integer index for the last entry is _NAME_ptr
+#
+# NOTE: No error or sanity checks, just bare bones.
+
+
+function _inihash () {
+    # private function
+    # call at the beginning of each procedure
+    # defines: _keys _values _ptr
+    #
+    # Usage: _inihash NAME
+    local name=$1
+    _keys=_${name}_keys
+    _values=_${name}_values
+    _ptr=_${name}_ptr
+}
+
+function newhash () {
+    # Usage: newhash NAME
+    #        NAME should not contain spaces or dots.
+    #        Actually: it must be a legal name for a Bash variable.
+    # We rely on Bash automatically recognising arrays.
+    local name=$1 
+    local _keys _values _ptr
+    _inihash ${name}
+    eval ${_ptr}=0
+}
+
+
+function addhash () {
+    # Usage: addhash NAME KEY 'VALUE with spaces'
+    #        arguments with spaces need to be quoted with single quotes ''
+    local name=$1 k="$2" v="$3" 
+    local _keys _values _ptr
+    _inihash ${name}
+
+    #echo "DEBUG(addhash): ${_ptr}=${!_ptr}"
+
+    eval let ${_ptr}=${_ptr}+1
+    eval "$_keys[${!_ptr}]=\"${k}\""
+    eval "$_values[${!_ptr}]=\"${v}\""
+}
+
+function gethash () {
+    #  Usage: gethash NAME KEY
+    #         Returns boing
+    #         ERR=0 if entry found, 1 otherwise
+    #  That's not a proper hash --
+    #+ we simply linearly search through the keys.
+    local name=$1 key="$2" 
+    local _keys _values _ptr 
+    local k v i found h
+    _inihash ${name}
+    
+    # _ptr holds the highest index in the hash
+    found=0
+
+    for i in $(seq 1 ${!_ptr}); do
+	h="\${${_keys}[${i}]}"  #  Safer to do it in two steps,
+	eval k=${h}             #+ especially when quoting for spaces.
+	if [ "${k}" = "${key}" ]; then found=1; break; fi
+    done;
+
+    [ ${found} = 0 ] && return 1;
+    # else: i is the index that matches the key
+    h="\${${_values}[${i}]}"
+    eval echo "${h}"
+    return 0;	
+}
+
+function keyshash () {
+    # Usage: keyshash NAME
+    # Returns list of all keys defined for hash name.
+    local name=$1 key="$2" 
+    local _keys _values _ptr 
+    local k i h
+    _inihash ${name}
+    
+    # _ptr holds the highest index in the hash
+    for i in $(seq 1 ${!_ptr}); do
+	h="\${${_keys}[${i}]}"   #  Safer to do it in two steps,
+	eval k=${h}              #+ especially when quoting for spaces.
+	echo -n "'${k}' "
+    done;
+}
+
+
+# -----------------------------------------------------------------------
+
+# Now, let's test it.
+# (Per comments at the beginning of the script.)
+newhash Lovers
+addhash Lovers Tristan Isolde
+addhash Lovers 'Romeo Montague' 'Juliet Capulet'
+
+# Output results.
+echo
+gethash Lovers Tristan      # Isolde
+echo
+keyshash Lovers             # 'Tristan' 'Romeo Montague'
+echo; echo
+
+
+exit 0
+
+# Exercise:
+# --------
+
+# Add error checks to the functions.
+}
+
+◊anchored-example[#:anchor ""]{Mounting USB keychain storage devices}
+
+Now for a script that installs and mounts those cute USB keychain
+solid-state "hard drives."
+
+◊example{
+#!/bin/bash
+# ==> usb.sh
+# ==> Script for mounting and installing pen/keychain USB storage devices.
+# ==> Runs as root at system startup (see below).
+# ==>
+# ==> Newer Linux distros (2004 or later) autodetect
+# ==> and install USB pen drives, and therefore don't need this script.
+# ==> But, it's still instructive.
+ 
+#  This code is free software covered by GNU GPL license version 2 or above.
+#  Please refer to http://www.gnu.org/ for the full license text.
+#
+#  Some code lifted from usb-mount by Michael Hamilton's usb-mount (LGPL)
+#+ see http://users.actrix.co.nz/michael/usbmount.html
+#
+#  INSTALL
+#  -------
+#  Put this in /etc/hotplug/usb/diskonkey.
+#  Then look in /etc/hotplug/usb.distmap, and copy all usb-storage entries
+#+ into /etc/hotplug/usb.usermap, substituting "usb-storage" for "diskonkey".
+#  Otherwise this code is only run during the kernel module invocation/removal
+#+ (at least in my tests), which defeats the purpose.
+#
+#  TODO
+#  ----
+#  Handle more than one diskonkey device at one time (e.g. /dev/diskonkey1
+#+ and /mnt/diskonkey1), etc. The biggest problem here is the handling in
+#+ devlabel, which I haven't yet tried.
+#
+#  AUTHOR and SUPPORT
+#  ------------------
+#  Konstantin Riabitsev, <icon linux duke edu>.
+#  Send any problem reports to my email address at the moment.
+#
+# ==> Comments added by ABS Guide author.
+
+
+
+SYMLINKDEV=/dev/diskonkey
+MOUNTPOINT=/mnt/diskonkey
+DEVLABEL=/sbin/devlabel
+DEVLABELCONFIG=/etc/sysconfig/devlabel
+IAM=$0
+
+##
+# Functions lifted near-verbatim from usb-mount code.
+#
+function allAttachedScsiUsb {
+  find /proc/scsi/ -path '/proc/scsi/usb-storage*' -type f |
+  xargs grep -l 'Attached: Yes'
+}
+function scsiDevFromScsiUsb {
+  echo $1 | awk -F"[-/]" '{ n=$(NF-1);
+  print "/dev/sd" substr("abcdefghijklmnopqrstuvwxyz", n+1, 1) }'
+}
+
+if [ "${ACTION}" = "add" ] && [ -f "${DEVICE}" ]; then
+    ##
+    # lifted from usbcam code.
+    #
+    if [ -f /var/run/console.lock ]; then
+        CONSOLEOWNER=`cat /var/run/console.lock`
+    elif [ -f /var/lock/console.lock ]; then
+        CONSOLEOWNER=`cat /var/lock/console.lock`
+    else
+        CONSOLEOWNER=
+    fi
+    for procEntry in $(allAttachedScsiUsb); do
+        scsiDev=$(scsiDevFromScsiUsb $procEntry)
+        #  Some bug with usb-storage?
+        #  Partitions are not in /proc/partitions until they are accessed
+        #+ somehow.
+        /sbin/fdisk -l $scsiDev >/dev/null
+        ##
+        #  Most devices have partitioning info, so the data would be on
+        #+ /dev/sd?1. However, some stupider ones don't have any partitioning
+        #+ and use the entire device for data storage. This tries to
+        #+ guess semi-intelligently if we have a /dev/sd?1 and if not, then
+        #+ it uses the entire device and hopes for the better.
+        #
+        if grep -q `basename $scsiDev`1 /proc/partitions; then
+            part="$scsiDev""1"
+        else
+            part=$scsiDev
+        fi
+        ##
+        #  Change ownership of the partition to the console user so they can
+        #+ mount it.
+        #
+        if [ ! -z "$CONSOLEOWNER" ]; then
+            chown $CONSOLEOWNER:disk $part
+        fi
+        ##
+        # This checks if we already have this UUID defined with devlabel.
+        # If not, it then adds the device to the list.
+        #
+        prodid=`$DEVLABEL printid -d $part`
+        if ! grep -q $prodid $DEVLABELCONFIG; then
+            # cross our fingers and hope it works
+            $DEVLABEL add -d $part -s $SYMLINKDEV 2>/dev/null
+        fi
+        ##
+        # Check if the mount point exists and create if it doesn't.
+        #
+        if [ ! -e $MOUNTPOINT ]; then
+            mkdir -p $MOUNTPOINT
+        fi
+        ##
+        # Take care of /etc/fstab so mounting is easy.
+        #
+        if ! grep -q "^$SYMLINKDEV" /etc/fstab; then
+            # Add an fstab entry
+            echo -e \
+                "$SYMLINKDEV\t\t$MOUNTPOINT\t\tauto\tnoauto,owner,kudzu 0 0" \
+                >> /etc/fstab
+        fi
+    done
+    if [ ! -z "$REMOVER" ]; then
+        ##
+        # Make sure this script is triggered on device removal.
+        #
+        mkdir -p `dirname $REMOVER`
+        ln -s $IAM $REMOVER
+    fi
+elif [ "${ACTION}" = "remove" ]; then
+    ##
+    # If the device is mounted, unmount it cleanly.
+    #
+    if grep -q "$MOUNTPOINT" /etc/mtab; then
+        # unmount cleanly
+        umount -l $MOUNTPOINT
+    fi
+    ##
+    # Remove it from /etc/fstab if it's there.
+    #
+    if grep -q "^$SYMLINKDEV" /etc/fstab; then
+        grep -v "^$SYMLINKDEV" /etc/fstab > /etc/.fstab.new
+        mv -f /etc/.fstab.new /etc/fstab
+    fi
+fi
+
+exit 0
 }
