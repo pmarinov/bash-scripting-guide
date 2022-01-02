@@ -6759,3 +6759,6304 @@ echo 'BACKUP FAILED! Is this just a dry run? Is the disk full?) '
 exit $E_BACKUP
 }
 
+◊anchored-example[#:anchor "cd11"]{An expanded cd command}
+
+◊example{
+###########################################################################
+#
+#       cdll
+#       by Phil Braham
+#
+#       ############################################
+#       Latest version of this script available from
+#       http://freshmeat.net/projects/cd/
+#       ############################################
+#
+#       .cd_new
+#
+#       An enhancement of the Unix cd command
+#
+#       There are unlimited stack entries and special entries. The stack
+#       entries keep the last cd_maxhistory
+#       directories that have been used. The special entries can be
+#       assigned to commonly used directories.
+#
+#       The special entries may be pre-assigned by setting the environment
+#       variables CDSn or by using the -u or -U command.
+#
+#       The following is a suggestion for the .profile file:
+#
+#               . cdll              #  Set up the cd command
+#       alias cd='cd_new'           #  Replace the cd command
+#               cd -U               #  Upload pre-assigned entries for
+#                                   #+ the stack and special entries
+#               cd -D               #  Set non-default mode
+#               alias @="cd_new @"  #  Allow @ to be used to get history
+#
+#       For help type:
+#
+#               cd -h or
+#               cd -H
+#
+#
+###########################################################################
+#
+#       Version 1.2.1
+#
+#       Written by Phil Braham - Realtime Software Pty Ltd
+#       (realtime@mpx.com.au)
+#       Please send any suggestions or enhancements to the author (also at
+#       phil@braham.net)
+#
+############################################################################
+
+cd_hm ()
+{
+        ${PRINTF} "%s" "cd [dir] [0-9] [@[s|h] [-g [<dir>]] [-d] \
+[-D] [-r<n>] [dir|0-9] [-R<n>] [<dir>|0-9]
+   [-s<n>] [-S<n>] [-u] [-U] [-f] [-F] [-h] [-H] [-v]
+    <dir> Go to directory
+    0-n         Go to previous directory (0 is previous, 1 is last but 1 etc)
+                n is up to max history (default is 50)
+    @           List history and special entries
+    @h          List history entries
+    @s          List special entries
+    -g [<dir>]  Go to literal name (bypass special names)
+                This is to allow access to dirs called '0','1','-h' etc
+    -d          Change default action - verbose. (See note)
+    -D          Change default action - silent. (See note)
+    -s<n> Go to the special entry <n>*
+    -S<n> Go to the special entry <n>
+                and replace it with the current dir*
+    -r<n> [<dir>] Go to directory <dir>
+                              and then put it on special entry <n>*
+    -R<n> [<dir>] Go to directory <dir>
+                              and put current dir on special entry <n>*
+    -a<n>       Alternative suggested directory. See note below.
+    -f [<file>] File entries to <file>.
+    -u [<file>] Update entries from <file>.
+                If no filename supplied then default file
+                (${CDPath}${2:-"$CDFile"}) is used
+                -F and -U are silent versions
+    -v          Print version number
+    -h          Help
+    -H          Detailed help
+
+    *The special entries (0 - 9) are held until log off, replaced by another
+     entry or updated with the -u command
+
+    Alternative suggested directories:
+    If a directory is not found then CD will suggest any
+    possibilities. These are directories starting with the same letters
+    and if any are found they are listed prefixed with -a<n>
+    where <n> is a number.
+    It's possible to go to the directory by entering cd -a<n>
+    on the command line.
+    
+    The directory for -r<n> or -R<n> may be a number.
+    For example:
+        $ cd -r3 4  Go to history entry 4 and put it on special entry 3
+        $ cd -R3 4  Put current dir on the special entry 3
+                    and go to history entry 4
+        $ cd -s3    Go to special entry 3
+    
+    Note that commands R,r,S and s may be used without a number
+    and refer to 0:
+        $ cd -s     Go to special entry 0
+        $ cd -S     Go to special entry 0 and make special
+                    entry 0 current dir
+        $ cd -r 1   Go to history entry 1 and put it on special entry 0
+        $ cd -r     Go to history entry 0 and put it on special entry 0
+    "
+        if ${TEST} "$CD_MODE" = "PREV"
+        then
+                ${PRINTF} "$cd_mnset"
+        else
+                ${PRINTF} "$cd_mset"
+        fi
+}
+
+cd_Hm ()
+{
+        cd_hm
+        ${PRINTF} "%s" "
+        The previous directories (0-$cd_maxhistory) are stored in the
+        environment variables CD[0] - CD[$cd_maxhistory]
+        Similarly the special directories S0 - $cd_maxspecial are in
+        the environment variable CDS[0] - CDS[$cd_maxspecial]
+        and may be accessed from the command line
+
+        The default pathname for the -f and -u commands is $CDPath
+        The default filename for the -f and -u commands is $CDFile
+
+        Set the following environment variables:
+            CDL_PROMPTLEN  - Set to the length of prompt you require.
+                Prompt string is set to the right characters of the
+                current directory.
+                If not set then prompt is left unchanged
+            CDL_PROMPT_PRE - Set to the string to prefix the prompt.
+                Default is:
+                    non-root:  \"\\[\\e[01;34m\\]\"  (sets colour to blue).
+                    root:      \"\\[\\e[01;31m\\]\"  (sets colour to red).
+            CDL_PROMPT_POST    - Set to the string to suffix the prompt.
+                Default is:
+                    non-root:  \"\\[\\e[00m\\]$\"
+                                (resets colour and displays $).
+                    root:      \"\\[\\e[00m\\]#\"
+                                (resets colour and displays #).
+            CDPath - Set the default path for the -f & -u options.
+                     Default is home directory
+            CDFile - Set the default filename for the -f & -u options.
+                     Default is cdfile
+        
+"
+    cd_version
+
+}
+
+cd_version ()
+{
+ printf "Version: ${VERSION_MAJOR}.${VERSION_MINOR} Date: ${VERSION_DATE}\n"
+}
+
+#
+# Truncate right.
+#
+# params:
+#   p1 - string
+#   p2 - length to truncate to
+#
+# returns string in tcd
+#
+cd_right_trunc ()
+{
+    local tlen=${2}
+    local plen=${#1}
+    local str="${1}"
+    local diff
+    local filler="<--"
+    if ${TEST} ${plen} -le ${tlen}
+    then
+        tcd="${str}"
+    else
+        let diff=${plen}-${tlen}
+        elen=3
+        if ${TEST} ${diff} -le 2
+        then
+            let elen=${diff}
+        fi
+        tlen=-${tlen}
+        let tlen=${tlen}+${elen}
+        tcd=${filler:0:elen}${str:tlen}
+    fi
+}
+
+#
+# Three versions of do history:
+#    cd_dohistory  - packs history and specials side by side
+#    cd_dohistoryH - Shows only hstory
+#    cd_dohistoryS - Shows only specials
+#
+cd_dohistory ()
+{
+    cd_getrc
+        ${PRINTF} "History:\n"
+    local -i count=${cd_histcount}
+    while ${TEST} ${count} -ge 0
+    do
+        cd_right_trunc "${CD[count]}" ${cd_lchar}
+            ${PRINTF} "%2d %-${cd_lchar}.${cd_lchar}s " ${count} "${tcd}"
+
+        cd_right_trunc "${CDS[count]}" ${cd_rchar}
+            ${PRINTF} "S%d %-${cd_rchar}.${cd_rchar}s\n" ${count} "${tcd}"
+        count=${count}-1
+    done
+}
+
+cd_dohistoryH ()
+{
+    cd_getrc
+        ${PRINTF} "History:\n"
+        local -i count=${cd_maxhistory}
+        while ${TEST} ${count} -ge 0
+        do
+          ${PRINTF} "${count} %-${cd_flchar}.${cd_flchar}s\n" ${CD[$count]}
+          count=${count}-1
+        done
+}
+
+cd_dohistoryS ()
+{
+    cd_getrc
+        ${PRINTF} "Specials:\n"
+        local -i count=${cd_maxspecial}
+        while ${TEST} ${count} -ge 0
+        do
+          ${PRINTF} "S${count} %-${cd_flchar}.${cd_flchar}s\n" ${CDS[$count]}
+          count=${count}-1
+        done
+}
+
+cd_getrc ()
+{
+    cd_flchar=$(stty -a | awk -F \;
+    '/rows/ { print $2 $3 }' | awk -F \  '{ print $4 }')
+    if ${TEST} ${cd_flchar} -ne 0
+    then
+        cd_lchar=${cd_flchar}/2-5
+        cd_rchar=${cd_flchar}/2-5
+            cd_flchar=${cd_flchar}-5
+    else
+            cd_flchar=${FLCHAR:=75}
+	    # cd_flchar is used for for the @s & @h history
+            cd_lchar=${LCHAR:=35}
+            cd_rchar=${RCHAR:=35}
+    fi
+}
+
+cd_doselection ()
+{
+        local -i nm=0
+        cd_doflag="TRUE"
+        if ${TEST} "${CD_MODE}" = "PREV"
+        then
+                if ${TEST} -z "$cd_npwd"
+                then
+                        cd_npwd=0
+                fi
+        fi
+        tm=$(echo "${cd_npwd}" | cut -b 1)
+    if ${TEST} "${tm}" = "-"
+    then
+        pm=$(echo "${cd_npwd}" | cut -b 2)
+        nm=$(echo "${cd_npwd}" | cut -d $pm -f2)
+        case "${pm}" in
+             a) cd_npwd=${cd_sugg[$nm]} ;;
+             s) cd_npwd="${CDS[$nm]}" ;;
+             S) cd_npwd="${CDS[$nm]}" ; CDS[$nm]=`pwd` ;;
+             r) cd_npwd="$2" ; cd_specDir=$nm ; cd_doselection "$1" "$2";;
+             R) cd_npwd="$2" ; CDS[$nm]=`pwd` ; cd_doselection "$1" "$2";;
+        esac
+    fi
+
+    if ${TEST} "${cd_npwd}" != "." -a "${cd_npwd}" \
+!= ".." -a "${cd_npwd}" -le ${cd_maxhistory} >>/dev/null 2>&1
+    then
+      cd_npwd=${CD[$cd_npwd]}
+     else
+       case "$cd_npwd" in
+                @)  cd_dohistory ; cd_doflag="FALSE" ;;
+               @h) cd_dohistoryH ; cd_doflag="FALSE" ;;
+               @s) cd_dohistoryS ; cd_doflag="FALSE" ;;
+               -h) cd_hm ; cd_doflag="FALSE" ;;
+               -H) cd_Hm ; cd_doflag="FALSE" ;;
+               -f) cd_fsave "SHOW" $2 ; cd_doflag="FALSE" ;;
+               -u) cd_upload "SHOW" $2 ; cd_doflag="FALSE" ;;
+               -F) cd_fsave "NOSHOW" $2 ; cd_doflag="FALSE" ;;
+               -U) cd_upload "NOSHOW" $2 ; cd_doflag="FALSE" ;;
+               -g) cd_npwd="$2" ;;
+               -d) cd_chdefm 1; cd_doflag="FALSE" ;;
+               -D) cd_chdefm 0; cd_doflag="FALSE" ;;
+               -r) cd_npwd="$2" ; cd_specDir=0 ; cd_doselection "$1" "$2";;
+               -R) cd_npwd="$2" ; CDS[0]=`pwd` ; cd_doselection "$1" "$2";;
+               -s) cd_npwd="${CDS[0]}" ;;
+               -S) cd_npwd="${CDS[0]}"  ; CDS[0]=`pwd` ;;
+               -v) cd_version ; cd_doflag="FALSE";;
+       esac
+    fi
+}
+
+cd_chdefm ()
+{
+        if ${TEST} "${CD_MODE}" = "PREV"
+        then
+                CD_MODE=""
+                if ${TEST} $1 -eq 1
+                then
+                        ${PRINTF} "${cd_mset}"
+                fi
+        else
+                CD_MODE="PREV"
+                if ${TEST} $1 -eq 1
+                then
+                        ${PRINTF} "${cd_mnset}"
+                fi
+        fi
+}
+
+cd_fsave ()
+{
+        local sfile=${CDPath}${2:-"$CDFile"}
+        if ${TEST} "$1" = "SHOW"
+        then
+                ${PRINTF} "Saved to %s\n" $sfile
+        fi
+        ${RM} -f ${sfile}
+        local -i count=0
+        while ${TEST} ${count} -le ${cd_maxhistory}
+        do
+                echo "CD[$count]=\"${CD[$count]}\"" >> ${sfile}
+                count=${count}+1
+        done
+        count=0
+        while ${TEST} ${count} -le ${cd_maxspecial}
+        do
+                echo "CDS[$count]=\"${CDS[$count]}\"" >> ${sfile}
+                count=${count}+1
+        done
+}
+
+cd_upload ()
+{
+        local sfile=${CDPath}${2:-"$CDFile"}
+        if ${TEST} "${1}" = "SHOW"
+        then
+                ${PRINTF} "Loading from %s\n" ${sfile}
+        fi
+        . ${sfile}
+}
+
+cd_new ()
+{
+    local -i count
+    local -i choose=0
+
+        cd_npwd="${1}"
+        cd_specDir=-1
+        cd_doselection "${1}" "${2}"
+
+        if ${TEST} ${cd_doflag} = "TRUE"
+        then
+                if ${TEST} "${CD[0]}" != "`pwd`"
+                then
+                        count=$cd_maxhistory
+                        while ${TEST} $count -gt 0
+                        do
+                                CD[$count]=${CD[$count-1]}
+                                count=${count}-1
+                        done
+                        CD[0]=`pwd`
+                fi
+                command cd "${cd_npwd}" 2>/dev/null
+        if ${TEST} $? -eq 1
+        then
+            ${PRINTF} "Unknown dir: %s\n" "${cd_npwd}"
+            local -i ftflag=0
+            for i in "${cd_npwd}"*
+            do
+                if ${TEST} -d "${i}"
+                then
+                    if ${TEST} ${ftflag} -eq 0
+                    then
+                        ${PRINTF} "Suggest:\n"
+                        ftflag=1
+                fi
+                    ${PRINTF} "\t-a${choose} %s\n" "$i"
+                                        cd_sugg[$choose]="${i}"
+                    choose=${choose}+1
+        fi
+            done
+        fi
+        fi
+
+        if ${TEST} ${cd_specDir} -ne -1
+        then
+                CDS[${cd_specDir}]=`pwd`
+        fi
+
+        if ${TEST} ! -z "${CDL_PROMPTLEN}"
+        then
+        cd_right_trunc "${PWD}" ${CDL_PROMPTLEN}
+            cd_rp=${CDL_PROMPT_PRE}${tcd}${CDL_PROMPT_POST}
+                export PS1="$(echo -ne ${cd_rp})"
+        fi
+}
+#########################################################################
+#                                                                       #
+#                        Initialisation here                            #
+#                                                                       #
+#########################################################################
+#
+VERSION_MAJOR="1"
+VERSION_MINOR="2.1"
+VERSION_DATE="24-MAY-2003"
+#
+alias cd=cd_new
+#
+# Set up commands
+RM=/bin/rm
+TEST=test
+PRINTF=printf              # Use builtin printf
+
+#########################################################################
+#                                                                       #
+# Change this to modify the default pre- and post prompt strings.       #
+# These only come into effect if CDL_PROMPTLEN is set.                  #
+#                                                                       #
+#########################################################################
+if ${TEST} ${EUID} -eq 0
+then
+#   CDL_PROMPT_PRE=${CDL_PROMPT_PRE:="$HOSTNAME@"}
+    CDL_PROMPT_PRE=${CDL_PROMPT_PRE:="\\[\\e[01;31m\\]"}  # Root is in red
+    CDL_PROMPT_POST=${CDL_PROMPT_POST:="\\[\\e[00m\\]#"}
+else
+    CDL_PROMPT_PRE=${CDL_PROMPT_PRE:="\\[\\e[01;34m\\]"}  # Users in blue
+    CDL_PROMPT_POST=${CDL_PROMPT_POST:="\\[\\e[00m\\]$"}
+fi
+#########################################################################
+#
+# cd_maxhistory defines the max number of history entries allowed.
+typeset -i cd_maxhistory=50
+
+#########################################################################
+#
+# cd_maxspecial defines the number of special entries.
+typeset -i cd_maxspecial=9
+#
+#
+#########################################################################
+#
+#  cd_histcount defines the number of entries displayed in
+#+ the history command.
+typeset -i cd_histcount=9
+#
+#########################################################################
+export CDPath=${HOME}/
+#  Change these to use a different                                      #
+#+ default path and filename                                            #
+export CDFile=${CDFILE:=cdfile}           # for the -u and -f commands  #
+#
+#########################################################################
+                                                                        #
+typeset -i cd_lchar cd_rchar cd_flchar
+                        #  This is the number of chars to allow for the #
+cd_flchar=${FLCHAR:=75} #+ cd_flchar is used for for the @s & @h history#
+
+typeset -ax CD CDS
+#
+cd_mset="\n\tDefault mode is now set - entering cd with no parameters \
+has the default action\n\tUse cd -d or -D for cd to go to \
+previous directory with no parameters\n"
+cd_mnset="\n\tNon-default mode is now set - entering cd with no \
+parameters is the same as entering cd 0\n\tUse cd -d or \
+-D to change default cd action\n"
+
+# ==================================================================== #
+
+
+
+: <<DOCUMENTATION
+
+Written by Phil Braham. Realtime Software Pty Ltd.
+Released under GNU license. Free to use. Please pass any modifications
+or comments to the author Phil Braham:
+
+realtime@mpx.com.au
+=======================================================================
+
+cdll is a replacement for cd and incorporates similar functionality to
+the bash pushd and popd commands but is independent of them.
+
+This version of cdll has been tested on Linux using Bash. It will work
+on most Linux versions but will probably not work on other shells without
+modification.
+
+Introduction
+============
+
+cdll allows easy moving about between directories. When changing to a new
+directory the current one is automatically put onto a stack. By default
+50 entries are kept, but this is configurable. Special directories can be
+kept for easy access - by default up to 10, but this is configurable. The
+most recent stack entries and the special entries can be easily viewed.
+
+The directory stack and special entries can be saved to, and loaded from,
+a file. This allows them to be set up on login, saved before logging out
+or changed when moving project to project.
+
+In addition, cdll provides a flexible command prompt facility that allows,
+for example, a directory name in colour that is truncated from the left
+if it gets too long.
+
+
+Setting up cdll
+===============
+
+Copy cdll to either your local home directory or a central directory
+such as /usr/bin (this will require root access).
+
+Copy the file cdfile to your home directory. It will require read and
+write access. This a default file that contains a directory stack and
+special entries.
+
+To replace the cd command you must add commands to your login script.
+The login script is one or more of:
+
+    /etc/profile
+    ~/.bash_profile
+    ~/.bash_login
+    ~/.profile
+    ~/.bashrc
+    /etc/bash.bashrc.local
+    
+To setup your login, ~/.bashrc is recommended, for global (and root) setup
+add the commands to /etc/bash.bashrc.local
+    
+To set up on login, add the command:
+    . <dir>/cdll
+For example if cdll is in your local home directory:
+    . ~/cdll
+If in /usr/bin then:
+    . /usr/bin/cdll
+
+If you want to use this instead of the buitin cd command then add:
+    alias cd='cd_new'
+We would also recommend the following commands:
+    alias @='cd_new @'
+    cd -U
+    cd -D
+
+If you want to use cdll's prompt facilty then add the following:
+    CDL_PROMPTLEN=nn
+Where nn is a number described below. Initially 99 would be suitable
+number.
+
+Thus the script looks something like this:
+
+    ######################################################################
+    # CD Setup
+    ######################################################################
+    CDL_PROMPTLEN=21        # Allow a prompt length of up to 21 characters
+    . /usr/bin/cdll         # Initialise cdll
+    alias cd='cd_new'       # Replace the built in cd command
+    alias @='cd_new @'      # Allow @ at the prompt to display history
+    cd -U                   # Upload directories
+    cd -D                   # Set default action to non-posix
+    ######################################################################
+
+The full meaning of these commands will become clear later.
+
+There are a couple of caveats. If another program changes the directory
+without calling cdll, then the directory won't be put on the stack and
+also if the prompt facility is used then this will not be updated. Two
+programs that can do this are pushd and popd. To update the prompt and
+stack simply enter:
+
+    cd .
+    
+Note that if the previous entry on the stack is the current directory
+then the stack is not updated.
+
+Usage
+=====  
+cd [dir] [0-9] [@[s|h] [-g <dir>] [-d] [-D] [-r<n>]
+   [dir|0-9] [-R<n>] [<dir>|0-9] [-s<n>] [-S<n>]
+   [-u] [-U] [-f] [-F] [-h] [-H] [-v]
+
+    <dir>       Go to directory
+    0-n         Goto previous directory (0 is previous,
+                1 is last but 1, etc.)
+                n is up to max history (default is 50)
+    @           List history and special entries (Usually available as $ @)
+    @h          List history entries
+    @s          List special entries
+    -g [<dir>]  Go to literal name (bypass special names)
+                This is to allow access to dirs called '0','1','-h' etc
+    -d          Change default action - verbose. (See note)
+    -D          Change default action - silent. (See note)
+    -s<n>       Go to the special entry <n>
+    -S<n>       Go to the special entry <n>
+                      and replace it with the current dir
+    -r<n> [<dir>] Go to directory <dir>
+                              and then put it on special entry <n>
+    -R<n> [<dir>] Go to directory <dir>
+                              and put current dir on special entry <n>
+    -a<n>       Alternative suggested directory. See note below.
+    -f [<file>] File entries to <file>.
+    -u [<file>] Update entries from <file>.
+                If no filename supplied then default file (~/cdfile) is used
+                -F and -U are silent versions
+    -v          Print version number
+    -h          Help
+    -H          Detailed help
+
+
+
+Examples
+========
+
+These examples assume non-default mode is set (that is, cd with no
+parameters will go to the most recent stack directory), that aliases
+have been set up for cd and @ as described above and that cd's prompt
+facility is active and the prompt length is 21 characters.
+
+    /home/phil$ @
+    # List the entries with the @
+    History:
+    # Output of the @ command
+    .....
+    # Skipped these entries for brevity
+    1 /home/phil/ummdev               S1 /home/phil/perl
+    # Most recent two history entries
+    0 /home/phil/perl/eg              S0 /home/phil/umm/ummdev
+    # and two special entries are shown
+    
+    /home/phil$ cd /home/phil/utils/Cdll
+    # Now change directories
+    /home/phil/utils/Cdll$ @
+    # Prompt reflects the directory.
+    History:
+    # New history
+    .....   
+    1 /home/phil/perl/eg              S1 /home/phil/perl
+    # History entry 0 has moved to 1
+    0 /home/phil                      S0 /home/phil/umm/ummdev
+    # and the most recent has entered
+       
+To go to a history entry:
+
+    /home/phil/utils/Cdll$ cd 1
+    # Go to history entry 1.
+    /home/phil/perl/eg$
+    # Current directory is now what was 1
+    
+To go to a special entry:
+
+    /home/phil/perl/eg$ cd -s1
+    # Go to special entry 1
+    /home/phil/umm/ummdev$
+    # Current directory is S1
+
+To go to a directory called, for example, 1:
+
+    /home/phil$ cd -g 1
+    # -g ignores the special meaning of 1
+    /home/phil/1$
+    
+To put current directory on the special list as S1:
+    cd -r1 .        #  OR
+    cd -R1 .        #  These have the same effect if the directory is
+                    #+ . (the current directory)
+
+To go to a directory and add it as a special  
+  The directory for -r<n> or -R<n> may be a number.
+  For example:
+        $ cd -r3 4  Go to history entry 4 and put it on special entry 3
+        $ cd -R3 4  Put current dir on the special entry 3 and go to
+                    history entry 4
+        $ cd -s3    Go to special entry 3
+
+    Note that commands R,r,S and s may be used without a number and
+    refer to 0:
+        $ cd -s     Go to special entry 0
+        $ cd -S     Go to special entry 0 and make special entry 0
+                    current dir
+        $ cd -r 1   Go to history entry 1 and put it on special entry 0
+        $ cd -r     Go to history entry 0 and put it on special entry 0
+
+
+    Alternative suggested directories:
+
+    If a directory is not found, then CD will suggest any
+    possibilities. These are directories starting with the same letters
+    and if any are found they are listed prefixed with -a<n>
+    where <n> is a number. It's possible to go to the directory
+    by entering cd -a<n> on the command line.
+
+        Use cd -d or -D to change default cd action. cd -H will show
+        current action.
+
+        The history entries (0-n) are stored in the environment variables
+        CD[0] - CD[n]
+        Similarly the special directories S0 - 9 are in the environment
+        variable CDS[0] - CDS[9]
+        and may be accessed from the command line, for example:
+        
+            ls -l ${CDS[3]}
+            cat ${CD[8]}/file.txt
+
+        The default pathname for the -f and -u commands is ~
+        The default filename for the -f and -u commands is cdfile
+
+
+Configuration
+=============
+
+    The following environment variables can be set:
+    
+        CDL_PROMPTLEN  - Set to the length of prompt you require.
+            Prompt string is set to the right characters of the current
+            directory. If not set, then prompt is left unchanged. Note
+            that this is the number of characters that the directory is
+            shortened to, not the total characters in the prompt.
+
+            CDL_PROMPT_PRE - Set to the string to prefix the prompt.
+                Default is:
+                    non-root:  "\\[\\e[01;34m\\]"  (sets colour to blue).
+                    root:      "\\[\\e[01;31m\\]"  (sets colour to red).
+
+            CDL_PROMPT_POST    - Set to the string to suffix the prompt.
+                Default is:
+                    non-root:  "\\[\\e[00m\\]$"
+                               (resets colour and displays $).
+                    root:      "\\[\\e[00m\\]#"
+                               (resets colour and displays #).
+
+        Note:
+            CDL_PROMPT_PRE & _POST only t
+
+        CDPath - Set the default path for the -f & -u options.
+                 Default is home directory
+        CDFile - Set the default filename for the -f & -u options.
+                 Default is cdfile
+
+
+    There are three variables defined in the file cdll which control the
+    number of entries stored or displayed. They are in the section labeled
+    'Initialisation here' towards the end of the file.
+
+        cd_maxhistory       - The number of history entries stored.
+                              Default is 50.
+        cd_maxspecial       - The number of special entries allowed.
+                              Default is 9.
+        cd_histcount        - The number of history and special entries
+                              displayed. Default is 9.
+
+    Note that cd_maxspecial should be >= cd_histcount to avoid displaying
+    special entries that can't be set.
+
+
+Version: 1.2.1 Date: 24-MAY-2003
+
+DOCUMENTATION
+}
+
+◊anchored-example[#:anchor "scard1"]{A soundcard setup script}
+
+◊example{
+#!/bin/bash
+# soundcard-on.sh
+
+#  Script author: Mkarcher
+#  http://www.thinkwiki.org/wiki  ...
+#  /Script_for_configuring_the_CS4239_sound_chip_in_PnP_mode
+#  ABS Guide author made minor changes and added comments.
+#  Couldn't contact script author to ask for permission to use, but ...
+#+ the script was released under the FDL,
+#+ so its use here should be both legal and ethical.
+
+#  Sound-via-pnp-script for Thinkpad 600E
+#+ and possibly other computers with onboard CS4239/CS4610
+#+ that do not work with the PCI driver
+#+ and are not recognized by the PnP code of snd-cs4236.
+#  Also for some 770-series Thinkpads, such as the 770x.
+#  Run as root user, of course.
+#
+#  These are old and very obsolete laptop computers,
+#+ but this particular script is very instructive,
+#+ as it shows how to set up and hack device files.
+
+
+
+#  Search for sound card pnp device:
+
+for dev in /sys/bus/pnp/devices/*
+do
+  grep CSC0100 $dev/id > /dev/null && WSSDEV=$dev
+  grep CSC0110 $dev/id > /dev/null && CTLDEV=$dev
+done
+# On 770x:
+# WSSDEV = /sys/bus/pnp/devices/00:07
+# CTLDEV = /sys/bus/pnp/devices/00:06
+# These are symbolic links to /sys/devices/pnp0/ ...
+
+
+#  Activate devices:
+#  Thinkpad boots with devices disabled unless "fast boot" is turned off
+#+ (in BIOS).
+
+echo activate > $WSSDEV/resources
+echo activate > $CTLDEV/resources
+
+
+# Parse resource settings.
+
+{ read # Discard "state = active" (see below).
+  read bla port1
+  read bla port2
+  read bla port3
+  read bla irq
+  read bla dma1
+  read bla dma2
+ # The "bla's" are labels in the first field: "io," "state," etc.
+ # These are discarded.
+
+ #  Hack: with PnPBIOS: ports are: port1: WSS, port2:
+ #+ OPL, port3: sb (unneeded)
+ #       with ACPI-PnP:ports are: port1: OPL, port2: sb, port3: WSS
+ #  (ACPI bios seems to be wrong here, the PnP-card-code in snd-cs4236.c
+ #+  uses the PnPBIOS port order)
+ #  Detect port order using the fixed OPL port as reference.
+  if [ ${port2%%-*} = 0x388 ]
+ #            ^^^^  Strip out everything following hyphen in port address.
+ #                  So, if port1 is 0x530-0x537
+ #+                 we're left with 0x530 -- the start address of the port.
+ then
+   # PnPBIOS: usual order
+   port=${port1%%-*}
+   oplport=${port2%%-*}
+ else
+   # ACPI: mixed-up order
+   port=${port3%%-*}
+   oplport=${port1%%-*}
+ fi
+ } < $WSSDEV/resources
+# To see what's going on here:
+# ---------------------------
+#   cat /sys/devices/pnp0/00:07/resources
+#
+#   state = active
+#   io 0x530-0x537
+#   io 0x388-0x38b
+#   io 0x220-0x233
+#   irq 5
+#   dma 1
+#   dma 0
+#   ^^^   "bla" labels in first field (discarded). 
+
+
+{ read # Discard first line, as above.
+  read bla port1
+  cport=${port1%%-*}
+  #            ^^^^
+  # Just want _start_ address of port.
+} < $CTLDEV/resources
+
+
+# Load the module:
+
+modprobe --ignore-install snd-cs4236 port=$port cport=$cport\
+fm_port=$oplport irq=$irq dma1=$dma1 dma2=$dma2 isapnp=0 index=0
+# See the modprobe manpage.
+
+exit $?
+}
+
+◊anchored-example[#:anchor "splt1"]{Locating split paragraphs in a text
+file}
+
+◊example{
+#!/bin/bash
+# find-splitpara.sh
+#  Finds split paragraphs in a text file,
+#+ and tags the line numbers.
+
+
+ARGCOUNT=1       # Expect one arg.
+OFF=0            # Flag states.
+ON=1
+E_WRONGARGS=85
+
+file="$1"        # Target filename.
+lineno=1         # Line number. Start at 1.
+Flag=$OFF        # Blank line flag.
+
+if [ $# -ne "$ARGCOUNT" ]
+then
+  echo "Usage: `basename $0` FILENAME"
+  exit $E_WRONGARGS
+fi  
+
+file_read ()     # Scan file for pattern, then print line.
+{
+while read line
+do
+
+  if [[ "$line" =~ ^[a-z] && $Flag -eq $ON ]]
+     then  # Line begins with lowercase character, following blank line.
+     echo -n "$lineno::   "
+     echo "$line"
+  fi
+
+
+  if [[ "$line" =~ ^$ ]]
+     then       #  If blank line,
+     Flag=$ON   #+ set flag.
+  else
+     Flag=$OFF
+  fi
+
+  ((lineno++))
+
+done
+} < $file  # Redirect file into function's stdin.
+
+file_read
+
+
+exit $?
+
+
+# ----------------------------------------------------------------
+This is line one of an example paragraph, bla, bla, bla.
+This is line two, and line three should follow on next line, but
+
+there is a blank line separating the two parts of the paragraph.
+# ----------------------------------------------------------------
+
+Running this script on a file containing the above paragraph
+yields:
+
+4::   there is a blank line separating the two parts of the paragraph.
+
+
+There will be additional output for all the other split paragraphs
+in the target file.
+}
+
+◊anchored-example[#:anchor "sort_ins1"]{Insertion sort}
+
+◊example{
+#!/bin/bash
+# insertion-sort.bash: Insertion sort implementation in Bash
+#                      Heavy use of Bash array features:
+#+                     (string) slicing, merging, etc
+# URL: http://www.lugmen.org.ar/~jjo/jjotip/insertion-sort.bash.d
+#+          /insertion-sort.bash.sh
+#
+# Author: JuanJo Ciarlante <jjo@irrigacion.gov.ar>
+# Lightly reformatted by ABS Guide author.
+# License: GPLv2
+# Used in ABS Guide with author's permission (thanks!).
+#
+# Test with:   ./insertion-sort.bash -t
+# Or:          bash insertion-sort.bash -t
+# The following *doesn't* work:
+#              sh insertion-sort.bash -t
+#  Why not? Hint: which Bash-specific features are disabled
+#+ when running a script by 'sh script.sh'?
+#
+: ${DEBUG:=0}  # Debug, override with:  DEBUG=1 ./scriptname . . .
+# Parameter substitution -- set DEBUG to 0 if not previously set.
+
+# Global array: "list"
+typeset -a list
+# Load whitespace-separated numbers from stdin.
+if [ "$1" = "-t" ]; then
+DEBUG=1
+        read -a list < <( od -Ad -w24 -t u2 /dev/urandom ) # Random list.
+#                    ^ ^  process substition
+else
+        read -a list
+fi
+numelem=${#list[*]}
+
+#  Shows the list, marking the element whose index is $1
+#+ by surrounding it with the two chars passed as $2.
+#  Whole line prefixed with $3.
+showlist()
+  {
+  echo "$3"${list[@]:0:$1} ${2:0:1}${list[$1]}${2:1:1} ${list[@]:$1+1};
+  }
+
+# Loop _pivot_ -- from second element to end of list.
+for(( i=1; i<numelem; i++ )) do
+        ((DEBUG))&&showlist i "[]" " "
+        # From current _pivot_, back to first element.
+        for(( j=i; j; j-- )) do
+                # Search for the 1st elem. less than current "pivot" . . .
+                [[ "${list[j-1]}" -le "${list[i]}" ]] && break
+        done
+	(( i==j )) && continue ## No insertion was needed for this element.
+	# . . . Move list[i] (pivot) to the left of list[j]:
+        list=(${list[@]:0:j} ${list[i]} ${list[j]}\
+	#         {0,j-1}        {i}       {j}
+              ${list[@]:j+1:i-(j+1)} ${list[@]:i+1})
+	#         {j+1,i-1}              {i+1,last}
+	((DEBUG))&&showlist j "<>" "*"
+done
+
+
+echo
+echo  "------"
+echo $'Result:\n'${list[@]}
+
+exit $?
+}
+
+◊anchored-example[#:anchor "stnd_dev1"]{Standard Deviation}
+
+◊example{
+#!/bin/bash
+# sd.sh: Standard Deviation
+
+#  The Standard Deviation indicates how consistent a set of data is.
+#  It shows to what extent the individual data points deviate from the
+#+ arithmetic mean, i.e., how much they "bounce around" (or cluster).
+#  It is essentially the average deviation-distance of the
+#+ data points from the mean.
+
+# =========================================================== #
+#    To calculate the Standard Deviation:
+#
+# 1  Find the arithmetic mean (average) of all the data points.
+# 2  Subtract each data point from the arithmetic mean,
+#    and square that difference.
+# 3  Add all of the individual difference-squares in # 2.
+# 4  Divide the sum in # 3 by the number of data points.
+#    This is known as the "variance."
+# 5  The square root of # 4 gives the Standard Deviation.
+# =========================================================== #
+
+count=0         # Number of data points; global.
+SC=9            # Scale to be used by bc. Nine decimal places.
+E_DATAFILE=90   # Data file error.
+
+# ----------------- Set data file ---------------------
+if [ ! -z "$1" ]  # Specify filename as cmd-line arg?
+then
+  datafile="$1" #  ASCII text file,
+else            #+ one (numerical) data point per line!
+  datafile=sample.dat
+fi              #  See example data file, below.
+
+if [ ! -e "$datafile" ]
+then
+  echo "\""$datafile"\" does not exist!"
+  exit $E_DATAFILE
+fi
+# -----------------------------------------------------
+
+
+arith_mean ()
+{
+  local rt=0         # Running total.
+  local am=0         # Arithmetic mean.
+  local ct=0         # Number of data points.
+
+  while read value   # Read one data point at a time.
+  do
+    rt=$(echo "scale=$SC; $rt + $value" | bc)
+    (( ct++ ))
+  done
+
+  am=$(echo "scale=$SC; $rt / $ct" | bc)
+
+  echo $am; return $ct   # This function "returns" TWO values!
+  #  Caution: This little trick will not work if $ct > 255!
+  #  To handle a larger number of data points,
+  #+ simply comment out the "return $ct" above.
+} <"$datafile"   # Feed in data file.
+
+sd ()
+{
+  mean1=$1  # Arithmetic mean (passed to function).
+  n=$2      # How many data points.
+  sum2=0    # Sum of squared differences ("variance").
+  avg2=0    # Average of $sum2.
+  sdev=0    # Standard Deviation.
+
+  while read value   # Read one line at a time.
+  do
+    diff=$(echo "scale=$SC; $mean1 - $value" | bc)
+    # Difference between arith. mean and data point.
+    dif2=$(echo "scale=$SC; $diff * $diff" | bc) # Squared.
+    sum2=$(echo "scale=$SC; $sum2 + $dif2" | bc) # Sum of squares.
+  done
+
+    avg2=$(echo "scale=$SC; $sum2 / $n" | bc)  # Avg. of sum of squares.
+    sdev=$(echo "scale=$SC; sqrt($avg2)" | bc) # Square root =
+    echo $sdev                                 # Standard Deviation.
+
+} <"$datafile"   # Rewinds data file.
+
+
+# ======================================================= #
+mean=$(arith_mean); count=$?   # Two returns from function!
+std_dev=$(sd $mean $count)
+
+echo
+echo "Number of data points in \""$datafile"\" = $count"
+echo "Arithmetic mean (average) = $mean"
+echo "Standard Deviation = $std_dev"
+echo
+# ======================================================= #
+
+exit
+
+#  This script could stand some drastic streamlining,
+#+ but not at the cost of reduced legibility, please.
+
+
+# ++++++++++++++++++++++++++++++++++++++++ #
+# A sample data file (sample1.dat):
+
+# 18.35
+# 19.0
+# 18.88
+# 18.91
+# 18.64
+
+
+# $ sh sd.sh sample1.dat
+
+# Number of data points in "sample1.dat" = 5
+# Arithmetic mean (average) = 18.756000000
+# Standard Deviation = .235338054
+# ++++++++++++++++++++++++++++++++++++++++ #
+}
+
+◊anchored-example[#:anchor "pad_f1"]{A pad file generator for shareware
+authors}
+
+◊example{
+#!/bin/bash
+# pad.sh
+
+#######################################################
+#               PAD (xml) file creator
+#+ Written by Mendel Cooper <thegrendel.abs@gmail.com>.
+#+ Released to the Public Domain.
+#
+#  Generates a "PAD" descriptor file for shareware
+#+ packages, according to the specifications
+#+ of the ASP.
+#  http://www.asp-shareware.org/pad
+#######################################################
+
+
+# Accepts (optional) save filename as a command-line argument.
+if [ -n "$1" ]
+then
+  savefile=$1
+else
+  savefile=save_file.xml               # Default save_file name.
+fi  
+
+
+# ===== PAD file headers =====
+HDR1="<?xml version=\"1.0\" encoding=\"Windows-1252\" ?>"
+HDR2="<XML_DIZ_INFO>"
+HDR3="<MASTER_PAD_VERSION_INFO>"
+HDR4="\t<MASTER_PAD_VERSION>1.15</MASTER_PAD_VERSION>"
+HDR5="\t<MASTER_PAD_INFO>Portable Application Description, or PAD
+for short, is a data set that is used by shareware authors to
+disseminate information to anyone interested in their software products.
+To find out more go to http://www.asp-shareware.org/pad</MASTER_PAD_INFO>"
+HDR6="</MASTER_PAD_VERSION_INFO>"
+# ============================
+
+
+fill_in ()
+{
+  if [ -z "$2" ]
+  then
+    echo -n "$1? "     # Get user input.
+  else
+    echo -n "$1 $2? "  # Additional query?
+  fi  
+
+  read var             # May paste to fill in field.
+                       # This shows how flexible "read" can be.
+
+  if [ -z "$var" ]
+  then
+    echo -e "\t\t<$1 />" >>$savefile    # Indent with 2 tabs.
+    return
+  else
+    echo -e "\t\t<$1>$var</$1>" >>$savefile
+    return ${#var}     # Return length of input string.
+  fi
+}    
+
+check_field_length ()  # Check length of program description fields.
+{
+  # $1 = maximum field length
+  # $2 = actual field length
+  if [ "$2" -gt "$1" ]
+  then
+    echo "Warning: Maximum field length of $1 characters exceeded!"
+  fi
+}  
+
+clear                  # Clear screen.
+echo "PAD File Creator"
+echo "--- ---- -------"
+echo
+
+# Write File Headers to file.
+echo $HDR1 >$savefile
+echo $HDR2 >>$savefile
+echo $HDR3 >>$savefile
+echo -e $HDR4 >>$savefile
+echo -e $HDR5 >>$savefile
+echo $HDR6 >>$savefile
+
+
+# Company_Info
+echo "COMPANY INFO"
+CO_HDR="Company_Info"
+echo "<$CO_HDR>" >>$savefile
+
+fill_in Company_Name
+fill_in Address_1
+fill_in Address_2
+fill_in City_Town 
+fill_in State_Province
+fill_in Zip_Postal_Code
+fill_in Country
+
+# If applicable:
+# fill_in ASP_Member "[Y/N]"
+# fill_in ASP_Member_Number
+# fill_in ESC_Member "[Y/N]"
+
+fill_in Company_WebSite_URL
+
+clear   # Clear screen between sections.
+
+   # Contact_Info
+echo "CONTACT INFO"
+CONTACT_HDR="Contact_Info"
+echo "<$CONTACT_HDR>" >>$savefile
+fill_in Author_First_Name
+fill_in Author_Last_Name
+fill_in Author_Email
+fill_in Contact_First_Name
+fill_in Contact_Last_Name
+fill_in Contact_Email
+echo -e "\t</$CONTACT_HDR>" >>$savefile
+   # END Contact_Info
+
+clear
+
+   # Support_Info
+echo "SUPPORT INFO"
+SUPPORT_HDR="Support_Info"
+echo "<$SUPPORT_HDR>" >>$savefile
+fill_in Sales_Email
+fill_in Support_Email
+fill_in General_Email
+fill_in Sales_Phone
+fill_in Support_Phone
+fill_in General_Phone
+fill_in Fax_Phone
+echo -e "\t</$SUPPORT_HDR>" >>$savefile
+   # END Support_Info
+
+echo "</$CO_HDR>" >>$savefile
+# END Company_Info
+
+clear
+
+# Program_Info 
+echo "PROGRAM INFO"
+PROGRAM_HDR="Program_Info"
+echo "<$PROGRAM_HDR>" >>$savefile
+fill_in Program_Name
+fill_in Program_Version
+fill_in Program_Release_Month
+fill_in Program_Release_Day
+fill_in Program_Release_Year
+fill_in Program_Cost_Dollars
+fill_in Program_Cost_Other
+fill_in Program_Type "[Shareware/Freeware/GPL]"
+fill_in Program_Release_Status "[Beta, Major Upgrade, etc.]"
+fill_in Program_Install_Support
+fill_in Program_OS_Support "[Win9x/Win2k/Linux/etc.]"
+fill_in Program_Language "[English/Spanish/etc.]"
+
+echo; echo
+
+  # File_Info 
+echo "FILE INFO"
+FILEINFO_HDR="File_Info"
+echo "<$FILEINFO_HDR>" >>$savefile
+fill_in Filename_Versioned
+fill_in Filename_Previous
+fill_in Filename_Generic
+fill_in Filename_Long
+fill_in File_Size_Bytes
+fill_in File_Size_K
+fill_in File_Size_MB
+echo -e "\t</$FILEINFO_HDR>" >>$savefile
+  # END File_Info 
+
+clear
+
+  # Expire_Info 
+echo "EXPIRE INFO"
+EXPIRE_HDR="Expire_Info"
+echo "<$EXPIRE_HDR>" >>$savefile
+fill_in Has_Expire_Info "Y/N"
+fill_in Expire_Count
+fill_in Expire_Based_On
+fill_in Expire_Other_Info
+fill_in Expire_Month
+fill_in Expire_Day
+fill_in Expire_Year
+echo -e "\t</$EXPIRE_HDR>" >>$savefile
+  # END Expire_Info 
+
+clear
+
+  # More Program_Info
+echo "ADDITIONAL PROGRAM INFO"
+fill_in Program_Change_Info
+fill_in Program_Specific_Category
+fill_in Program_Categories
+fill_in Includes_JAVA_VM "[Y/N]"
+fill_in Includes_VB_Runtime "[Y/N]"
+fill_in Includes_DirectX "[Y/N]"
+  # END More Program_Info
+
+echo "</$PROGRAM_HDR>" >>$savefile
+# END Program_Info 
+
+clear
+
+# Program Description
+echo "PROGRAM DESCRIPTIONS"
+PROGDESC_HDR="Program_Descriptions"
+echo "<$PROGDESC_HDR>" >>$savefile
+
+LANG="English"
+echo "<$LANG>" >>$savefile
+
+fill_in Keywords "[comma + space separated]"
+echo
+echo "45, 80, 250, 450, 2000 word program descriptions"
+echo "(may cut and paste into field)"
+#  It would be highly appropriate to compose the following
+#+ "Char_Desc" fields with a text editor,
+#+ then cut-and-paste the text into the answer fields.
+echo
+echo "              |---------------45 characters---------------|"
+fill_in Char_Desc_45
+check_field_length 45 "$?"
+echo
+fill_in Char_Desc_80
+check_field_length 80 "$?"
+
+fill_in Char_Desc_250
+check_field_length 250 "$?"
+
+fill_in Char_Desc_450
+fill_in Char_Desc_2000
+
+echo "</$LANG>" >>$savefile
+echo "</$PROGDESC_HDR>" >>$savefile
+# END Program Description
+
+clear
+echo "Done."; echo; echo
+echo "Save file is:  \""$savefile"\""
+
+exit 0
+}
+
+
+◊anchored-example[#:anchor "man_ed1"]{A man page editor}
+
+◊example{
+#!/bin/bash
+# maned.sh
+# A rudimentary man page editor
+
+# Version: 0.1 (Alpha, probably buggy)
+# Author: Mendel Cooper <thegrendel.abs@gmail.com>
+# Reldate: 16 June 2008
+# License: GPL3
+
+
+savefile=      # Global, used in multiple functions.
+E_NOINPUT=90   # User input missing (error). May or may not be critical.
+
+# =========== Markup Tags ============ #
+TopHeader=".TH"
+NameHeader=".SH NAME"
+SyntaxHeader=".SH SYNTAX"
+SynopsisHeader=".SH SYNOPSIS"
+InstallationHeader=".SH INSTALLATION"
+DescHeader=".SH DESCRIPTION"
+OptHeader=".SH OPTIONS"
+FilesHeader=".SH FILES"
+EnvHeader=".SH ENVIRONMENT"
+AuthHeader=".SH AUTHOR"
+BugsHeader=".SH BUGS"
+SeeAlsoHeader=".SH SEE ALSO"
+BOLD=".B"
+# Add more tags, as needed.
+# See groff docs for markup meanings.
+# ==================================== #
+
+start ()
+{
+clear                  # Clear screen.
+echo "ManEd"
+echo "-----"
+echo
+echo "Simple man page creator"
+echo "Author: Mendel Cooper"
+echo "License: GPL3"
+echo; echo; echo
+}
+
+progname ()
+{
+  echo -n "Program name? "
+  read name
+
+  echo -n "Manpage section? [Hit RETURN for default (\"1\") ]  "
+  read section
+  if [ -z "$section" ]
+  then
+    section=1   # Most man pages are in section 1.
+  fi
+
+  if [ -n "$name" ]
+  then
+    savefile=""$name"."$section""       #  Filename suffix = section.
+    echo -n "$1 " >>$savefile
+    name1=$(echo "$name" | tr a-z A-Z)  #  Change to uppercase,
+                                        #+ per man page convention.
+    echo -n "$name1" >>$savefile
+  else
+    echo "Error! No input."             # Mandatory input.
+    exit $E_NOINPUT                     # Critical!
+    #  Exercise: The script-abort if no filename input is a bit clumsy.
+    #            Rewrite this section so a default filename is used
+    #+           if no input.
+  fi
+
+  echo -n "  \"$section\"">>$savefile   # Append, always append.
+
+  echo -n "Version? "
+  read ver
+  echo -n " \"Version $ver \"">>$savefile
+  echo >>$savefile
+
+  echo -n "Short description [0 - 5 words]? "
+  read sdesc
+  echo "$NameHeader">>$savefile
+  echo ""$BOLD" "$name"">>$savefile
+  echo "\- "$sdesc"">>$savefile
+
+}
+
+fill_in ()
+{ # This function more or less copied from "pad.sh" script.
+  echo -n "$2? "       # Get user input.
+  read var             # May paste (a single line only!) to fill in field.
+
+  if [ -n "$var" ]
+  then
+    echo "$1 " >>$savefile
+    echo -n "$var" >>$savefile
+  else                 # Don't append empty field to file.
+    return $E_NOINPUT  # Not critical here.
+  fi
+
+  echo >>$savefile
+
+}    
+
+
+end ()
+{
+clear
+echo -n "Would you like to view the saved man page (y/n)? "
+read ans
+if [ "$ans" = "n" -o "$ans" = "N" ]; then exit; fi
+exec less "$savefile"  #  Exit script and hand off control to "less" ...
+                       #+ ... which formats for viewing man page source.
+}
+
+
+# ---------------------------------------- #
+start
+progname "$TopHeader"
+fill_in "$SynopsisHeader" "Synopsis"
+fill_in "$DescHeader" "Long description"
+# May paste in *single line* of text.
+fill_in "$OptHeader" "Options"
+fill_in "$FilesHeader" "Files"
+fill_in "$AuthHeader" "Author"
+fill_in "$BugsHeader" "Bugs"
+fill_in "$SeeAlsoHeader" "See also"
+# fill_in "$OtherHeader" ... as necessary.
+end    # ... exit not needed.
+# ---------------------------------------- #
+
+#  Note that the generated man page will usually
+#+ require manual fine-tuning with a text editor.
+#  However, it's a distinct improvement upon
+#+ writing man source from scratch
+#+ or even editing a blank man page template.
+
+#  The main deficiency of the script is that it permits
+#+ pasting only a single text line into the input fields.
+#  This may be a long, cobbled-together line, which groff
+#  will automatically wrap and hyphenate.
+#  However, if you want multiple (newline-separated) paragraphs,
+#+ these must be inserted by manual text editing on the
+#+ script-generated man page.
+#  Exercise (difficult): Fix this!
+
+#  This script is not nearly as elaborate as the
+#+ full-featured "manedit" package
+#+ http://freshmeat.net/projects/manedit/
+#+ but it's much easier to use.
+}
+
+◊anchored-example[#:anchor "pad_f1"]{A pad file generator for shareware
+authors}
+
+◊example{
+#!/bin/bash -i
+# petals.sh
+
+#########################################################################
+# Petals Around the Rose                                                #
+#                                                                       #
+# Version 0.1 Created by Serghey Rodin                                  #
+# Version 0.2 Modded by ABS Guide Author                                #
+#                                                                       #
+# License: GPL3                                                         #
+# Used in ABS Guide with permission.                                    #
+# ##################################################################### #
+
+hits=0      # Correct guesses.
+WIN=6       # Mastered the game.
+ALMOST=5    # One short of mastery.
+EXIT=exit   # Give up early?
+
+RANDOM=$$   # Seeds the random number generator from PID of script.
+
+
+# Bones (ASCII graphics for dice)
+bone1[1]="|         |"
+bone1[2]="|       o |"
+bone1[3]="|       o |"
+bone1[4]="| o     o |"
+bone1[5]="| o     o |"
+bone1[6]="| o     o |"
+bone2[1]="|    o    |"
+bone2[2]="|         |"
+bone2[3]="|    o    |"
+bone2[4]="|         |"
+bone2[5]="|    o    |"
+bone2[6]="| o     o |"
+bone3[1]="|         |"
+bone3[2]="| o       |"
+bone3[3]="| o       |"
+bone3[4]="| o     o |"
+bone3[5]="| o     o |"
+bone3[6]="| o     o |"
+bone="+---------+"
+
+
+
+# Functions
+
+instructions () {
+
+  clear
+  echo -n "Do you need instructions? (y/n) "; read ans
+  if [ "$ans" = "y" -o "$ans" = "Y" ]; then
+    clear
+    echo -e '\E[34;47m'  # Blue type.
+
+#  "cat document"
+    cat <<INSTRUCTIONSZZZ
+The name of the game is Petals Around the Rose,
+and that name is significant.
+Five dice will roll and you must guess the "answer" for each roll.
+It will be zero or an even number.
+After your guess, you will be told the answer for the roll, but . . .
+that's ALL the information you will get.
+
+Six consecutive correct guesses admits you to the
+Fellowship of the Rose.
+INSTRUCTIONSZZZ
+
+    echo -e "\033[0m"    # Turn off blue.
+    else clear
+  fi
+
+}
+
+
+fortune ()
+{
+  RANGE=7
+  FLOOR=0
+  number=0
+  while [ "$number" -le $FLOOR ]
+  do
+    number=$RANDOM
+    let "number %= $RANGE"   # 1 - 6.
+  done
+
+  return $number
+}
+
+
+
+throw () { # Calculate each individual die.
+  fortune; B1=$?
+  fortune; B2=$?
+  fortune; B3=$?
+  fortune; B4=$?
+  fortune; B5=$?
+
+  calc () { # Function embedded within a function!
+    case "$1" in
+       3   ) rose=2;;
+       5   ) rose=4;;
+       *   ) rose=0;;
+    esac    # Simplified algorithm.
+            # Doesn't really get to the heart of the matter.
+    return $rose
+  }
+
+  answer=0
+  calc "$B1"; answer=$(expr $answer + $(echo $?))
+  calc "$B2"; answer=$(expr $answer + $(echo $?))
+  calc "$B3"; answer=$(expr $answer + $(echo $?))
+  calc "$B4"; answer=$(expr $answer + $(echo $?))
+  calc "$B5"; answer=$(expr $answer + $(echo $?))
+}
+
+
+
+game ()
+{ # Generate graphic display of dice throw.
+  throw
+    echo -e "\033[1m"    # Bold.
+  echo -e "\n"
+  echo -e "$bone\t$bone\t$bone\t$bone\t$bone"
+  echo -e \
+ "${bone1[$B1]}\t${bone1[$B2]}\t${bone1[$B3]}\t${bone1[$B4]}\t${bone1[$B5]}"
+  echo -e \
+ "${bone2[$B1]}\t${bone2[$B2]}\t${bone2[$B3]}\t${bone2[$B4]}\t${bone2[$B5]}"
+  echo -e \
+ "${bone3[$B1]}\t${bone3[$B2]}\t${bone3[$B3]}\t${bone3[$B4]}\t${bone3[$B5]}"
+  echo -e "$bone\t$bone\t$bone\t$bone\t$bone"
+  echo -e "\n\n\t\t"
+    echo -e "\033[0m"    # Turn off bold.
+  echo -n "There are how many petals around the rose? "
+}
+
+
+
+# ============================================================== #
+
+instructions
+
+while [ "$petal" != "$EXIT" ]    # Main loop.
+do
+  game
+  read petal
+  echo "$petal" | grep [0-9] >/dev/null  # Filter response for digit.
+                                         # Otherwise just roll dice again.
+  if [ "$?" -eq 0 ]   # If-loop #1.
+  then
+    if [ "$petal" == "$answer" ]; then    # If-loop #2.
+    	echo -e "\nCorrect. There are $petal petals around the rose.\n"
+        (( hits++ ))
+
+        if [ "$hits" -eq "$WIN" ]; then   # If-loop #3.
+          echo -e '\E[31;47m'  # Red type.
+          echo -e "\033[1m"    # Bold.
+          echo "You have unraveled the mystery of the Rose Petals!"
+          echo "Welcome to the Fellowship of the Rose!!!"
+          echo "(You are herewith sworn to secrecy.)"; echo
+          echo -e "\033[0m"    # Turn off red & bold.
+          break                # Exit!
+        else echo "You have $hits correct so far."; echo
+
+        if [ "$hits" -eq "$ALMOST" ]; then
+          echo "Just one more gets you to the heart of the mystery!"; echo
+        fi
+
+      fi                                  # Close if-loop #3.
+
+    else
+      echo -e "\nWrong. There are $answer petals around the rose.\n"
+      hits=0   # Reset number of correct guesses.
+    fi                                    # Close if-loop #2.
+
+    echo -n "Hit ENTER for the next roll, or type \"exit\" to end. "
+    read
+    if [ "$REPLY" = "$EXIT" ]; then exit
+    fi
+
+  fi                  # Close if-loop #1.
+
+  clear
+done                  # End of main (while) loop.
+
+###
+
+exit $?
+
+# Resources:
+# ---------
+# 1) http://en.wikipedia.org/wiki/Petals_Around_the_Rose
+#    (Wikipedia entry.)
+# 2) http://www.borrett.id.au/computing/petals-bg.htm
+#    (How Bill Gates coped with the Petals Around the Rose challenge.)
+}
+
+◊anchored-example[#:anchor "quacky1"]{Quacky: a Perquackey-type word
+game}
+
+◊example{
+#!/bin/bash
+# qky.sh
+
+##############################################################
+# QUACKEY: a somewhat simplified version of Perquackey [TM]. #
+#                                                            #
+# Author: Mendel Cooper  <thegrendel.abs@gmail.com>          #
+# version 0.1.02      03 May, 2008                           #
+# License: GPL3                                              #
+##############################################################
+
+WLIST=/usr/share/dict/word.lst
+#                     ^^^^^^^^  Word list file found here.
+#  ASCII word list, one word per line, UNIX format.
+#  A suggested list is the script author's "yawl" word list package.
+#  http://bash.deta.in/yawl-0.3.2.tar.gz
+#    or
+#  http://ibiblio.org/pub/Linux/libs/yawl-0.3.2.tar.gz
+
+NONCONS=0     # Word not constructable from letter set.
+CONS=1        # Constructable.
+SUCCESS=0
+NG=1
+FAILURE=''
+NULL=0        # Zero out value of letter (if found).
+MINWLEN=3     # Minimum word length.
+MAXCAT=5      # Maximum number of words in a given category.
+PENALTY=200   # General-purpose penalty for unacceptable words.
+total=
+E_DUP=70      # Duplicate word error.
+
+TIMEOUT=10    # Time for word input.
+
+NVLET=10      # 10 letters for non-vulnerable.
+VULET=13      # 13 letters for vulnerable (not yet implemented!).
+
+declare -a Words
+declare -a Status
+declare -a Score=( 0 0 0 0 0 0 0 0 0 0 0 )
+
+
+letters=( a n s r t m l k p r b c i d s i d z e w u e t f
+e y e r e f e g t g h h i t r s c i t i d i j a t a o l a
+m n a n o v n w o s e l n o s p a q e e r a b r s a o d s
+t g t i t l u e u v n e o x y m r k )
+#  Letter distribution table shamelessly borrowed from "Wordy" game,
+#+ ca. 1992, written by a certain fine fellow named Mendel Cooper.
+
+declare -a LS
+
+numelements=${#letters[@]}
+randseed="$1"
+
+instructions ()
+{
+  clear
+  echo "Welcome to QUACKEY, the anagramming word construction game."; echo
+  echo -n "Do you need instructions? (y/n) "; read ans
+
+   if [ "$ans" = "y" -o "$ans" = "Y" ]; then
+     clear
+     echo -e '\E[31;47m'  # Red foreground. '\E[34;47m' for blue.
+     cat <<INSTRUCTION1
+
+QUACKEY is a variant of Perquackey [TM].
+The rules are the same, but the scoring is simplified
+and plurals of previously played words are allowed.
+"Vulnerable" play is not yet implemented,
+but it is otherwise feature-complete.
+
+As the game begins, the player gets 10 letters.
+The object is to construct valid dictionary words
+of at least 3-letter length from the letterset.
+Each word-length category
+-- 3-letter, 4-letter, 5-letter, ... --
+fills up with the fifth word entered,
+and no further words in that category are accepted.
+
+The penalty for too-short (two-letter), duplicate, unconstructable,
+and invalid (not in dictionary) words is -200. The same penalty applies
+to attempts to enter a word in a filled-up category.
+
+INSTRUCTION1
+
+  echo -n "Hit ENTER for next page of instructions. "; read az1
+
+     cat <<INSTRUCTION2
+
+The scoring mostly corresponds to classic Perquackey:
+The first 3-letter word scores    60, plus   10 for each additional one.
+The first 4-letter word scores   120, plus   20 for each additional one.
+The first 5-letter word scores   200, plus   50 for each additional one.
+The first 6-letter word scores   300, plus  100 for each additional one.
+The first 7-letter word scores   500, plus  150 for each additional one.
+The first 8-letter word scores   750, plus  250 for each additional one.
+The first 9-letter word scores  1000, plus  500 for each additional one.
+The first 10-letter word scores 2000, plus 2000 for each additional one.
+
+Category completion bonuses are:
+3-letter words   100
+4-letter words   200
+5-letter words   400
+6-letter words   800
+7-letter words  2000
+8-letter words 10000
+This is a simplification of the absurdly baroque Perquackey bonus
+scoring system.
+
+INSTRUCTION2
+
+  echo -n "Hit ENTER for final page of instructions. "; read az1
+
+     cat <<INSTRUCTION3
+
+
+Hitting just ENTER for a word entry ends the game.
+
+Individual word entry is timed to a maximum of 10 seconds.
+*** Timing out on an entry ends the game. ***
+Aside from that, the game is untimed.
+
+--------------------------------------------------
+Game statistics are automatically saved to a file.
+--------------------------------------------------
+
+For competitive ("duplicate") play, a previous letterset
+may be duplicated by repeating the script's random seed,
+command-line parameter \$1.
+For example, "qky 7633" specifies the letterset 
+c a d i f r h u s k ...
+INSTRUCTION3
+
+  echo; echo -n "Hit ENTER to begin game. "; read az1
+
+       echo -e "\033[0m"    # Turn off red.
+     else clear
+  fi
+
+  clear
+
+}
+
+
+
+seed_random ()
+{                         #  Seed random number generator.
+  if [ -n "$randseed" ]   #  Can specify random seed.
+  then                    #+ for play in competitive mode.
+#   RANDOM="$randseed"
+    echo "RANDOM seed set to "$randseed""
+  else
+    randseed="$$"         # Or get random seed from process ID.
+    echo "RANDOM seed not specified, set to Process ID of script ($$)."
+  fi
+
+  RANDOM="$randseed"
+
+  echo
+}
+
+
+get_letset ()
+{
+  element=0
+  echo -n "Letterset:"
+
+  for lset in $(seq $NVLET)
+  do  # Pick random letters to fill out letterset.
+    LS[element]="${letters[$((RANDOM%numelements))]}"
+    ((element++))
+  done
+
+  echo
+  echo "${LS[@]}"
+
+}
+
+
+add_word ()
+{
+  wrd="$1"
+  local idx=0
+
+  Status[0]=""
+  Status[3]=""
+  Status[4]=""
+
+  while [ "${Words[idx]}" != '' ]
+  do
+    if [ "${Words[idx]}" = "$wrd" ]
+    then
+      Status[3]="Duplicate-word-PENALTY"
+      let "Score[0]= 0 - $PENALTY"
+      let "Score[1]-=$PENALTY"
+      return $E_DUP
+    fi
+
+    ((idx++))
+  done
+
+  Words[idx]="$wrd"
+  get_score
+
+}
+
+get_score()
+{
+  local wlen=0
+  local score=0
+  local bonus=0
+  local first_word=0
+  local add_word=0
+  local numwords=0
+
+  wlen=${#wrd}
+  numwords=${Score[wlen]}
+  Score[2]=0
+  Status[4]=""   # Initialize "bonus" to 0.
+
+  case "$wlen" in
+    3) first_word=60
+       add_word=10;;
+    4) first_word=120
+       add_word=20;;
+    5) first_word=200
+       add_word=50;;
+    6) first_word=300
+       add_word=100;;
+    7) first_word=500
+       add_word=150;;
+    8) first_word=750
+       add_word=250;;
+    9) first_word=1000
+       add_word=500;;
+   10) first_word=2000
+       add_word=2000;;   # This category modified from original rules!
+      esac
+
+  ((Score[wlen]++))
+  if [ ${Score[wlen]} -eq $MAXCAT ]
+  then   # Category completion bonus scoring simplified!
+    case $wlen in
+      3 ) bonus=100;;
+      4 ) bonus=200;;
+      5 ) bonus=400;;
+      6 ) bonus=800;;
+      7 ) bonus=2000;;
+      8 ) bonus=10000;;
+    esac  # Needn't worry about 9's and 10's.
+    Status[4]="Category-$wlen-completion***BONUS***"
+    Score[2]=$bonus
+  else
+    Status[4]=""   # Erase it.
+  fi
+
+
+    let "score =  $first_word +   $add_word * $numwords"
+    if [ "$numwords" -eq 0 ]
+    then
+      Score[0]=$score
+    else
+      Score[0]=$add_word
+    fi   #  All this to distinguish last-word score
+         #+ from total running score.
+  let "Score[1] += ${Score[0]}"
+  let "Score[1] += ${Score[2]}"
+
+}
+
+
+
+get_word ()
+{
+  local wrd=''
+  read -t $TIMEOUT wrd   # Timed read.
+  echo $wrd
+}
+
+is_constructable ()
+{ # This is the most complex and difficult-to-write function.
+  local -a local_LS=( "${LS[@]}" )  # Local copy of letter set.
+  local is_found=0
+  local idx=0
+  local pos
+  local strlen
+  local local_word=( "$1" )
+  strlen=${#local_word}
+
+  while [ "$idx" -lt "$strlen" ]
+  do
+    is_found=$(expr index "${local_LS[*]}" "${local_word:idx:1}")
+    if [ "$is_found" -eq "$NONCONS" ] # Not constructable!
+    then
+      echo "$FAILURE"; return
+    else
+      ((pos = ($is_found - 1) / 2))   # Compensate for spaces betw. letters!
+      local_LS[pos]=$NULL             # Zero out used letters.
+      ((idx++))                       # Bump index.
+    fi
+  done
+
+  echo "$SUCCESS"
+  return
+}
+
+is_valid ()
+{ # Surprisingly easy to check if word in dictionary ...
+  fgrep -qw "$1" "$WLIST"   # ... courtesy of 'grep' ...
+  echo $?
+}
+
+check_word ()
+{
+  if [ -z "$1" ]
+  then
+    return
+  fi
+
+  Status[1]=""
+  Status[2]=""
+  Status[3]=""
+  Status[4]=""
+
+  iscons=$(is_constructable "$1")
+  if [ "$iscons" ]
+  then
+    Status[1]="constructable" 
+    v=$(is_valid "$1")
+    if [ "$v" -eq "$SUCCESS" ]
+    then
+      Status[2]="valid" 
+      strlen=${#1}
+
+      if [ ${Score[strlen]} -eq "$MAXCAT" ]   # Category full!
+      then
+        Status[3]="Category-$strlen-overflow-PENALTY"
+        return $NG
+      fi
+
+      case "$strlen" in
+        1 | 2 )
+        Status[3]="Two-letter-word-PENALTY"
+        return $NG;;
+        * ) 
+	Status[3]=""
+	return $SUCCESS;;
+      esac
+    else
+      Status[3]="Not-valid-PENALTY"
+      return $NG
+    fi
+  else
+    Status[3]="Not-constructable-PENALTY" 
+      return $NG
+  fi
+
+  ### FIXME: Streamline the above code block.
+
+}
+
+
+display_words ()
+{
+  local idx=0
+  local wlen0
+
+  clear
+  echo "Letterset:   ${LS[@]}"
+  echo "Threes:    Fours:    Fives:     Sixes:    Sevens:    Eights:"
+  echo "------------------------------------------------------------"
+
+
+   
+  while [ "${Words[idx]}" != '' ]
+  do
+   wlen0=${#Words[idx]}
+   case "$wlen0" in
+     3) ;;
+     4) echo -n "           " ;;
+     5) echo -n "                     " ;;
+     6) echo -n "                                " ;;
+     7) echo -n "                                          " ;;
+     8) echo -n "                                                     " ;;
+   esac
+   echo "${Words[idx]}"
+   ((idx++))
+  done
+
+  ### FIXME: The word display is pretty crude.
+}
+
+
+play ()
+{
+  word="Start game"   # Dummy word, to start ...
+
+  while [ "$word" ]   #  If player just hits return (null word),
+  do                  #+ then game ends.
+    echo "$word: "${Status[@]}""
+    echo -n "Last score: [${Score[0]}]   TOTAL score: [${Score[1]}]:     Next word: "
+    total=${Score[1]}
+    word=$(get_word)
+    check_word "$word"
+
+    if [ "$?" -eq "$SUCCESS" ]
+    then
+      add_word "$word"
+    else
+      let "Score[0]= 0 - $PENALTY"
+      let "Score[1]-=$PENALTY"
+    fi
+
+  display_words
+  done   # Exit game.
+
+  ### FIXME: The play () function calls too many other functions.
+  ### This verges on "spaghetti code" !!!
+}
+
+end_of_game ()
+{ # Save and display stats.
+
+  #######################Autosave##########################
+  savefile=qky.save.$$
+  #                 ^^ PID of script
+  echo `date` >> $savefile
+  echo "Letterset # $randseed  (random seed) ">> $savefile
+  echo -n "Letterset: " >> $savefile
+  echo "${LS[@]}" >> $savefile
+  echo "---------" >> $savefile
+  echo "Words constructed:" >> $savefile
+  echo "${Words[@]}" >> $savefile
+  echo >> $savefile
+  echo "Score: $total" >> $savefile
+
+  echo "Statistics for this round saved in \""$savefile"\""
+  #########################################################
+
+  echo "Score for this round: $total"
+  echo "Words:  ${Words[@]}"
+}
+
+# ---------#
+instructions
+seed_random
+get_letset
+play
+end_of_game
+# ---------#
+
+exit $?
+
+# TODO:
+#
+# 1) Clean up code!
+# 2) Prettify the display_words () function (maybe with widgets?).
+# 3) Improve the time-out ... maybe change to untimed entry,
+#+   but with a time limit for the overall round.   
+# 4) An on-screen countdown timer would be nice.
+# 5) Implement "vulnerable" mode of play for compatibility with classic
+#+   version of the game.
+# 6) Improve save-to-file capability (and maybe make it optional).
+# 7) Fix bugs!!!
+
+# For more info, reference:
+# http://bash.deta.in/qky.README.html
+}
+
+◊anchored-example[#:anchor "nim1"]{Nim}
+
+◊example{
+#!/bin/bash
+# nim.sh: Game of Nim
+
+# Author: Mendel Cooper
+# Reldate: 15 July 2008
+# License: GPL3
+
+ROWS=5     # Five rows of pegs (or matchsticks).
+WON=91     # Exit codes to keep track of wins/losses.
+LOST=92    # Possibly useful if running in batch mode.  
+QUIT=99
+peg_msg=   # Peg/Pegs?
+Rows=( 0 5 4 3 2 1 )   # Array holding play info.
+# ${Rows[0]} holds total number of pegs, updated after each turn.
+# Other array elements hold number of pegs in corresponding row.
+
+instructions ()
+{
+  clear
+  tput bold
+  echo "Welcome to the game of Nim."; echo
+  echo -n "Do you need instructions? (y/n) "; read ans
+
+   if [ "$ans" = "y" -o "$ans" = "Y" ]; then
+     clear
+     echo -e '\E[33;41m'  # Yellow fg., over red bg.; bold.
+     cat <<INSTRUCTIONS
+
+Nim is a game with roots in the distant past.
+This particular variant starts with five rows of pegs.
+
+1:    | | | | | 
+2:     | | | | 
+3:      | | | 
+4:       | | 
+5:        | 
+
+The number at the left identifies the row.
+
+The human player moves first, and alternates turns with the bot.
+A turn consists of removing at least one peg from a single row.
+It is permissable to remove ALL the pegs from a row.
+For example, in row 2, above, the player can remove 1, 2, 3, or 4 pegs.
+The player who removes the last peg loses.
+
+The strategy consists of trying to be the one who removes
+the next-to-last peg(s), leaving the loser with the final peg.
+
+To exit the game early, hit ENTER during your turn.
+INSTRUCTIONS
+
+echo; echo -n "Hit ENTER to begin game. "; read azx
+
+      echo -e "\033[0m"    # Restore display.
+      else tput sgr0; clear
+  fi
+
+clear
+
+}
+
+
+tally_up ()
+{
+  let "Rows[0] = ${Rows[1]} + ${Rows[2]} + ${Rows[3]} + ${Rows[4]} + \
+  ${Rows[5]}"    # Add up how many pegs remaining.
+}
+
+
+display ()
+{
+  index=1   # Start with top row.
+  echo
+
+  while [ "$index" -le "$ROWS" ]
+  do
+    p=${Rows[index]}
+    echo -n "$index:   "          # Show row number.
+
+  # ------------------------------------------------
+  # Two concurrent inner loops.
+
+      indent=$index
+      while [ "$indent" -gt 0 ]
+      do
+        echo -n " "               # Staggered rows.
+        ((indent--))              # Spacing between pegs.
+      done
+
+    while [ "$p" -gt 0 ]
+    do
+      echo -n "| "
+      ((p--))
+    done
+  # -----------------------------------------------
+
+  echo
+  ((index++))
+  done  
+
+  tally_up
+
+  rp=${Rows[0]}
+
+  if [ "$rp" -eq 1 ]
+  then
+    peg_msg=peg
+    final_msg="Game over."
+  else             # Game not yet over . . .
+    peg_msg=pegs
+    final_msg=""   # . . . So "final message" is blank.
+  fi
+
+  echo "      $rp $peg_msg remaining."
+  echo "      "$final_msg""
+
+
+  echo
+}
+
+player_move ()
+{
+
+  echo "Your move:"
+
+  echo -n "Which row? "
+  while read idx
+  do                   # Validity check, etc.
+
+    if [ -z "$idx" ]   # Hitting return quits.
+    then
+        echo "Premature exit."; echo
+        tput sgr0      # Restore display.
+        exit $QUIT
+    fi
+
+    if [ "$idx" -gt "$ROWS" -o "$idx" -lt 1 ]   # Bounds check.
+    then
+      echo "Invalid row number!"
+      echo -n "Which row? "
+    else
+      break
+    fi
+    # TODO:
+    # Add check for non-numeric input.
+    # Also, script crashes on input outside of range of long double.
+    # Fix this.
+
+  done
+
+  echo -n "Remove how many? "
+  while read num
+  do                   # Validity check.
+
+  if [ -z "$num" ]
+  then
+    echo "Premature exit."; echo
+    tput sgr0          # Restore display.
+    exit $QUIT
+  fi
+
+    if [ "$num" -gt ${Rows[idx]} -o "$num" -lt 1 ]
+    then
+      echo "Cannot remove $num!"
+      echo -n "Remove how many? "
+    else
+      break
+    fi
+  done
+  # TODO:
+  # Add check for non-numeric input.
+  # Also, script crashes on input outside of range of long double.
+  # Fix this.
+
+  let "Rows[idx] -= $num"
+
+  display
+  tally_up
+
+  if [ ${Rows[0]} -eq 1 ]
+  then
+   echo "      Human wins!"
+   echo "      Congratulations!"
+   tput sgr0   # Restore display.
+   echo
+   exit $WON
+  fi
+
+  if [ ${Rows[0]} -eq 0 ]
+  then          # Snatching defeat from the jaws of victory . . .
+    echo "      Fool!"
+    echo "      You just removed the last peg!"
+    echo "      Bot wins!"
+    tput sgr0   # Restore display.
+    echo
+    exit $LOST
+  fi
+}
+
+
+bot_move ()
+{
+
+  row_b=0
+  while [[ $row_b -eq 0 || ${Rows[row_b]} -eq 0 ]]
+  do
+    row_b=$RANDOM          # Choose random row.
+    let "row_b %= $ROWS"
+  done
+
+
+  num_b=0
+  r0=${Rows[row_b]}
+
+  if [ "$r0" -eq 1 ]
+  then
+    num_b=1
+  else
+    let "num_b = $r0 - 1"
+         #  Leave only a single peg in the row.
+  fi     #  Not a very strong strategy,
+         #+ but probably a bit better than totally random.
+
+  let "Rows[row_b] -= $num_b"
+  echo -n "Bot:  "
+  echo "Removing from row $row_b ... "
+
+  if [ "$num_b" -eq 1 ]
+  then
+    peg_msg=peg
+  else
+    peg_msg=pegs
+  fi
+
+  echo "      $num_b $peg_msg."
+
+  display
+  tally_up
+
+  if [ ${Rows[0]} -eq 1 ]
+  then
+   echo "      Bot wins!"
+   tput sgr0   # Restore display.
+   exit $WON
+  fi
+
+}
+
+
+# ================================================== #
+instructions     # If human player needs them . . .
+tput bold        # Bold characters for easier viewing.
+display          # Show game board.
+
+while [ true ]   # Main loop.
+do               # Alternate human and bot turns.
+  player_move
+  bot_move
+done
+# ================================================== #
+
+# Exercise:
+# --------
+# Improve the bot's strategy.
+# There is, in fact, a Nim strategy that can force a win.
+# See the Wikipedia article on Nim:  http://en.wikipedia.org/wiki/Nim
+# Recode the bot to use this strategy (rather difficult).
+
+#  Curiosities:
+#  -----------
+#  Nim played a prominent role in Alain Resnais' 1961 New Wave film,
+#+ Last Year at Marienbad.
+#
+#  In 1978, Leo Christopherson wrote an animated version of Nim,
+#+ Android Nim, for the TRS-80 Model I.
+}
+
+◊anchored-example[#:anchor "cmd_stop1"]{A command-line stopwatch}
+
+◊example{
+#!/bin/sh
+# sw.sh
+# A command-line Stopwatch
+
+# Author: Pádraig Brady
+#    http://www.pixelbeat.org/scripts/sw
+#    (Minor reformatting by ABS Guide author.)
+#    Used in ABS Guide with script author's permission.
+# Notes:
+#    This script starts a few processes per lap, in addition to
+#    the shell loop processing, so the assumption is made that
+#    this takes an insignificant amount of time compared to
+#    the response time of humans (~.1s) (or the keyboard
+#    interrupt rate (~.05s)).
+#    '?' for splits must be entered twice if characters
+#    (erroneously) entered before it (on the same line).
+#    '?' since not generating a signal may be slightly delayed
+#    on heavily loaded systems.
+#    Lap timings on ubuntu may be slightly delayed due to:
+#    https://bugs.launchpad.net/bugs/62511
+# Changes:
+#    V1.0, 23 Aug 2005, Initial release
+#    V1.1, 26 Jul 2007, Allow both splits and laps from single invocation.
+#                       Only start timer after a key is pressed.
+#                       Indicate lap number
+#                       Cache programs at startup so there is less error
+#                       due to startup delays.
+#    V1.2, 01 Aug 2007, Work around `date` commands that don't have
+#                       nanoseconds.
+#                       Use stty to change interrupt keys to space for
+#                       laps etc.
+#                       Ignore other input as it causes problems.
+#    V1.3, 01 Aug 2007, Testing release.
+#    V1.4, 02 Aug 2007, Various tweaks to get working under ubuntu
+#                       and Mac OS X.
+#    V1.5, 27 Jun 2008, set LANG=C as got vague bug report about it.
+
+export LANG=C
+
+ulimit -c 0   # No coredumps from SIGQUIT.
+trap '' TSTP  # Ignore Ctrl-Z just in case.
+save_tty=`stty -g` && trap "stty $save_tty" EXIT  # Restore tty on exit.
+stty quit ' ' # Space for laps rather than Ctrl-\.
+stty eof  '?' # ? for splits rather than Ctrl-D.
+stty -echo    # Don't echo input.
+
+cache_progs() {
+    stty > /dev/null
+    date > /dev/null
+    grep . < /dev/null
+    (echo "import time" | python) 2> /dev/null
+    bc < /dev/null
+    sed '' < /dev/null
+    printf '1' > /dev/null
+    /usr/bin/time false 2> /dev/null
+    cat < /dev/null
+}
+cache_progs   # To minimise startup delay.
+
+date +%s.%N | grep -qF 'N' && use_python=1 # If `date` lacks nanoseconds.
+now() {
+    if [ "$use_python" ]; then
+        echo "import time; print time.time()" 2>/dev/null | python
+    else
+        printf "%.2f" `date +%s.%N`
+    fi
+}
+
+fmt_seconds() {
+    seconds=$1
+    mins=`echo $seconds/60 | bc`
+    if [ "$mins" != "0" ]; then
+        seconds=`echo "$seconds - ($mins*60)" | bc`
+        echo "$mins:$seconds"
+    else
+        echo "$seconds"
+    fi
+}
+
+total() {
+    end=`now`
+    total=`echo "$end - $start" | bc`
+    fmt_seconds $total
+}
+
+stop() {
+    [ "$lapped" ] && lap "$laptime" "display"
+    total
+    exit
+}
+
+lap() {
+    laptime=`echo "$1" | sed -n 's/.*real[^0-9.]*\(.*\)/\1/p'`
+    [ ! "$laptime" -o "$laptime" = "0.00" ] && return
+    # Signals too frequent.
+    laptotal=`echo $laptime+0$laptotal | bc`
+    if [ "$2" = "display" ]; then
+        lapcount=`echo 0$lapcount+1 | bc`
+        laptime=`fmt_seconds $laptotal`
+        echo $laptime "($lapcount)"
+        lapped="true"
+        laptotal="0"
+    fi
+}
+
+echo -n "Space for lap | ? for split | Ctrl-C to stop | Space to start...">&2
+
+while true; do
+    trap true INT QUIT  # Set signal handlers.
+    laptime=`/usr/bin/time -p 2>&1 cat >/dev/null`
+    ret=$?
+    trap '' INT QUIT    # Ignore signals within this script.
+    if [ $ret -eq 1 -o $ret -eq 2 -o $ret -eq 130 ]; then # SIGINT = stop
+        [ ! "$start" ] && { echo >&2; exit; }
+        stop
+    elif [ $ret -eq 3 -o $ret -eq 131 ]; then             # SIGQUIT = lap
+        if [ ! "$start" ]; then
+            start=`now` || exit 1
+            echo >&2
+            continue
+        fi
+        lap "$laptime" "display"
+    else                # eof = split
+        [ ! "$start" ] && continue
+        total
+        lap "$laptime"  # Update laptotal.
+    fi
+done
+
+exit $?
+}
+
+◊anchored-example[#:anchor "homework1"]{An all-purpose shell scripting
+homework assignment solution}
+
+◊example{
+#!/bin/bash
+#  homework.sh: All-purpose homework assignment solution.
+#  Author: M. Leo Cooper
+#  If you substitute your own name as author, then it is plagiarism,
+#+ possibly a lesser sin than cheating on your homework!
+#  License: Public Domain
+
+#  This script may be turned in to your instructor
+#+ in fulfillment of ALL shell scripting homework assignments.
+#  It's sparsely commented, but you, the student, can easily remedy that.
+#  The script author repudiates all responsibility!
+
+DLA=1
+P1=2
+P2=4
+P3=7
+PP1=0
+PP2=8
+MAXL=9
+E_LZY=99
+
+declare -a L
+L[0]="3 4 0 17 29 8 13 18 19 17 20 2 19 14 17 28"
+L[1]="8 29 12 14 18 19 29 4 12 15 7 0 19 8 2 0 11 11 24 29 17 4 6 17 4 19"
+L[2]="29 19 7 0 19 29 8 29 7 0 21 4 29 13 4 6 11 4 2 19 4 3"
+L[3]="19 14 29 2 14 12 15 11 4 19 4 29 19 7 8 18 29"
+L[4]="18 2 7 14 14 11 22 14 17 10 29 0 18 18 8 6 13 12 4 13 19 26"
+L[5]="15 11 4 0 18 4 29 0 2 2 4 15 19 29 12 24 29 7 20 12 1 11 4 29"
+L[6]="4 23 2 20 18 4 29 14 5 29 4 6 17 4 6 8 14 20 18 29"
+L[7]="11 0 25 8 13 4 18 18 27"
+L[8]="0 13 3 29 6 17 0 3 4 29 12 4 29 0 2 2 14 17 3 8 13 6 11 24 26"
+L[9]="19 7 0 13 10 29 24 14 20 26"
+
+declare -a \
+alph=( A B C D E F G H I J K L M N O P Q R S T U V W X Y Z . , : ' ' )
+
+
+pt_lt ()
+{
+  echo -n "${alph[$1]}"
+  echo -n -e "\a"
+  sleep $DLA
+}
+
+b_r ()
+{
+ echo -e '\E[31;48m\033[1m'
+}
+
+cr ()
+{
+ echo -e "\a"
+ sleep $DLA
+}
+
+restore ()
+{
+  echo -e '\033[0m'            # Bold off.
+  tput sgr0                    # Normal.
+}
+
+
+p_l ()
+{
+  for ltr in $1
+  do
+    pt_lt "$ltr"
+  done
+}
+
+# ----------------------
+b_r
+
+for i in $(seq 0 $MAXL)
+do
+  p_l "${L[i]}"
+  if [[ "$i" -eq "$P1" || "$i" -eq "$P2" || "$i" -eq "$P3" ]]
+  then
+    cr
+  elif [[ "$i" -eq "$PP1" || "$i" -eq "$PP2" ]]
+  then
+    cr; cr
+  fi
+done
+
+restore
+# ----------------------
+
+echo
+
+exit $E_LZY
+
+#  A typical example of an obfuscated script that is difficult
+#+ to understand, and frustrating to maintain.
+#  In your career as a sysadmin, you'll run into these critters
+#+ all too often.
+}
+
+◊anchored-example[#:anchor "knight_t1"]{The Knight's Tour}
+
+◊example{
+#!/bin/bash
+# ktour.sh
+
+# author: mendel cooper
+# reldate: 12 Jan 2009
+# license: public domain
+# (Not much sense GPLing something that's pretty much in the common
+#+ domain anyhow.)
+
+###################################################################
+#             The Knight's Tour, a classic problem.               #
+#             =====================================               #
+#  The knight must move onto every square of the chess board,     #
+#  but cannot revisit any square he has already visited.          #
+#                                                                 #
+#  And just why is Sir Knight unwelcome for a return visit?       #
+#  Could it be that he has a habit of partying into the wee hours #
+#+ of the morning?                                                #
+#  Possibly he leaves pizza crusts in the bed, empty beer bottles #
+#+ all over the floor, and clogs the plumbing. . . .              #
+#                                                                 #
+#  -------------------------------------------------------------  #
+#                                                                 #
+#  Usage: ktour.sh [start-square] [stupid]                        #
+#                                                                 #
+#  Note that start-square can be a square number                  #
+#+ in the range 0 - 63 ... or                                     #
+#  a square designator in conventional chess notation,            #
+#  such as a1, f5, h3, etc.                                       #
+#                                                                 #
+#  If start-square-number not supplied,                           #
+#+ then starts on a random square somewhere on the board.         #
+#                                                                 #
+# "stupid" as second parameter sets the stupid strategy.          #
+#                                                                 #
+#  Examples:                                                      #
+#  ktour.sh 23          starts on square #23 (h3)                 #
+#  ktour.sh g6 stupid   starts on square #46,                     #
+#                       using "stupid" (non-Warnsdorff) strategy. #
+###################################################################
+
+DEBUG=      # Set this to echo debugging info to stdout.
+SUCCESS=0
+FAIL=99
+BADMOVE=-999
+FAILURE=1
+LINELEN=21  # How many moves to display per line.
+# ---------------------------------------- #
+# Board array params
+ROWS=8   # 8 x 8 board.
+COLS=8
+let "SQUARES = $ROWS * $COLS"
+let "MAX = $SQUARES - 1"
+MIN=0
+# 64 squares on board, indexed from 0 to 63.
+
+VISITED=1
+UNVISITED=-1
+UNVSYM="##"
+# ---------------------------------------- #
+# Global variables.
+startpos=    # Starting position (square #, 0 - 63).
+currpos=     # Current position.
+movenum=     # Move number.
+CRITPOS=37   # Have to patch for f5 starting position!
+
+declare -i board
+# Use a one-dimensional array to simulate a two-dimensional one.
+# This can make life difficult and result in ugly kludges; see below.
+declare -i moves  # Offsets from current knight position.
+
+
+initialize_board ()
+{
+  local idx
+
+  for idx in {0..63}
+  do
+    board[$idx]=$UNVISITED
+  done
+}
+
+
+
+print_board ()
+{
+  local idx
+
+  echo "    _____________________________________"
+  for row in {7..0}               #  Reverse order of rows ...
+  do                              #+ so it prints in chessboard order.
+    let "rownum = $row + 1"       #  Start numbering rows at 1.
+    echo -n "$rownum  |"          #  Mark board edge with border and
+    for column in {0..7}          #+ "algebraic notation."
+    do
+      let "idx = $ROWS*$row + $column"
+      if [ ${board[idx]} -eq $UNVISITED ]
+      then
+        echo -n "$UNVSYM   "      ##
+      else                        # Mark square with move number.
+        printf "%02d " "${board[idx]}"; echo -n "  "
+      fi
+    done
+    echo -e -n "\b\b\b|"  # \b is a backspace.
+    echo                  # -e enables echoing escaped chars.
+  done
+
+  echo "    -------------------------------------"
+  echo "     a    b    c    d    e    f    g    h"
+}
+
+
+
+failure()
+{ # Whine, then bail out.
+  echo
+  print_board
+  echo
+  echo    "   Waah!!! Ran out of squares to move to!"
+  echo -n "   Knight's Tour attempt ended"
+  echo    " on $(to_algebraic $currpos) [square #$currpos]"
+  echo    "   after just $movenum moves!"
+  echo
+  exit $FAIL
+}
+
+
+
+xlat_coords ()   #  Translate x/y coordinates to board position
+{                #+ (board-array element #).
+  #  For user input of starting board position as x/y coords.
+  #  This function not used in initial release of ktour.sh.
+  #  May be used in an updated version, for compatibility with
+  #+ standard implementation of the Knight's Tour in C, Python, etc.
+  if [ -z "$1" -o -z "$2" ]
+  then
+    return $FAIL
+  fi
+
+  local xc=$1
+  local yc=$2
+
+  let "board_index = $xc * $ROWS + yc"
+
+  if [ $board_index -lt $MIN -o $board_index -gt $MAX ]
+  then
+    return $FAIL    # Strayed off the board!
+  else
+    return $board_index
+  fi
+}
+
+
+
+to_algebraic ()   #  Translate board position (board-array element #)
+{                 #+ to standard algebraic notation used by chess players.
+  if [ -z "$1" ]
+  then
+    return $FAIL
+  fi
+
+  local element_no=$1   # Numerical board position.
+  local col_arr=( a b c d e f g h )
+  local row_arr=( 1 2 3 4 5 6 7 8 )
+
+  let "row_no = $element_no / $ROWS"
+  let "col_no = $element_no % $ROWS"
+  t1=${col_arr[col_no]}; t2=${row_arr[row_no]}
+  local apos=$t1$t2   # Concatenate.
+  echo $apos
+}
+
+
+
+from_algebraic ()   #  Translate standard algebraic chess notation
+{                   #+ to numerical board position (board-array element #).
+                    #  Or recognize numerical input & return it unchanged.
+  if [ -z "$1" ]
+  then
+    return $FAIL
+  fi   # If no command-line arg, then will default to random start pos.
+
+  local ix
+  local ix_count=0
+  local b_index     # Board index [0-63]
+  local alpos="$1"
+
+  arow=${alpos:0:1} # position = 0, length = 1
+  acol=${alpos:1:1}
+
+  if [[ $arow =~ [[:digit:]] ]]   #  Numerical input?
+  then       #  POSIX char class
+    if [[ $acol =~ [[:alpha:]] ]] # Number followed by a letter? Illegal!
+      then return $FAIL
+    else if [ $alpos -gt $MAX ]   # Off board?
+      then return $FAIL
+    else return $alpos            #  Return digit(s) unchanged . . .
+      fi                          #+ if within range.
+    fi
+  fi
+
+  if [[ $acol -eq $MIN || $acol -gt $ROWS ]]
+  then        # Outside of range 1 - 8?
+    return $FAIL
+  fi
+
+  for ix in a b c d e f g h
+  do  # Convert column letter to column number.
+   if [ "$arow" = "$ix" ]
+   then
+     break
+   fi
+  ((ix_count++))    # Find index count.
+  done
+
+  ((acol--))        # Decrementing converts to zero-based array.
+  let "b_index = $ix_count + $acol * $ROWS"
+
+  if [ $b_index -gt $MAX ]   # Off board?
+  then
+    return $FAIL
+  fi
+    
+  return $b_index
+
+}
+
+
+generate_moves ()   #  Calculate all valid knight moves,
+{                   #+ relative to current position ($1),
+                    #+ and store in ${moves} array.
+  local kt_hop=1    #  One square  :: short leg of knight move.
+  local kt_skip=2   #  Two squares :: long leg  of knight move.
+  local valmov=0    #  Valid moves.
+  local row_pos; let "row_pos = $1 % $COLS"
+
+
+  let "move1 = -$kt_skip + $ROWS"           # 2 sideways to-the-left,  1 up
+    if [[ `expr $row_pos - $kt_skip` -lt $MIN ]]   # An ugly, ugly kludge!
+    then                                           # Can't move off board.
+      move1=$BADMOVE                               # Not even temporarily.
+    else
+      ((valmov++))
+    fi
+  let "move2 = -$kt_hop + $kt_skip * $ROWS" # 1 sideways to-the-left,  2 up
+    if [[ `expr $row_pos - $kt_hop` -lt $MIN ]]    # Kludge continued ...
+    then
+      move2=$BADMOVE
+    else
+      ((valmov++))
+    fi
+  let "move3 =  $kt_hop + $kt_skip * $ROWS" # 1 sideways to-the-right, 2 up
+    if [[ `expr $row_pos + $kt_hop` -ge $COLS ]]
+    then
+      move3=$BADMOVE
+    else
+      ((valmov++))
+    fi
+  let "move4 =  $kt_skip + $ROWS"           # 2 sideways to-the-right, 1 up
+    if [[ `expr $row_pos + $kt_skip` -ge $COLS ]]
+    then
+      move4=$BADMOVE
+    else
+      ((valmov++))
+    fi
+  let "move5 =  $kt_skip - $ROWS"           # 2 sideways to-the-right, 1 dn
+    if [[ `expr $row_pos + $kt_skip` -ge $COLS ]]
+    then
+      move5=$BADMOVE
+    else
+      ((valmov++))
+    fi
+  let "move6 =  $kt_hop - $kt_skip * $ROWS" # 1 sideways to-the-right, 2 dn
+    if [[ `expr $row_pos + $kt_hop` -ge $COLS ]]
+    then
+      move6=$BADMOVE
+    else
+      ((valmov++))
+    fi
+  let "move7 = -$kt_hop - $kt_skip * $ROWS" # 1 sideways to-the-left,  2 dn
+    if [[ `expr $row_pos - $kt_hop` -lt $MIN ]]
+    then
+      move7=$BADMOVE
+    else
+      ((valmov++))
+    fi
+  let "move8 = -$kt_skip - $ROWS"           # 2 sideways to-the-left,  1 dn
+    if [[ `expr $row_pos - $kt_skip` -lt $MIN ]]
+    then
+      move8=$BADMOVE
+    else
+      ((valmov++))
+    fi   # There must be a better way to do this.
+
+  local m=( $valmov $move1 $move2 $move3 $move4 $move5 $move6 $move7 $move8 )
+  # ${moves[0]} = number of valid moves.
+  # ${moves[1]} ... ${moves[8]} = possible moves.
+  echo "${m[*]}"    # Elements of array to stdout for capture in a var.
+
+}
+
+
+
+is_on_board ()  # Is position actually on the board?
+{
+  if [[ "$1" -lt "$MIN" || "$1" -gt "$MAX" ]]
+  then
+    return $FAILURE
+  else
+    return $SUCCESS
+  fi
+}
+
+
+
+do_move ()      # Move the knight!
+{
+  local valid_moves=0
+  local aapos
+  currposl="$1"
+  lmin=$ROWS
+  iex=0
+  squarel=
+  mpm=
+  mov=
+  declare -a p_moves
+
+  ########################## DECIDE-MOVE #############################
+  if [ $startpos -ne $CRITPOS ]
+  then   # CRITPOS = square #37
+    decide_move
+  else                     # Needs a special patch for startpos=37 !!!
+    decide_move_patched    # Why this particular move and no other ???
+  fi
+  ####################################################################
+
+  (( ++movenum ))          # Increment move count.
+  let "square = $currposl + ${moves[iex]}"
+
+  ##################    DEBUG    ###############
+  if [ "$DEBUG" ]
+    then debug   # Echo debugging information.
+  fi
+  ##############################################
+
+  if [[ "$square" -gt $MAX || "$square" -lt $MIN ||
+        ${board[square]} -ne $UNVISITED ]]
+  then
+    (( --movenum ))              #  Decrement move count,
+    echo "RAN OUT OF SQUARES!!!" #+ since previous one was invalid.
+    return $FAIL
+  fi
+
+  board[square]=$movenum
+  currpos=$square       # Update current position.
+  ((valid_moves++));    # moves[0]=$valid_moves
+  aapos=$(to_algebraic $square)
+  echo -n "$aapos "
+  test $(( $Moves % $LINELEN )) -eq 0 && echo
+  # Print LINELEN=21 moves per line. A valid tour shows 3 complete lines.
+  return $valid_moves   # Found a square to move to!
+}
+
+
+
+do_move_stupid()   #  Dingbat algorithm,
+{                  #+ courtesy of script author, *not* Warnsdorff.
+  local valid_moves=0
+  local movloc
+  local squareloc
+  local aapos
+  local cposloc="$1"
+
+  for movloc in {1..8}
+  do       # Move to first-found unvisited square.
+    let "squareloc = $cposloc + ${moves[movloc]}"
+    is_on_board $squareloc
+    if [ $? -eq $SUCCESS ] && [ ${board[squareloc]} -eq $UNVISITED ]
+    then   # Add conditions to above if-test to improve algorithm.
+      (( ++movenum ))
+      board[squareloc]=$movenum
+      currpos=$squareloc     # Update current position.
+      ((valid_moves++));     # moves[0]=$valid_moves
+      aapos=$(to_algebraic $squareloc)
+      echo -n "$aapos "
+      test $(( $Moves % $LINELEN )) -eq 0 && echo   # Print 21 moves/line.
+      return $valid_moves    # Found a square to move to!
+    fi
+  done
+
+  return $FAIL
+  #  If no square found in all 8 loop iterations,
+  #+ then Knight's Tour attempt ends in failure.
+
+  #  Dingbat algorithm will typically fail after about 30 - 40 moves,
+  #+ but executes _much_ faster than Warnsdorff's in do_move() function.
+}
+
+
+
+decide_move ()         #  Which move will we make?
+{                      #  But, fails on startpos=37 !!!
+  for mov in {1..8}
+  do
+    let "squarel = $currposl + ${moves[mov]}"
+    is_on_board $squarel
+    if [[ $? -eq $SUCCESS && ${board[squarel]} -eq $UNVISITED ]]
+    then   #  Find accessible square with least possible future moves.
+           #  This is Warnsdorff's algorithm.
+           #  What happens is that the knight wanders toward the outer edge
+           #+ of the board, then pretty much spirals inward.
+           #  Given two or more possible moves with same value of
+           #+ least-possible-future-moves, this implementation chooses
+           #+ the _first_ of those moves.
+           #  This means that there is not necessarily a unique solution
+           #+ for any given starting position.
+
+      possible_moves $squarel
+      mpm=$?
+      p_moves[mov]=$mpm
+      
+      if [ $mpm -lt $lmin ]  # If less than previous minimum ...
+      then #     ^^
+        lmin=$mpm            # Update minimum.
+        iex=$mov             # Save index.
+      fi
+
+    fi
+  done
+}
+
+
+
+decide_move_patched ()         #  Decide which move to make,
+{  #        ^^^^^^^            #+ but only if startpos=37 !!!
+  for mov in {1..8}
+  do
+    let "squarel = $currposl + ${moves[mov]}"
+    is_on_board $squarel
+    if [[ $? -eq $SUCCESS && ${board[squarel]} -eq $UNVISITED ]]
+    then
+      possible_moves $squarel
+      mpm=$?
+      p_moves[mov]=$mpm
+      
+      if [ $mpm -le $lmin ]  # If less-than-or equal to prev. minimum!
+      then #     ^^
+        lmin=$mpm
+        iex=$mov
+      fi
+
+    fi
+  done                       # There has to be a better way to do this.
+}
+
+
+
+possible_moves ()            #  Calculate number of possible moves,
+{                            #+ given the current position.
+
+  if [ -z "$1" ]
+  then
+    return $FAIL
+  fi
+
+  local curr_pos=$1
+  local valid_movl=0
+  local icx=0
+  local movl
+  local sq
+  declare -a movesloc
+
+  movesloc=( $(generate_moves $curr_pos) )
+
+  for movl in {1..8}
+  do
+    let "sq = $curr_pos + ${movesloc[movl]}"
+    is_on_board $sq
+    if [ $? -eq $SUCCESS ] && [ ${board[sq]} -eq $UNVISITED ]
+    then
+      ((valid_movl++));
+    fi
+  done
+
+  return $valid_movl         # Found a square to move to!
+}
+
+
+strategy ()
+{
+  echo
+
+  if [ -n "$STUPID" ]
+  then
+    for Moves in {1..63}
+    do
+      cposl=$1
+      moves=( $(generate_moves $currpos) )
+      do_move_stupid "$currpos"
+      if [ $? -eq $FAIL ]
+      then
+        failure
+      fi
+      done
+  fi
+
+  #  Don't need an "else" clause here,
+  #+ because Stupid Strategy will always fail and exit!
+  for Moves in {1..63}
+  do
+    cposl=$1
+    moves=( $(generate_moves $currpos) )
+    do_move "$currpos"
+    if [ $? -eq $FAIL ]
+    then
+      failure
+    fi
+
+  done
+        #  Could have condensed above two do-loops into a single one,
+  echo  #+ but this would have slowed execution.
+
+  print_board
+  echo
+  echo "Knight's Tour ends on $(to_algebraic $currpos) [square #$currpos]."
+  return $SUCCESS
+}
+
+debug ()
+{       # Enable this by setting DEBUG=1 near beginning of script.
+  local n
+
+  echo "================================="
+  echo "  At move number  $movenum:"
+  echo " *** possible moves = $mpm ***"
+# echo "### square = $square ###"
+  echo "lmin = $lmin"
+  echo "${moves[@]}"
+
+  for n in {1..8}
+  do
+    echo -n "($n):${p_moves[n]} "
+  done
+
+  echo
+  echo "iex = $iex :: moves[iex] = ${moves[iex]}"
+  echo "square = $square"
+  echo "================================="
+  echo
+} # Gives pretty complete status after ea. move.
+
+
+
+# =============================================================== #
+# int main () {
+from_algebraic "$1"
+startpos=$?
+if [ "$startpos" -eq "$FAIL" ]          # Okay even if no $1.
+then   #         ^^^^^^^^^^^              Okay even if input -lt 0.
+  echo "No starting square specified (or illegal input)."
+  let "startpos = $RANDOM % $SQUARES"   # 0 - 63 permissable range.
+fi
+
+
+if [ "$2" = "stupid" ]
+then
+  STUPID=1
+  echo -n "     ### Stupid Strategy ###"
+else
+  STUPID=''
+  echo -n "  *** Warnsdorff's Algorithm ***"
+fi
+
+
+initialize_board
+
+movenum=0
+board[startpos]=$movenum   # Mark each board square with move number.
+currpos=$startpos
+algpos=$(to_algebraic $startpos)
+
+echo; echo "Starting from $algpos [square #$startpos] ..."; echo
+echo -n "Moves:"
+
+strategy "$currpos"
+
+echo
+
+exit 0   # return 0;
+
+# }      # End of main() pseudo-function.
+# =============================================================== #
+
+
+# Exercises:
+# ---------
+#
+# 1) Extend this example to a 10 x 10 board or larger.
+# 2) Improve the "stupid strategy" by modifying the
+#    do_move_stupid function.
+#    Hint: Prevent straying into corner squares in early moves
+#          (the exact opposite of Warnsdorff's algorithm!).
+# 3) This script could stand considerable improvement and
+#    streamlining, especially in the poorly-written
+#    generate_moves() function
+#    and in the DECIDE-MOVE patch in the do_move() function.
+#    Must figure out why standard algorithm fails for startpos=37 ...
+#+   but _not_ on any other, including symmetrical startpos=26.
+#    Possibly, when calculating possible moves, counts the move back
+#+   to the originating square. If so, it might be a relatively easy fix.
+}
+
+◊anchored-example[#:anchor "magic_sq1"]{Magic Squares}
+
+◊example{
+#!/bin/bash
+# msquare.sh
+# Magic Square generator (odd-order squares only!)
+
+# Author: mendel cooper
+# reldate: 19 Jan. 2009
+# License: Public Domain
+# A C-program by the very talented Kwon Young Shin inspired this script.
+#     http://user.chollian.net/~brainstm/MagicSquare.htm
+
+# Definition: A "magic square" is a two-dimensional array
+#             of integers in which all the rows, columns,
+#             and *long* diagonals add up to the same number.
+#             Being "square," the array has the same number
+#             of rows and columns. That number is the "order."
+# An example of a magic square of order 3 is:
+#   8  1  6   
+#   3  5  7   
+#   4  9  2   
+# All the rows, columns, and the two long diagonals add up to 15.
+
+
+# Globals
+EVEN=2
+MAXSIZE=31   # 31 rows x 31 cols.
+E_usage=90   # Invocation error.
+dimension=
+declare -i square
+
+usage_message ()
+{
+  echo "Usage: $0 order"
+  echo "   ... where \"order\" (square size) is an ODD integer"
+  echo "       in the range 3 - 31."
+  #  Actually works for squares up to order 159,
+  #+ but large squares will not display pretty-printed in a term window.
+  #  Try increasing MAXSIZE, above.
+  exit $E_usage
+}
+
+
+calculate ()       # Here's where the actual work gets done.
+{
+  local row col index dimadj j k cell_val=1
+  dimension=$1
+
+  let "dimadj = $dimension * 3"; let "dimadj /= 2"   # x 1.5, then truncate.
+
+  for ((j=0; j < dimension; j++))
+  do
+    for ((k=0; k < dimension; k++))
+    do  # Calculate indices, then convert to 1-dim. array index.
+        # Bash doesn't support multidimensional arrays. Pity.
+      let "col = $k - $j + $dimadj"; let "col %= $dimension"
+      let "row = $j * 2 - $k + $dimension"; let "row %= $dimension"
+      let "index = $row*($dimension) + $col"
+      square[$index]=cell_val; ((cell_val++))
+    done
+  done
+}     # Plain math, visualization not required.
+
+
+print_square ()               # Output square, one row at a time.
+{
+  local row col idx d1
+  let "d1 = $dimension - 1"   # Adjust for zero-indexed array.
+ 
+  for row in $(seq 0 $d1)
+  do
+
+    for col in $(seq 0 $d1)
+    do
+      let "idx = $row * $dimension + $col"
+      printf "%3d " "${square[idx]}"; echo -n "  "
+    done   # Displays up to 13th order neatly in 80-column term window.
+
+    echo   # Newline after each row.
+  done
+}
+
+
+#################################################
+if [[ -z "$1" ]] || [[ "$1" -gt $MAXSIZE ]]
+then
+  usage_message
+fi
+
+let "test_even = $1 % $EVEN"
+if [ $test_even -eq 0 ]
+then           # Can't handle even-order squares.
+  usage_message
+fi
+
+calculate $1
+print_square   # echo "${square[@]}"   # DEBUG
+
+exit $?
+#################################################
+
+
+# Exercises:
+# ---------
+# 1) Add a function to calculate the sum of each row, column,
+#    and *long* diagonal. The sums must match.
+#    This is the "magic constant" of that particular order square.
+# 2) Have the print_square function auto-calculate how much space
+#    to allot between square elements for optimized display.
+#    This might require parameterizing the "printf" line.
+# 3) Add appropriate functions for generating magic squares
+#    with an *even* number of rows/columns.
+#    This is non-trivial(!).
+#    See the URL for Kwon Young Shin, above, for help.
+}
+
+◊anchored-example[#:anchor "puzzle15"]{Fifteen Puzzle}
+
+◊example{
+#!/bin/bash
+# fifteen.sh
+
+# Classic "Fifteen Puzzle"
+# Author: Antonio Macchi
+# Lightly edited and commented by ABS Guide author.
+# Used in ABS Guide with permission. (Thanks!)
+
+#  The invention of the Fifteen Puzzle is attributed to either
+#+ Sam Loyd or Noyes Palmer Chapman.
+#  The puzzle was wildly popular in the late 19th-century.
+
+#  Object: Rearrange the numbers so they read in order,
+#+ from 1 - 15:   ________________
+#                |  1   2   3   4 |
+#                |  5   6   7   8 |
+#                |  9  10  11  12 |
+#                | 13  14  15     |
+#                 ----------------
+
+
+#######################
+# Constants           #
+  SQUARES=16          #
+  FAIL=70             #
+  E_PREMATURE_EXIT=80 #
+#######################
+
+
+########
+# Data #
+########
+
+Puzzle=( 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 " " )
+
+
+#############
+# Functions #
+#############
+
+function swap
+{
+  local tmp
+
+  tmp=${Puzzle[$1]}
+  Puzzle[$1]=${Puzzle[$2]}
+  Puzzle[$2]=$tmp
+}
+
+
+function Jumble
+{ # Scramble the pieces at beginning of round.
+  local i pos1 pos2
+
+  for i in {1..100}
+  do
+    pos1=$(( $RANDOM % $SQUARES))
+    pos2=$(( $RANDOM % $SQUARES ))
+    swap $pos1 $pos2
+  done
+}
+
+
+function PrintPuzzle
+{
+  local i1 i2 puzpos
+  puzpos=0
+
+  clear
+  echo "Enter  quit  to exit."; echo   # Better that than Ctl-C.
+
+  echo ",----.----.----.----."   # Top border.
+  for i1 in {1..4}
+  do
+    for i2 in {1..4} 
+    do
+      printf "| %2s " "${Puzzle[$puzpos]}"
+      (( puzpos++ ))
+    done
+    echo "|"                     # Right-side border.
+    test $i1 = 4 || echo "+----+----+----+----+"
+  done
+  echo "'----'----'----'----'"   # Bottom border.
+}
+
+
+function GetNum
+{ # Test for valid input.
+  local puznum garbage
+
+  while true
+  do 
+	  echo "Moves: $moves" # Also counts invalid moves.
+    read -p "Number to move: " puznum garbage
+      if [ "$puznum" = "quit" ]; then echo; exit $E_PREMATURE_EXIT; fi
+    test -z "$puznum" -o -n "${puznum//[0-9]/}" && continue
+    test $puznum -gt 0 -a $puznum -lt $SQUARES && break
+  done
+  return $puznum
+}
+
+
+function GetPosFromNum
+{ # $1 = puzzle-number
+  local puzpos
+
+  for puzpos in {0..15}
+  do
+    test "${Puzzle[$puzpos]}" = "$1" && break
+  done
+  return $puzpos
+}
+
+
+function Move
+{ # $1=Puzzle-pos
+  test $1 -gt 3 && test "${Puzzle[$(( $1 - 4 ))]}" = " "\
+       && swap $1 $(( $1 - 4 )) && return 0
+  test $(( $1%4 )) -ne 3 && test "${Puzzle[$(( $1 + 1 ))]}" = " "\
+       && swap $1 $(( $1 + 1 )) && return 0
+  test $1 -lt 12 && test "${Puzzle[$(( $1 + 4 ))]}" = " "\
+       && swap $1 $(( $1 + 4 )) && return 0
+  test $(( $1%4 )) -ne 0 && test "${Puzzle[$(( $1 - 1 ))]}" = " " &&\
+       swap $1 $(( $1 - 1 )) && return 0
+  return 1
+}
+
+
+function Solved
+{
+  local pos
+
+  for pos in {0..14}
+  do
+    test "${Puzzle[$pos]}" = $(( $pos + 1 )) || return $FAIL
+    # Check whether number in each square = square number.
+  done
+  return 0   # Successful solution.
+}
+
+
+################### MAIN () #######################{
+moves=0
+Jumble
+
+while true   # Loop continuously until puzzle solved.
+do
+  echo; echo
+  PrintPuzzle
+  echo
+  while true
+  do
+    GetNum
+    puznum=$?
+    GetPosFromNum $puznum
+    puzpos=$?
+    ((moves++))
+    Move $puzpos && break
+  done
+  Solved && break
+done
+
+echo;echo
+PrintPuzzle
+echo; echo "BRAVO!"; echo
+
+exit 0
+###################################################}
+
+#  Exercise:
+#  --------
+#  Rewrite the script to display the letters A - O,
+#+ rather than the numbers 1 - 15.
+}
+
+◊anchored-example[#:anchor "tower_ha1"]{The Towers of Hanoi, graphic
+version}
+
+◊example{
+#! /bin/bash
+# The Towers Of Hanoi
+# Original script (hanoi.bash) copyright (C) 2000 Amit Singh.
+# All Rights Reserved.
+# http://hanoi.kernelthread.com
+
+#  hanoi2.bash
+#  Version 2.00: modded for ASCII-graphic display.
+#  Version 2.01: fixed no command-line param bug.
+#  Uses code contributed by Antonio Macchi,
+#+ with heavy editing by ABS Guide author.
+#  This variant falls under the original copyright, see above.
+#  Used in ABS Guide with Amit Singh's permission (thanks!).
+
+
+###   Variables && sanity check   ###
+
+E_NOPARAM=86
+E_BADPARAM=87            # Illegal no. of disks passed to script.
+E_NOEXIT=88
+
+DISKS=${1:-$E_NOPARAM}   # Must specify how many disks.
+Moves=0
+
+MWIDTH=7
+MARGIN=2
+# Arbitrary "magic" constants; work okay for relatively small # of disks.
+# BASEWIDTH=51   # Original code.
+let "basewidth = $MWIDTH * $DISKS + $MARGIN"       # "Base" beneath rods.
+# Above "algorithm" could likely stand improvement.
+
+###   Display variables   ###
+let "disks1 = $DISKS - 1"
+let "spaces1 = $DISKS" 
+let "spaces2 = 2 * $DISKS" 
+
+let "lastmove_t = $DISKS - 1"                      # Final move?
+
+
+declare -a Rod1 Rod2 Rod3
+
+###   #########################   ###
+
+
+function repeat  {  # $1=char $2=number of repetitions
+  local n           # Repeat-print a character.
+  
+  for (( n=0; n<$2; n++ )); do
+    echo -n "$1"
+  done
+}
+
+function FromRod  {
+  local rod summit weight sequence
+
+  while true; do
+    rod=$1
+    test ${rod/[^123]/} || continue
+
+    sequence=$(echo $(seq 0 $disks1 | tac))
+    for summit in $sequence; do
+      eval weight=\${Rod${rod}[$summit]}
+      test $weight -ne 0 &&
+           { echo "$rod $summit $weight"; return; }
+    done
+  done
+}
+
+
+function ToRod  { # $1=previous (FromRod) weight
+  local rod firstfree weight sequence
+  
+  while true; do
+    rod=$2
+    test ${rod/[^123]} || continue
+
+    sequence=$(echo $(seq 0 $disks1 | tac))
+    for firstfree in $sequence; do
+      eval weight=\${Rod${rod}[$firstfree]}
+      test $weight -gt 0 && { (( firstfree++ )); break; }
+    done
+    test $weight -gt $1 -o $firstfree = 0 &&
+         { echo "$rod $firstfree"; return; }
+  done
+}
+
+
+function PrintRods  {
+  local disk rod empty fill sp sequence
+
+
+  repeat " " $spaces1
+  echo -n "|"
+  repeat " " $spaces2
+  echo -n "|"
+  repeat " " $spaces2
+  echo "|"
+
+  sequence=$(echo $(seq 0 $disks1 | tac))
+  for disk in $sequence; do
+    for rod in {1..3}; do
+      eval empty=$(( $DISKS - (Rod${rod}[$disk] / 2) ))
+      eval fill=\${Rod${rod}[$disk]}
+      repeat " " $empty
+      test $fill -gt 0 && repeat "*" $fill || echo -n "|"
+      repeat " " $empty
+    done
+    echo
+  done
+  repeat "=" $basewidth   # Print "base" beneath rods.
+  echo
+}
+
+
+display ()
+{
+  echo
+  PrintRods
+
+  # Get rod-number, summit and weight
+  first=( `FromRod $1` )
+  eval Rod${first[0]}[${first[1]}]=0
+
+  # Get rod-number and first-free position
+  second=( `ToRod ${first[2]} $2` )
+  eval Rod${second[0]}[${second[1]}]=${first[2]}
+
+
+echo; echo; echo
+if [ "${Rod3[lastmove_t]}" = 1 ]
+then   # Last move? If yes, then display final position.
+    echo "+  Final Position: $Moves moves"; echo
+    PrintRods
+  fi
+}
+
+
+# From here down, almost the same as original (hanoi.bash) script.
+
+dohanoi() {   # Recursive function.
+    case $1 in
+    0)
+        ;;
+    *)
+        dohanoi "$(($1-1))" $2 $4 $3
+	if [ "$Moves" -ne 0 ]
+        then
+	  echo "+  Position after move $Moves"
+        fi
+        ((Moves++))
+        echo -n "   Next move will be:  "
+        echo $2 "-->" $3
+          display $2 $3
+        dohanoi "$(($1-1))" $4 $3 $2
+        ;;
+    esac
+}
+
+
+setup_arrays ()
+{
+  local dim n elem
+
+  let "dim1 = $1 - 1"
+  elem=$dim1
+
+  for n in $(seq 0 $dim1)
+  do
+   let "Rod1[$elem] = 2 * $n + 1"
+   Rod2[$n]=0
+   Rod3[$n]=0
+   ((elem--))
+  done
+}
+
+
+###   Main   ###
+
+setup_arrays $DISKS
+echo; echo "+  Start Position"
+
+case $# in
+    1) case $(($1>0)) in     # Must have at least one disk.
+       1)
+           disks=$1
+           dohanoi $1 1 3 2
+#          Total moves = 2^n - 1, where n = number of disks.
+	   echo
+           exit 0;
+           ;;
+       *)
+           echo "$0: Illegal value for number of disks";
+           exit $E_BADPARAM;
+           ;;
+       esac
+    ;;
+    *)
+       clear
+       echo "usage: $0 N"
+       echo "       Where \"N\" is the number of disks."
+       exit $E_NOPARAM;
+       ;;
+esac
+
+exit $E_NOEXIT   # Shouldn't exit here.
+
+# Note:
+# Redirect script output to a file, otherwise it scrolls off display.
+}
+
+◊anchored-example[#:anchor "tower_ha2"]{The Towers of Hanoi, alternate
+graphic version}
+
+◊example{
+#! /bin/bash
+# The Towers Of Hanoi
+# Original script (hanoi.bash) copyright (C) 2000 Amit Singh.
+# All Rights Reserved.
+# http://hanoi.kernelthread.com
+
+#  hanoi2.bash
+#  Version 2: modded for ASCII-graphic display.
+#  Uses code contributed by Antonio Macchi,
+#+ with heavy editing by ABS Guide author.
+#  This variant also falls under the original copyright, see above.
+#  Used in ABS Guide with Amit Singh's permission (thanks!).
+
+
+#   Variables   #
+E_NOPARAM=86
+E_BADPARAM=87   # Illegal no. of disks passed to script.
+E_NOEXIT=88
+DELAY=2         # Interval, in seconds, between moves. Change, if desired.
+DISKS=$1
+Moves=0
+
+MWIDTH=7
+MARGIN=2
+# Arbitrary "magic" constants, work okay for relatively small # of disks.
+# BASEWIDTH=51   # Original code.
+let "basewidth = $MWIDTH * $DISKS + $MARGIN" # "Base" beneath rods.
+# Above "algorithm" could likely stand improvement.
+
+# Display variables.
+let "disks1 = $DISKS - 1"
+let "spaces1 = $DISKS" 
+let "spaces2 = 2 * $DISKS" 
+
+let "lastmove_t = $DISKS - 1"                # Final move?
+
+
+declare -a Rod1 Rod2 Rod3
+
+#################
+
+
+function repeat  {  # $1=char $2=number of repetitions
+  local n           # Repeat-print a character.
+  
+  for (( n=0; n<$2; n++ )); do
+    echo -n "$1"
+  done
+}
+
+function FromRod  {
+  local rod summit weight sequence
+
+  while true; do
+    rod=$1
+    test ${rod/[^123]/} || continue
+
+    sequence=$(echo $(seq 0 $disks1 | tac))
+    for summit in $sequence; do
+      eval weight=\${Rod${rod}[$summit]}
+      test $weight -ne 0 &&
+           { echo "$rod $summit $weight"; return; }
+    done
+  done
+}
+
+
+function ToRod  { # $1=previous (FromRod) weight
+  local rod firstfree weight sequence
+  
+  while true; do
+    rod=$2
+    test ${rod/[^123]} || continue
+
+    sequence=$(echo $(seq 0 $disks1 | tac))
+    for firstfree in $sequence; do
+      eval weight=\${Rod${rod}[$firstfree]}
+      test $weight -gt 0 && { (( firstfree++ )); break; }
+    done
+    test $weight -gt $1 -o $firstfree = 0 &&
+         { echo "$rod $firstfree"; return; }
+  done
+}
+
+
+function PrintRods  {
+  local disk rod empty fill sp sequence
+
+  tput cup 5 0
+
+  repeat " " $spaces1
+  echo -n "|"
+  repeat " " $spaces2
+  echo -n "|"
+  repeat " " $spaces2
+  echo "|"
+
+  sequence=$(echo $(seq 0 $disks1 | tac))
+  for disk in $sequence; do
+    for rod in {1..3}; do
+      eval empty=$(( $DISKS - (Rod${rod}[$disk] / 2) ))
+      eval fill=\${Rod${rod}[$disk]}
+      repeat " " $empty
+      test $fill -gt 0 && repeat "*" $fill || echo -n "|"
+      repeat " " $empty
+    done
+    echo
+  done
+  repeat "=" $basewidth   # Print "base" beneath rods.
+  echo
+}
+
+
+display ()
+{
+  echo
+  PrintRods
+
+  # Get rod-number, summit and weight
+  first=( `FromRod $1` )
+  eval Rod${first[0]}[${first[1]}]=0
+
+  # Get rod-number and first-free position
+  second=( `ToRod ${first[2]} $2` )
+  eval Rod${second[0]}[${second[1]}]=${first[2]}
+
+
+  if [ "${Rod3[lastmove_t]}" = 1 ]
+  then   # Last move? If yes, then display final position.
+    tput cup 0 0
+    echo; echo "+  Final Position: $Moves moves"
+    PrintRods
+  fi
+
+  sleep $DELAY
+}
+
+# From here down, almost the same as original (hanoi.bash) script.
+
+dohanoi() {   # Recursive function.
+    case $1 in
+    0)
+        ;;
+    *)
+        dohanoi "$(($1-1))" $2 $4 $3
+	if [ "$Moves" -ne 0 ]
+        then
+	  tput cup 0 0
+	  echo; echo "+  Position after move $Moves"
+        fi
+        ((Moves++))
+        echo -n "   Next move will be:  "
+        echo $2 "-->" $3
+        display $2 $3
+        dohanoi "$(($1-1))" $4 $3 $2
+        ;;
+    esac
+}
+
+setup_arrays ()
+{
+  local dim n elem
+
+  let "dim1 = $1 - 1"
+  elem=$dim1
+
+  for n in $(seq 0 $dim1)
+  do
+   let "Rod1[$elem] = 2 * $n + 1"
+   Rod2[$n]=0
+   Rod3[$n]=0
+   ((elem--))
+  done
+}
+
+
+###   Main   ###
+
+trap "tput cnorm" 0
+tput civis
+clear
+
+setup_arrays $DISKS
+
+tput cup 0 0
+echo; echo "+  Start Position"
+
+case $# in
+    1) case $(($1>0)) in     # Must have at least one disk.
+       1)
+           disks=$1
+           dohanoi $1 1 3 2
+#          Total moves = 2^n - 1, where n = # of disks.
+	   echo
+           exit 0;
+           ;;
+       *)
+           echo "$0: Illegal value for number of disks";
+           exit $E_BADPARAM;
+           ;;
+       esac
+    ;;
+    *)
+       echo "usage: $0 N"
+       echo "       Where \"N\" is the number of disks."
+       exit $E_NOPARAM;
+       ;;
+esac
+
+exit $E_NOEXIT   # Shouldn't exit here.
+
+#  Exercise:
+#  --------
+#  There is a minor bug in the script that causes the display of
+#+ the next-to-last move to be skipped.
+#+ Fix this.
+}
+
+◊anchored-example[#:anchor "get_opt1"]{An alternate version of the
+getopt-simple.sh script}
+
+◊example{
+#!/bin/bash
+# UseGetOpt.sh
+
+# Author: Peggy Russell <prusselltechgroup@gmail.com>
+
+UseGetOpt () {
+  declare inputOptions
+  declare -r E_OPTERR=85
+  declare -r ScriptName=${0##*/}
+  declare -r ShortOpts="adf:hlt"
+  declare -r LongOpts="aoption,debug,file:,help,log,test"
+
+DoSomething () {
+    echo "The function name is '${FUNCNAME}'"
+    #  Recall that $FUNCNAME is an internal variable
+    #+ holding the name of the function it is in.
+  }
+
+  inputOptions=$(getopt -o "${ShortOpts}" --long \
+              "${LongOpts}" --name "${ScriptName}" -- "${@}")
+
+  if [[ ($? -ne 0) || ($# -eq 0) ]]; then
+    echo "Usage: ${ScriptName} [-dhlt] {OPTION...}"
+    exit $E_OPTERR
+  fi
+
+  eval set -- "${inputOptions}"
+
+  # Only for educational purposes. Can be removed.
+  #-----------------------------------------------
+  echo "++ Test: Number of arguments: [$#]"
+  echo '++ Test: Looping through "$@"'
+  for a in "$@"; do
+    echo "  ++ [$a]"
+  done
+  #-----------------------------------------------
+
+  while true; do
+    case "${1}" in
+      --aoption | -a)  # Argument found.
+        echo "Option [$1]"
+        ;;
+
+      --debug | -d)    # Enable informational messages.
+        echo "Option [$1] Debugging enabled"
+        ;;
+
+      --file | -f)     #  Check for optional argument.
+        case "$2" in   #+ Double colon is optional argument.
+          "")          #  Not there.
+              echo "Option [$1] Use default"
+              shift
+              ;;
+
+          *) # Got it
+             echo "Option [$1] Using input [$2]"
+             shift
+             ;;
+
+        esac
+        DoSomething
+        ;;
+
+      --log | -l) # Enable Logging.
+        echo "Option [$1] Logging enabled"
+        ;;
+
+      --test | -t) # Enable testing.
+        echo "Option [$1] Testing enabled"
+        ;;
+
+      --help | -h)
+        echo "Option [$1] Display help"
+        break
+        ;;
+
+      --)   # Done! $# is argument number for "--", $@ is "--"
+        echo "Option [$1] Dash Dash"
+        break
+        ;;
+
+       *)
+        echo "Major internal error!"
+        exit 8
+        ;;
+
+    esac
+    echo "Number of arguments: [$#]"
+    shift
+  done
+
+  shift
+  # Only for educational purposes. Can be removed.
+  #----------------------------------------------------------------------
+  echo "++ Test: Number of arguments after \"--\" is [$#] They are: [$@]"
+  echo '++ Test: Looping through "$@"'
+  for a in "$@"; do
+    echo "  ++ [$a]"
+  done
+  #----------------------------------------------------------------------
+  
+}
+
+################################### M A I N ########################
+#  If you remove "function UseGetOpt () {" and corresponding "}",
+#+ you can uncomment the "exit 0" line below, and invoke this script
+#+ with the various options from the command-line.
+#-------------------------------------------------------------------
+# exit 0
+
+echo "Test 1"
+UseGetOpt -f myfile one "two three" four
+
+echo;echo "Test 2"
+UseGetOpt -h
+
+echo;echo "Test 3 - Short Options"
+UseGetOpt -adltf myfile  anotherfile
+
+echo;echo "Test 4 - Long Options"
+UseGetOpt --aoption --debug --log --test --file myfile anotherfile
+
+exit
+}
+
+◊anchored-example[#:anchor "get_opt2"]{The version of the UseGetOpt.sh
+example used in the Tab Expansion appendix}
+
+◊example{
+#!/bin/bash
+
+#  UseGetOpt-2.sh
+#  Modified version of the script for illustrating tab-expansion
+#+ of command-line options.
+#  See the "Introduction to Tab Expansion" appendix.
+
+#  Possible options: -a -d -f -l -t -h
+#+                   --aoption, --debug --file --log --test -- help --
+
+#  Author of original script: Peggy Russell <prusselltechgroup@gmail.com>
+
+
+# UseGetOpt () {
+  declare inputOptions
+  declare -r E_OPTERR=85
+  declare -r ScriptName=${0##*/}
+  declare -r ShortOpts="adf:hlt"
+  declare -r LongOpts="aoption,debug,file:,help,log,test"
+
+DoSomething () {
+    echo "The function name is '${FUNCNAME}'"
+  }
+
+  inputOptions=$(getopt -o "${ShortOpts}" --long \
+              "${LongOpts}" --name "${ScriptName}" -- "${@}")
+
+  if [[ ($? -ne 0) || ($# -eq 0) ]]; then
+    echo "Usage: ${ScriptName} [-dhlt] {OPTION...}"
+    exit $E_OPTERR
+  fi
+
+  eval set -- "${inputOptions}"
+
+
+  while true; do
+    case "${1}" in
+      --aoption | -a)  # Argument found.
+        echo "Option [$1]"
+        ;;
+
+      --debug | -d)    # Enable informational messages.
+        echo "Option [$1] Debugging enabled"
+        ;;
+
+      --file | -f)     #  Check for optional argument.
+        case "$2" in   #+ Double colon is optional argument.
+          "")          #  Not there.
+              echo "Option [$1] Use default"
+              shift
+              ;;
+
+          *) # Got it
+             echo "Option [$1] Using input [$2]"
+             shift
+             ;;
+
+        esac
+        DoSomething
+        ;;
+
+      --log | -l) # Enable Logging.
+        echo "Option [$1] Logging enabled"
+        ;;
+
+      --test | -t) # Enable testing.
+        echo "Option [$1] Testing enabled"
+        ;;
+
+      --help | -h)
+        echo "Option [$1] Display help"
+        break
+        ;;
+
+      --)   # Done! $# is argument number for "--", $@ is "--"
+        echo "Option [$1] Dash Dash"
+        break
+        ;;
+
+       *)
+        echo "Major internal error!"
+        exit 8
+        ;;
+
+    esac
+    echo "Number of arguments: [$#]"
+    shift
+  done
+
+  shift
+  
+#  }
+
+exit
+}
+
+◊anchored-example[#:anchor "color_bkg1"]{Cycling through all the
+possible color backgrounds}
+
+◊example{
+#!/bin/bash
+
+# show-all-colors.sh
+# Displays all 256 possible background colors, using ANSI escape sequences.
+# Author: Chetankumar Phulpagare
+# Used in ABS Guide with permission.
+
+T1=8
+T2=6
+T3=36
+offset=0
+
+for num1 in {0..7}
+do {
+   for num2 in {0,1}
+       do {
+          shownum=`echo "$offset + $T1 * ${num2} + $num1" | bc`
+          echo -en "\E[0;48;5;${shownum}m color ${shownum} \E[0m"
+          }
+       done
+   echo
+   }
+done
+
+offset=16
+for num1 in {0..5}
+do {
+   for num2 in {0..5}
+       do {
+          for num3 in {0..5}
+              do {
+                 shownum=`echo "$offset + $T2 * ${num3} \
+                 + $num2 + $T3 * ${num1}" | bc`
+                 echo -en "\E[0;48;5;${shownum}m color ${shownum} \E[0m"
+                 }
+               done
+          echo
+          }
+       done
+}
+done
+
+offset=232
+for num1 in {0..23}
+do {
+   shownum=`expr $offset + $num1`
+   echo -en "\E[0;48;5;${shownum}m ${shownum}\E[0m"
+}
+done
+
+echo
+}
+
+◊anchored-example[#:anchor "morse_co1"]{Morse Code Practice}
+
+◊example{
+#!/bin/bash
+# sam.sh, v. .01a
+# Still Another Morse (code training script)
+# With profuse apologies to Sam (F.B.) Morse.
+# Author: Mendel Cooper
+# License: GPL3
+# Reldate: 05/25/11
+
+# Morse code training script.
+# Converts arguments to audible dots and dashes.
+# Note: lowercase input only at this time.
+
+
+
+# Get the wav files from the source tarball:
+# http://bash.deta.in/abs-guide-latest.tar.bz2
+DOT='soundfiles/dot.wav'
+DASH='soundfiles/dash.wav'
+# Maybe move soundfiles to /usr/local/sounds?
+
+LETTERSPACE=300000  # Microseconds.
+WORDSPACE=980000
+# Nice and slow, for beginners. Maybe 5 wpm?
+
+EXIT_MSG="May the Morse be with you!"
+E_NOARGS=75         # No command-line args?
+
+
+
+declare -A morse    # Associative array!
+# ======================================= #
+morse[a]="dot; dash"
+morse[b]="dash; dot; dot; dot"
+morse[c]="dash; dot; dash; dot"
+morse[d]="dash; dot; dot"
+morse[e]="dot"
+morse[f]="dot; dot; dash; dot"
+morse[g]="dash; dash; dot"
+morse[h]="dot; dot; dot; dot"
+morse[i]="dot; dot;"
+morse[j]="dot; dash; dash; dash"
+morse[k]="dash; dot; dash"
+morse[l]="dot; dash; dot; dot"
+morse[m]="dash; dash"
+morse[n]="dash; dot"
+morse[o]="dash; dash; dash"
+morse[p]="dot; dash; dash; dot"
+morse[q]="dash; dash; dot; dash"
+morse[r]="dot; dash; dot"
+morse[s]="dot; dot; dot"
+morse[t]="dash"
+morse[u]="dot; dot; dash"
+morse[v]="dot; dot; dot; dash"
+morse[w]="dot; dash; dash"
+morse[x]="dash; dot; dot; dash"
+morse[y]="dash; dot; dash; dash"
+morse[z]="dash; dash; dot; dot"
+morse[0]="dash; dash; dash; dash; dash"
+morse[1]="dot; dash; dash; dash; dash"
+morse[2]="dot; dot; dash; dash; dash"
+morse[3]="dot; dot; dot; dash; dash"
+morse[4]="dot; dot; dot; dot; dash"
+morse[5]="dot; dot; dot; dot; dot"
+morse[6]="dash; dot; dot; dot; dot"
+morse[7]="dash; dash; dot; dot; dot"
+morse[8]="dash; dash; dash; dot; dot"
+morse[9]="dash; dash; dash; dash; dot"
+# The following must be escaped or quoted.
+morse[?]="dot; dot; dash; dash; dot; dot"
+morse[.]="dot; dash; dot; dash; dot; dash"
+morse[,]="dash; dash; dot; dot; dash; dash"
+morse[/]="dash; dot; dot; dash; dot"
+morse[\@]="dot; dash; dash; dot; dash; dot"
+# ======================================= #
+
+play_letter ()
+{
+  eval ${morse[$1]}   # Play dots, dashes from appropriate sound files.
+  # Why is 'eval' necessary here?
+  usleep $LETTERSPACE # Pause in between letters.
+}
+
+extract_letters ()
+{                     # Slice string apart, letter by letter.
+  local pos=0         # Starting at left end of string.
+  local len=1         # One letter at a time.
+  strlen=${#1}
+
+  while [ $pos -lt $strlen ]
+  do
+    letter=${1:pos:len}
+    #      ^^^^^^^^^^^^    See Chapter 10.1.
+    play_letter $letter
+    echo -n "*"       #    Mark letter just played.
+    ((pos++))
+  done
+}
+
+######### Play the sounds ############
+dot()  { aplay "$DOT" 2&>/dev/null;  }
+dash() { aplay "$DASH" 2&>/dev/null; }
+######################################
+
+no_args ()
+{
+    declare -a usage
+    usage=( $0 word1 word2 ... )
+
+    echo "Usage:"; echo
+    echo ${usage[*]}
+    for index in 0 1 2 3
+    do
+      extract_letters ${usage[index]}     
+      usleep $WORDSPACE
+      echo -n " "     # Print space between words.
+    done
+#   echo "Usage: $0 word1 word2 ... "
+    echo; echo
+}
+
+
+# int main()
+# {
+
+clear                 # Clear the terminal screen.
+echo "            SAM"
+echo "Still Another Morse code trainer"
+echo "    Author: Mendel Cooper"
+echo; echo;
+
+if [ -z "$1" ]
+then
+  no_args
+  echo; echo; echo "$EXIT_MSG"; echo
+  exit $E_NOARGS
+fi
+
+echo; echo "$*"       # Print text that will be played.
+
+until [ -z "$1" ]
+do
+  extract_letters $1
+  shift           # On to next word.
+  usleep $WORDSPACE
+  echo -n " "     # Print space between words.
+done
+
+echo; echo; echo "$EXIT_MSG"; echo
+
+exit 0
+# }
+
+#  Exercises:
+#  ---------
+#  1) Have the script accept either lowercase or uppercase words
+#+    as arguments. Hint: Use 'tr' . . .
+#  2) Have the script optionally accept input from a text file.
+}
+
+◊anchored-example[#:anchor "base64_1"]{Base64 encoding/decoding}
+
+◊example{
+#!/bin/bash
+# base64.sh: Bash implementation of Base64 encoding and decoding.
+#
+# Copyright (c) 2011 vladz <vladz@devzero.fr>
+# Used in ABSG with permission (thanks!).
+#
+#  Encode or decode original Base64 (and also Base64url)
+#+ from STDIN to STDOUT.
+#
+#    Usage:
+#
+#    Encode
+#    $ ./base64.sh < binary-file > binary-file.base64
+#    Decode
+#    $ ./base64.sh -d < binary-file.base64 > binary-file
+#
+# Reference:
+#
+#    [1]  RFC4648 - "The Base16, Base32, and Base64 Data Encodings"
+#         http://tools.ietf.org/html/rfc4648#section-5
+
+
+# The base64_charset[] array contains entire base64 charset,
+# and additionally the character "=" ...
+base64_charset=( {A..Z} {a..z} {0..9} + / = )
+                # Nice illustration of brace expansion.
+
+#  Uncomment the ### line below to use base64url encoding instead of
+#+ original base64.
+### base64_charset=( {A..Z} {a..z} {0..9} - _ = )
+
+#  Output text width when encoding
+#+ (64 characters, just like openssl output).
+text_width=64
+
+function display_base64_char {
+#  Convert a 6-bit number (between 0 and 63) into its corresponding values
+#+ in Base64, then display the result with the specified text width.
+  printf "${base64_charset[$1]}"; (( width++ ))
+  (( width % text_width == 0 )) && printf "\n"
+}
+
+function encode_base64 {
+# Encode three 8-bit hexadecimal codes into four 6-bit numbers.
+  #    We need two local int array variables:
+  #    c8[]: to store the codes of the 8-bit characters to encode
+  #    c6[]: to store the corresponding encoded values on 6-bit
+  declare -a -i c8 c6
+
+  #  Convert hexadecimal to decimal.
+  c8=( $(printf "ibase=16; ${1:0:2}\n${1:2:2}\n${1:4:2}\n" | bc) )
+
+  #  Let's play with bitwise operators
+  #+ (3x8-bit into 4x6-bits conversion).
+  (( c6[0] = c8[0] >> 2 ))
+  (( c6[1] = ((c8[0] &  3) << 4) | (c8[1] >> 4) ))
+
+  # The following operations depend on the c8 element number.
+  case ${#c8[*]} in 
+    3) (( c6[2] = ((c8[1] & 15) << 2) | (c8[2] >> 6) ))
+       (( c6[3] = c8[2] & 63 )) ;;
+    2) (( c6[2] = (c8[1] & 15) << 2 ))
+       (( c6[3] = 64 )) ;;
+    1) (( c6[2] = c6[3] = 64 )) ;;
+  esac
+
+  for char in ${c6[@]}; do
+    display_base64_char ${char}
+  done
+}
+
+function decode_base64 {
+# Decode four base64 characters into three hexadecimal ASCII characters.
+  #  c8[]: to store the codes of the 8-bit characters
+  #  c6[]: to store the corresponding Base64 values on 6-bit
+  declare -a -i c8 c6
+
+  # Find decimal value corresponding to the current base64 character.
+  for current_char in ${1:0:1} ${1:1:1} ${1:2:1} ${1:3:1}; do
+     [ "${current_char}" = "=" ] && break
+
+     position=0
+     while [ "${current_char}" != "${base64_charset[${position}]}" ]; do
+        (( position++ ))
+     done
+
+     c6=( ${c6[*]} ${position} )
+  done
+
+  #  Let's play with bitwise operators
+  #+ (4x8-bit into 3x6-bits conversion).
+  (( c8[0] = (c6[0] << 2) | (c6[1] >> 4) ))
+
+  # The next operations depends on the c6 elements number.
+  case ${#c6[*]} in
+    3) (( c8[1] = ( (c6[1] & 15) << 4) | (c6[2] >> 2) ))
+       (( c8[2] = (c6[2] & 3) << 6 )); unset c8[2] ;;
+    4) (( c8[1] = ( (c6[1] & 15) << 4) | (c6[2] >> 2) ))
+       (( c8[2] = ( (c6[2] &  3) << 6) |  c6[3] )) ;;
+  esac
+
+  for char in ${c8[*]}; do
+     printf "\x$(printf "%x" ${char})"
+  done
+}
+
+
+# main ()
+
+if [ "$1" = "-d" ]; then   # decode
+
+  # Reformat STDIN in pseudo 4x6-bit groups.
+  content=$(cat - | tr -d "\n" | sed -r "s/(.{4})/\1 /g")
+
+  for chars in ${content}; do decode_base64 ${chars}; done
+
+else
+  # Make a hexdump of stdin and reformat in 3-byte groups.
+  content=$(cat - | xxd -ps -u | sed -r "s/(\w{6})/\1 /g" |
+            tr -d "\n")
+
+  for chars in ${content}; do encode_base64 ${chars}; done
+
+  echo
+
+fi
+}
+
+◊anchored-example[#:anchor "sed_ins1"]{Inserting text in a file using
+sed}
+
+◊example{
+#!/bin/bash
+#  Prepends a string at a specified line
+#+ in files with names ending in "sample"
+#+ in the current working directory.
+#  000000000000000000000000000000000000
+#  This script overwrites files!
+#  Be careful running it in a directory
+#+ where you have important files!!!
+#  000000000000000000000000000000000000
+
+#  Create a couple of files to operate on ...
+#  01sample
+#  02sample
+#  ... etc.
+#  These files must not be empty, else the prepend will not work.
+
+lineno=1            # Append at line 1 (prepend).
+filespec="*sample"  # Filename pattern to operate on.
+
+string=$(whoami)    # Will set your username as string to insert.
+                    # It could just as easily be any other string.
+
+for file in $filespec # Specify which files to alter.
+do #        ^^^^^^^^^
+ sed -i ""$lineno"i "$string"" $file
+#    ^^ -i option edits files in-place.
+#                 ^ Insert (i) command.
+ echo ""$file" altered!"
+done
+
+echo "Warning: files possibly clobbered!"
+
+exit 0
+
+# Exercise:
+# Add error checking to this script.
+# It needs it badly.
+}
+
+◊anchored-example[#:anchor "gronsf_ciph1"]{The Gronsfeld Cipher}
+
+◊example{
+#!/bin/bash
+# gronsfeld.bash
+
+# License: GPL3
+# Reldate 06/23/11
+
+#  This is an implementation of the Gronsfeld Cipher.
+#  It's essentially a stripped-down variant of the 
+#+ polyalphabetic Vigenère Tableau, but with only 10 alphabets.
+#  The classic Gronsfeld has a numeric sequence as the key word,
+#+ but here we substitute a letter string, for ease of use.
+#  Allegedly, this cipher was invented by the eponymous Count Gronsfeld
+#+ in the 17th Century. It was at one time considered to be unbreakable.
+#  Note that this is ###not### a secure cipher by modern standards.
+
+#  Global Variables  #
+Enc_suffix="29379"   #  Encrypted text output with this 5-digit suffix. 
+                     #  This functions as a decryption flag,
+                     #+ and when used to generate passwords adds security.
+Default_key="gronsfeldk"
+                     #  The script uses this if key not entered below
+                     #  (at "Keychain").
+                     #  Change the above two values frequently
+                     #+ for added security.
+
+GROUPLEN=5           #  Output in groups of 5 letters, per tradition.
+alpha1=( abcdefghijklmnopqrstuvwxyz )
+alpha2=( {A..Z} )    #  Output in all caps, per tradition.
+                     #  Use   alpha2=( {a..z} )   for password generator.
+wraplen=26           #  Wrap around if past end of alphabet.
+dflag=               #  Decrypt flag (set if $Enc_suffix present).
+E_NOARGS=76          #  Missing command-line args?
+DEBUG=77             #  Debugging flag.
+declare -a offsets   #  This array holds the numeric shift values for
+                     #+ encryption/decryption.
+
+########Keychain#########
+key=  ### Put key here!!!
+      # 10 characters!
+#########################
+
+
+
+# Function
+: ()
+{ # Encrypt or decrypt, depending on whether $dflag is set.
+  # Why ": ()" as a function name? Just to prove that it can be done.
+
+  local idx keydx mlen off1 shft
+  local plaintext="$1"
+  local mlen=${#plaintext}
+
+for (( idx=0; idx<$mlen; idx++ ))
+do
+  let "keydx = $idx % $keylen"
+  shft=${offsets[keydx]}
+
+  if [ -n "$dflag" ]
+  then                  # Decrypt!
+    let "off1 = $(expr index "${alpha1[*]}" ${plaintext:idx:1}) - $shft"
+    # Shift backward to decrypt.
+  else                  # Encrypt!
+    let "off1 = $(expr index "${alpha1[*]}" ${plaintext:idx:1}) + $shft"
+    # Shift forward to encrypt.
+    test $(( $idx % $GROUPLEN)) = 0 && echo -n " "  # Groups of 5 letters.
+    #  Comment out above line for output as a string without whitespace,
+    #+ for example, if using the script as a password generator.
+  fi
+
+  ((off1--))   # Normalize. Why is this necessary?
+
+      if [ $off1 -lt 0 ]
+      then     # Catch negative indices.
+        let "off1 += $wraplen"
+      fi
+
+  ((off1 %= $wraplen))   # Wrap around if past end of alphabet.
+
+  echo -n "${alpha2[off1]}"
+
+done
+
+  if [ -z "$dflag" ]
+  then
+    echo " $Enc_suffix"
+#   echo "$Enc_suffix"  # For password generator.
+  else
+    echo
+  fi
+} # End encrypt/decrypt function.
+
+
+
+# int main () {
+
+# Check for command-line args.
+if [ -z "$1" ]
+then
+   echo "Usage: $0 TEXT TO ENCODE/DECODE"
+   exit $E_NOARGS
+fi
+
+if [ ${!#} == "$Enc_suffix" ]
+#    ^^^^^ Final command-line arg.
+then
+  dflag=ON
+  echo -n "+"           # Flag decrypted text with a "+" for easy ID.
+fi
+
+if [ -z "$key" ]
+then
+  key="$Default_key"    # "gronsfeldk" per above.
+fi
+
+keylen=${#key}
+
+for (( idx=0; idx<$keylen; idx++ ))
+do  # Calculate shift values for encryption/decryption.
+  offsets[idx]=$(expr index "${alpha1[*]}" ${key:idx:1})   # Normalize.
+  ((offsets[idx]--))  #  Necessary because "expr index" starts at 1,
+                      #+ whereas array count starts at 0.
+  # Generate array of numerical offsets corresponding to the key.
+  # There are simpler ways to accomplish this.
+done
+
+args=$(echo "$*" | sed -e 's/ //g' | tr A-Z a-z | sed -e 's/[0-9]//g')
+# Remove whitespace and digits from command-line args.
+# Can modify to also remove punctuation characters, if desired.
+
+         # Debug:
+         # echo "$args"; exit $DEBUG
+
+: "$args"               # Call the function named ":".
+# : is a null operator, except . . . when it's a function name!
+
+exit $?    # } End-of-script
+
+
+#   **************************************************************   #
+#   This script can function as a  password generator,
+#+  with several minor mods, see above.
+#   That would allow an easy-to-remember password, even the word
+#+ "password" itself, which encrypts to vrgfotvo29379
+#+  a fairly secure password not susceptible to a dictionary attack.
+#   Or, you could use your own name (surely that's easy to remember!).
+#   For example, Bozo Bozeman encrypts to hfnbttdppkt29379.
+#   **************************************************************   #
+}
+
+◊anchored-example[#:anchor "bingo1"]{Bingo Number Generator}
+
+◊example{
+#!/bin/bash
+# bingo.sh
+# Bingo number generator
+# Reldate 20Aug12, License: Public Domain
+
+#######################################################################
+# This script generates bingo numbers.
+# Hitting a key generates a new number.
+# Hitting 'q' terminates the script.
+# In a given run of the script, there will be no duplicate numbers.
+# When the script terminates, it prints a log of the numbers generated.
+#######################################################################
+
+MIN=1       # Lowest allowable bingo number.
+MAX=75      # Highest allowable bingo number.
+COLS=15     # Numbers in each column (B I N G O).
+SINGLE_DIGIT_MAX=9
+
+declare -a Numbers
+Prefix=(B I N G O)
+
+initialize_Numbers ()
+{  # Zero them out to start.
+   # They'll be incremented if chosen.
+   local index=0
+   until [ "$index" -gt $MAX ]
+   do
+     Numbers[index]=0
+     ((index++))
+   done
+
+   Numbers[0]=1   # Flag zero, so it won't be selected.
+}
+
+
+generate_number ()
+{
+   local number
+
+   while [ 1 ]
+   do
+     let "number = $(expr $RANDOM % $MAX)"
+     if [ ${Numbers[number]} -eq 0 ]    # Number not yet called.
+     then
+       let "Numbers[number]+=1"         # Flag it in the array.
+       break                            # And terminate loop.
+     fi   # Else if already called, loop and generate another number.
+   done
+   # Exercise: Rewrite this more elegantly as an until-loop.
+
+   return $number
+}
+
+
+print_numbers_called ()
+{   # Print out the called number log in neat columns.
+    # echo ${Numbers[@]}
+
+local pre2=0                #  Prefix a zero, so columns will align
+                            #+ on single-digit numbers.
+
+echo "Number Stats"
+
+for (( index=1; index<=MAX; index++))
+do
+  count=${Numbers[index]}
+  let "t = $index - 1"      # Normalize, since array begins with index 0.
+  let "column = $(expr $t / $COLS)"
+  pre=${Prefix[column]}
+# echo -n "${Prefix[column]} "
+
+if [ $(expr $t % $COLS) -eq 0 ]
+then
+  echo   # Newline at end of row.
+fi
+
+  if [ "$index" -gt $SINGLE_DIGIT_MAX ]  # Check for single-digit number.
+  then
+    echo -n "$pre$index#$count "
+  else    # Prefix a zero.
+    echo -n "$pre$pre2$index#$count "
+  fi
+
+done
+}
+
+
+
+# main () {
+RANDOM=$$   # Seed random number generator.
+
+initialize_Numbers   # Zero out the number tracking array.
+
+clear
+echo "Bingo Number Caller"; echo
+
+while [[ "$key" != "q" ]]   # Main loop.
+do
+  read -s -n1 -p "Hit a key for the next number [q to exit] " key
+  # Usually 'q' exits, but not always.
+  # Can always hit Ctl-C if q fails.
+  echo
+
+  generate_number; new_number=$?
+
+  let "column = $(expr $new_number / $COLS)"
+  echo -n "${Prefix[column]} "   # B-I-N-G-O
+
+  echo $new_number
+done
+
+echo; echo
+
+# Game over ...
+print_numbers_called
+echo; echo "[#0 = not called . . . #1 = called]"
+
+echo
+
+exit 0
+# }
+
+
+# Certainly, this script could stand some improvement.
+#See also the author's Instructable:
+#www.instructables.com/id/Binguino-An-Arduino-based-Bingo-Number-Generato/
+}
+
+◊anchored-example[#:anchor "basics1"]{Basics Reviewed}
+
+◊example{
+#!/bin/bash
+# basics-reviewed.bash
+
+# File extension == *.bash == specific to Bash
+
+#   Copyright (c) Michael S. Zick, 2003; All rights reserved.
+#   License: Use in any form, for any purpose.
+#   Revision: $ID$
+#
+#              Edited for layout by M.C.
+#   (author of the "Advanced Bash Scripting Guide")
+#   Fixes and updates (04/08) by Cliff Bamford.
+
+
+#  This script tested under Bash versions 2.04, 2.05a and 2.05b.
+#  It may not work with earlier versions.
+#  This demonstration script generates one --intentional--
+#+ "command not found" error message. See line 436.
+
+#  The current Bash maintainer, Chet Ramey, has fixed the items noted
+#+ for later versions of Bash.
+
+
+
+        ###-------------------------------------------###
+        ###  Pipe the output of this script to 'more' ###
+        ###+ else it will scroll off the page.        ###
+        ###                                           ###
+        ###  You may also redirect its output         ###
+        ###+ to a file for examination.               ###  
+        ###-------------------------------------------###
+
+
+
+#  Most of the following points are described at length in
+#+ the text of the foregoing "Advanced Bash Scripting Guide."
+#  This demonstration script is mostly just a reorganized presentation.
+#      -- msz
+
+# Variables are not typed unless otherwise specified.
+
+#  Variables are named. Names must contain a non-digit.
+#  File descriptor names (as in, for example: 2>&1)
+#+ contain ONLY digits.
+
+# Parameters and Bash array elements are numbered.
+# (Parameters are very similar to Bash arrays.)
+
+# A variable name may be undefined (null reference).
+unset VarNull
+
+# A variable name may be defined but empty (null contents).
+VarEmpty=''                         # Two, adjacent, single quotes.
+
+# A variable name may be defined and non-empty.
+VarSomething='Literal'
+
+# A variable may contain:
+#   * A whole number as a signed 32-bit (or larger) integer
+#   * A string
+# A variable may also be an array.
+
+#  A string may contain embedded blanks and may be treated
+#+ as if it where a function name with optional arguments.
+
+#  The names of variables and the names of functions
+#+ are in different namespaces.
+
+
+#  A variable may be defined as a Bash array either explicitly or
+#+ implicitly by the syntax of the assignment statement.
+#  Explicit:
+declare -a ArrayVar
+
+
+
+# The echo command is a builtin.
+echo $VarSomething
+
+# The printf command is a builtin.
+# Translate %s as: String-Format
+printf %s $VarSomething         # No linebreak specified, none output.
+echo                            # Default, only linebreak output.
+
+
+
+
+# The Bash parser word breaks on whitespace.
+# Whitespace, or the lack of it is significant.
+# (This holds true in general; there are, of course, exceptions.)
+
+
+
+
+# Translate the DOLLAR_SIGN character as: Content-Of.
+
+# Extended-Syntax way of writing Content-Of:
+echo ${VarSomething}
+
+#  The ${ ... } Extended-Syntax allows more than just the variable
+#+ name to be specified.
+#  In general, $VarSomething can always be written as: ${VarSomething}.
+
+# Call this script with arguments to see the following in action.
+
+
+
+#  Outside of double-quotes, the special characters @ and *
+#+ specify identical behavior.
+#  May be pronounced as: All-Elements-Of.
+
+#  Without specification of a name, they refer to the
+#+ pre-defined parameter Bash-Array.
+
+
+
+# Glob-Pattern references
+echo $*                         # All parameters to script or function
+echo ${*}                       # Same
+
+# Bash disables filename expansion for Glob-Patterns.
+# Only character matching is active.
+
+
+# All-Elements-Of references
+echo $@                         # Same as above
+echo ${@}                       # Same as above
+
+
+
+
+#  Within double-quotes, the behavior of Glob-Pattern references
+#+ depends on the setting of IFS (Input Field Separator).
+#  Within double-quotes, All-Elements-Of references behave the same.
+
+
+#  Specifying only the name of a variable holding a string refers
+#+ to all elements (characters) of a string.
+
+
+#  To specify an element (character) of a string,
+#+ the Extended-Syntax reference notation (see below) MAY be used.
+
+
+
+
+#  Specifying only the name of a Bash array references
+#+ the subscript zero element,
+#+ NOT the FIRST DEFINED nor the FIRST WITH CONTENTS element.
+
+#  Additional qualification is needed to reference other elements,
+#+ which means that the reference MUST be written in Extended-Syntax.
+#  The general form is: ${name[subscript]}.
+
+#  The string forms may also be used: ${name:subscript}
+#+ for Bash-Arrays when referencing the subscript zero element.
+
+
+# Bash-Arrays are implemented internally as linked lists,
+#+ not as a fixed area of storage as in some programming languages.
+
+
+#   Characteristics of Bash arrays (Bash-Arrays):
+#   --------------------------------------------
+
+#   If not otherwise specified, Bash-Array subscripts begin with
+#+  subscript number zero. Literally: [0]
+#   This is called zero-based indexing.
+###
+#   If not otherwise specified, Bash-Arrays are subscript packed
+#+  (sequential subscripts without subscript gaps).
+###
+#   Negative subscripts are not allowed.
+###
+#   Elements of a Bash-Array need not all be of the same type.
+###
+#   Elements of a Bash-Array may be undefined (null reference).
+#       That is, a Bash-Array may be "subscript sparse."
+###
+#   Elements of a Bash-Array may be defined and empty (null contents).
+###
+#   Elements of a Bash-Array may contain:
+#     * A whole number as a signed 32-bit (or larger) integer
+#     * A string
+#     * A string formated so that it appears to be a function name
+#     + with optional arguments
+###
+#   Defined elements of a Bash-Array may be undefined (unset).
+#       That is, a subscript packed Bash-Array may be changed
+#   +   into a subscript sparse Bash-Array.
+###
+#   Elements may be added to a Bash-Array by defining an element
+#+  not previously defined.
+###
+# For these reasons, I have been calling them "Bash-Arrays".
+# I'll return to the generic term "array" from now on.
+#     -- msz
+
+# Variables are not typed unless otherwise specified.
+
+#  Variables are named. Names must contain a non-digit.
+#  File descriptor names (as in, for example: 2>&1)
+#+ contain ONLY digits.
+
+# Parameters and Bash array elements are numbered.
+# (Parameters are very similar to Bash arrays.)
+
+# A variable name may be undefined (null reference).
+unset VarNull
+
+# A variable name may be defined but empty (null contents).
+VarEmpty=''                         # Two, adjacent, single quotes.
+
+# A variable name may be defined and non-empty.
+VarSomething='Literal'
+
+# A variable may contain:
+#   * A whole number as a signed 32-bit (or larger) integer
+#   * A string
+# A variable may also be an array.
+
+#  A string may contain embedded blanks and may be treated
+#+ as if it where a function name with optional arguments.
+
+#  The names of variables and the names of functions
+#+ are in different namespaces.
+
+
+#  A variable may be defined as a Bash array either explicitly or
+#+ implicitly by the syntax of the assignment statement.
+#  Explicit:
+declare -a ArrayVar
+
+
+
+# The echo command is a builtin.
+echo $VarSomething
+
+# The printf command is a builtin.
+# Translate %s as: String-Format
+printf %s $VarSomething         # No linebreak specified, none output.
+echo                            # Default, only linebreak output.
+
+
+
+
+# The Bash parser word breaks on whitespace.
+# Whitespace, or the lack of it is significant.
+# (This holds true in general; there are, of course, exceptions.)
+
+
+
+
+# Translate the DOLLAR_SIGN character as: Content-Of.
+
+# Extended-Syntax way of writing Content-Of:
+echo ${VarSomething}
+
+#  The ${ ... } Extended-Syntax allows more than just the variable
+#+ name to be specified.
+#  In general, $VarSomething can always be written as: ${VarSomething}.
+
+# Call this script with arguments to see the following in action.
+
+
+
+#  Outside of double-quotes, the special characters @ and *
+#+ specify identical behavior.
+#  May be pronounced as: All-Elements-Of.
+
+#  Without specification of a name, they refer to the
+#+ pre-defined parameter Bash-Array.
+
+
+
+# Glob-Pattern references
+echo $*                         # All parameters to script or function
+echo ${*}                       # Same
+
+# Bash disables filename expansion for Glob-Patterns.
+# Only character matching is active.
+
+
+# All-Elements-Of references
+echo $@                         # Same as above
+echo ${@}                       # Same as above
+
+
+
+
+#  Within double-quotes, the behavior of Glob-Pattern references
+#+ depends on the setting of IFS (Input Field Separator).
+#  Within double-quotes, All-Elements-Of references behave the same.
+
+
+#  Specifying only the name of a variable holding a string refers
+#+ to all elements (characters) of a string.
+
+
+#  To specify an element (character) of a string,
+#+ the Extended-Syntax reference notation (see below) MAY be used.
+
+
+
+
+#  Specifying only the name of a Bash array references
+#+ the subscript zero element,
+#+ NOT the FIRST DEFINED nor the FIRST WITH CONTENTS element.
+
+#  Additional qualification is needed to reference other elements,
+#+ which means that the reference MUST be written in Extended-Syntax.
+#  The general form is: ${name[subscript]}.
+
+#  The string forms may also be used: ${name:subscript}
+#+ for Bash-Arrays when referencing the subscript zero element.
+
+
+# Bash-Arrays are implemented internally as linked lists,
+#+ not as a fixed area of storage as in some programming languages.
+
+
+#   Characteristics of Bash arrays (Bash-Arrays):
+#   --------------------------------------------
+
+#   If not otherwise specified, Bash-Array subscripts begin with
+#+  subscript number zero. Literally: [0]
+#   This is called zero-based indexing.
+###
+#   If not otherwise specified, Bash-Arrays are subscript packed
+#+  (sequential subscripts without subscript gaps).
+###
+#   Negative subscripts are not allowed.
+###
+#   Elements of a Bash-Array need not all be of the same type.
+###
+#   Elements of a Bash-Array may be undefined (null reference).
+#       That is, a Bash-Array may be "subscript sparse."
+###
+#   Elements of a Bash-Array may be defined and empty (null contents).
+###
+#   Elements of a Bash-Array may contain:
+#     * A whole number as a signed 32-bit (or larger) integer
+#     * A string
+#     * A string formated so that it appears to be a function name
+#     + with optional arguments
+###
+#   Defined elements of a Bash-Array may be undefined (unset).
+#       That is, a subscript packed Bash-Array may be changed
+#   +   into a subscript sparse Bash-Array.
+###
+#   Elements may be added to a Bash-Array by defining an element
+#+  not previously defined.
+###
+# For these reasons, I have been calling them "Bash-Arrays".
+# I'll return to the generic term "array" from now on.
+#     -- msz
+
+echo "========================================================="
+
+#  Lines 202 - 334 supplied by Cliff Bamford. (Thanks!)
+#  Demo --- Interaction with Arrays, quoting, IFS, echo, * and @   ---  
+#+ all affect how things work
+
+ArrayVar[0]='zero'                    # 0 normal
+ArrayVar[1]=one                       # 1 unquoted literal
+ArrayVar[2]='two'                     # 2 normal
+ArrayVar[3]='three'                   # 3 normal
+ArrayVar[4]='I am four'               # 4 normal with spaces
+ArrayVar[5]='five'                    # 5 normal
+unset ArrayVar[6]                     # 6 undefined
+ArrayValue[7]='seven'                 # 7 normal
+ArrayValue[8]=''                      # 8 defined but empty
+ArrayValue[9]='nine'                  # 9 normal
+
+
+echo '--- Here is the array we are using for this test'
+echo
+echo "ArrayVar[0]='zero'             # 0 normal"
+echo "ArrayVar[1]=one                # 1 unquoted literal"
+echo "ArrayVar[2]='two'              # 2 normal"
+echo "ArrayVar[3]='three'            # 3 normal"
+echo "ArrayVar[4]='I am four'        # 4 normal with spaces"
+echo "ArrayVar[5]='five'             # 5 normal"
+echo "unset ArrayVar[6]              # 6 undefined"
+echo "ArrayValue[7]='seven'          # 7 normal"
+echo "ArrayValue[8]=''               # 8 defined but empty"
+echo "ArrayValue[9]='nine'           # 9 normal"
+echo
+
+echo
+echo '---Case0: No double-quotes, Default IFS of space,tab,newline ---'
+IFS=$'\x20'$'\x09'$'\x0A'            # In exactly this order.
+echo 'Here is: printf %q ◊escaped{◊"{"}${ArrayVar[*]}'
+printf %q ${ArrayVar[*]}
+echo
+echo 'Here is: printf %q ◊escaped{◊"{"}${ArrayVar[@]}'
+printf %q ${ArrayVar[@]}
+echo
+echo 'Here is: echo ${ArrayVar[*]}'
+echo  ${ArrayVar[@]}
+echo 'Here is: echo ◊escaped{◊"{"}${ArrayVar[@]}'
+echo ${ArrayVar[@]}
+
+echo
+echo '---Case1: Within double-quotes - Default IFS of space-tab- 
+newline ---'
+IFS=$'\x20'$'\x09'$'\x0A'	    #  These three bytes,
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[*]}"'
+printf %q "${ArrayVar[*]}"
+echo
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[@]}"'
+printf %q "${ArrayVar[@]}"
+echo
+echo 'Here is: echo "${ArrayVar[*]}"'
+echo  "${ArrayVar[@]}"
+echo 'Here is: echo "◊escaped{◊"{"}${ArrayVar[@]}"'
+echo "${ArrayVar[@]}"
+
+echo
+echo '---Case2: Within double-quotes - IFS is q'
+IFS='q'
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[*]}"'
+printf %q "${ArrayVar[*]}"
+echo
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[@]}"'
+printf %q "${ArrayVar[@]}"
+echo
+echo 'Here is: echo "${ArrayVar[*]}"'
+echo  "${ArrayVar[@]}"
+echo 'Here is: echo "◊escaped{◊"{"}${ArrayVar[@]}"'
+echo "${ArrayVar[@]}"
+
+echo
+echo '---Case3: Within double-quotes - IFS is ^'
+IFS='^'
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[*]}"'
+printf %q "${ArrayVar[*]}"
+echo
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[@]}"'
+printf %q "${ArrayVar[@]}"
+echo
+echo 'Here is: echo "${ArrayVar[*]}"'
+echo  "${ArrayVar[@]}"
+echo 'Here is: echo "◊escaped{◊"{"}${ArrayVar[@]}"'
+echo "${ArrayVar[@]}"
+
+echo
+echo '---Case4: Within double-quotes - IFS is ^ followed by  
+space,tab,newline'
+IFS=$'^'$'\x20'$'\x09'$'\x0A'       # ^ + space tab newline
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[*]}"'
+printf %q "${ArrayVar[*]}"
+echo
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[@]}"'
+printf %q "${ArrayVar[@]}"
+echo
+echo 'Here is: echo "${ArrayVar[*]}"'
+echo  "${ArrayVar[@]}"
+echo 'Here is: echo "◊escaped{◊"{"}${ArrayVar[@]}"'
+echo "${ArrayVar[@]}"
+
+echo
+echo '---Case6: Within double-quotes - IFS set and empty '
+IFS=''
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[*]}"'
+printf %q "${ArrayVar[*]}"
+echo
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[@]}"'
+printf %q "${ArrayVar[@]}"
+echo
+echo 'Here is: echo "${ArrayVar[*]}"'
+echo  "${ArrayVar[@]}"
+echo 'Here is: echo "◊escaped{◊"{"}${ArrayVar[@]}"'
+echo "${ArrayVar[@]}"
+
+echo
+echo '---Case7: Within double-quotes - IFS is unset'
+unset IFS
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[*]}"'
+printf %q "${ArrayVar[*]}"
+echo
+echo 'Here is: printf %q "◊escaped{◊"{"}${ArrayVar[@]}"'
+printf %q "${ArrayVar[@]}"
+echo
+echo 'Here is: echo "${ArrayVar[*]}"'
+echo  "${ArrayVar[@]}"
+echo 'Here is: echo "◊escaped{◊"{"}${ArrayVar[@]}"'
+echo "${ArrayVar[@]}"
+
+echo
+echo '---End of Cases---'
+echo "========================================================="; echo
+
+
+
+
+# Put IFS back to the default.
+# Default is exactly these three bytes.
+IFS=$'\x20'$'\x09'$'\x0A'           # In exactly this order.
+
+# Interpretation of the above outputs:
+#   A Glob-Pattern is I/O; the setting of IFS matters.
+###
+#   An All-Elements-Of does not consider IFS settings.
+###
+#   Note the different output using the echo command and the
+#+  quoted format operator of the printf command.
+
+
+#  Recall:
+#   Parameters are similar to arrays and have the similar behaviors.
+###
+#  The above examples demonstrate the possible variations.
+#  To retain the shape of a sparse array, additional script
+#+ programming is required.
+###
+#  The source code of Bash has a routine to output the
+#+ [subscript]=value   array assignment format.
+#  As of version 2.05b, that routine is not used,
+#+ but that might change in future releases.
+
+
+
+# The length of a string, measured in non-null elements (characters):
+echo
+echo '- - Non-quoted references - -'
+echo 'Non-Null character count: '${#VarSomething}' characters.'
+
+# test='Lit'$'\x00''eral'           # $'\x00' is a null character.
+# echo ${#test}                     # See that?
+
+
+
+#  The length of an array, measured in defined elements,
+#+ including null content elements.
+echo
+echo 'Defined content count: '${#ArrayVar[@]}' elements.'
+# That is NOT the maximum subscript (4).
+# That is NOT the range of the subscripts (1 . . 4 inclusive).
+# It IS the length of the linked list.
+###
+#  Both the maximum subscript and the range of the subscripts may
+#+ be found with additional script programming.
+
+# The length of a string, measured in non-null elements (characters):
+echo
+echo '- - Quoted, Glob-Pattern references - -'
+echo 'Non-Null character count: '"${#VarSomething}"' characters.'
+
+#  The length of an array, measured in defined elements,
+#+ including null-content elements.
+echo
+echo 'Defined element count: '"${#ArrayVar[*]}"' elements.'
+
+#  Interpretation: Substitution does not effect the ${# ... } operation.
+#  Suggestion:
+#  Always use the All-Elements-Of character
+#+ if that is what is intended (independence from IFS).
+
+
+
+#  Define a simple function.
+#  I include an underscore in the name
+#+ to make it distinctive in the examples below.
+###
+#  Bash separates variable names and function names
+#+ in different namespaces.
+#  The Mark-One eyeball isn't that advanced.
+###
+_simple() {
+    echo -n 'SimpleFunc'$@          #  Newlines are swallowed in
+}                                   #+ result returned in any case.
+
+
+# The ( ... ) notation invokes a command or function.
+# The $( ... ) notation is pronounced: Result-Of.
+
+
+# Invoke the function _simple
+echo
+echo '- - Output of function _simple - -'
+_simple                             # Try passing arguments.
+echo
+# or
+(_simple)                           # Try passing arguments.
+echo
+
+echo '- Is there a variable of that name? -'
+echo $_simple not defined           # No variable by that name.
+
+# Invoke the result of function _simple (Error msg intended)
+
+###
+$(_simple)                          # Gives an error message:
+#                          line 436: SimpleFunc: command not found
+#                          ---------------------------------------
+
+echo
+###
+
+#  The first word of the result of function _simple
+#+ is neither a valid Bash command nor the name of a defined function.
+###
+# This demonstrates that the output of _simple is subject to evaluation.
+###
+# Interpretation:
+#   A function can be used to generate in-line Bash commands.
+
+
+# A simple function where the first word of result IS a bash command:
+###
+_print() {
+    echo -n 'printf %q '$@
+}
+
+echo '- - Outputs of function _print - -'
+_print parm1 parm2                  # An Output NOT A Command.
+echo
+
+$(_print parm1 parm2)               #  Executes: printf %q parm1 parm2
+                                    #  See above IFS examples for the
+                                    #+ various possibilities.
+echo
+
+$(_print $VarSomething)             # The predictable result.
+echo
+
+
+
+# Function variables
+# ------------------
+
+echo
+echo '- - Function variables - -'
+# A variable may represent a signed integer, a string or an array.
+# A string may be used like a function name with optional arguments.
+
+# set -vx                           #  Enable if desired
+declare -f funcVar                  #+ in namespace of functions
+
+funcVar=_print                      # Contains name of function.
+$funcVar parm1                      # Same as _print at this point.
+echo
+
+funcVar=$(_print )                  # Contains result of function.
+$funcVar                            # No input, No output.
+$funcVar $VarSomething              # The predictable result.
+echo
+
+funcVar=$(_print $VarSomething)     #  $VarSomething replaced HERE.
+$funcVar                            #  The expansion is part of the
+echo                                #+ variable contents.
+
+funcVar="$(_print $VarSomething)"   #  $VarSomething replaced HERE.
+$funcVar                            #  The expansion is part of the
+echo                                #+ variable contents.
+
+#  The difference between the unquoted and the double-quoted versions
+#+ above can be seen in the "protect_literal.sh" example.
+#  The first case above is processed as two, unquoted, Bash-Words.
+#  The second case above is processed as one, quoted, Bash-Word.
+
+
+
+
+# Delayed replacement
+# -------------------
+
+echo
+echo '- - Delayed replacement - -'
+funcVar="$(_print '$VarSomething')" # No replacement, single Bash-Word.
+eval $funcVar                       # $VarSomething replaced HERE.
+echo
+
+VarSomething='NewThing'
+eval $funcVar                       # $VarSomething replaced HERE.
+echo
+
+# Restore the original setting trashed above.
+VarSomething=Literal
+
+#  There are a pair of functions demonstrated in the
+#+ "protect_literal.sh" and "unprotect_literal.sh" examples.
+#  These are general purpose functions for delayed replacement literals
+#+ containing variables.
+
+
+
+
+
+# REVIEW:
+# ------
+
+#  A string can be considered a Classic-Array of elements (characters).
+#  A string operation applies to all elements (characters) of the string
+#+ (in concept, anyway).
+###
+#  The notation: ${array_name[@]} represents all elements of the
+#+ Bash-Array: array_name.
+###
+#  The Extended-Syntax string operations can be applied to all
+#+ elements of an array.
+###
+#  This may be thought of as a For-Each operation on a vector of strings.
+###
+#  Parameters are similar to an array.
+#  The initialization of a parameter array for a script
+#+ and a parameter array for a function only differ
+#+ in the initialization of ${0}, which never changes its setting.
+###
+#  Subscript zero of the script's parameter array contains
+#+ the name of the script.
+###
+#  Subscript zero of a function's parameter array DOES NOT contain
+#+ the name of the function.
+#  The name of the current function is accessed by the $FUNCNAME variable.
+###
+#  A quick, review list follows (quick, not short).
+
+echo
+echo '- - Test (but not change) - -'
+echo '- null reference -'
+echo -n ${VarNull-'NotSet'}' '          # NotSet
+echo ${VarNull}                         # NewLine only
+echo -n ${VarNull:-'NotSet'}' '         # NotSet
+echo ${VarNull}                         # Newline only
+
+echo '- null contents -'
+echo -n ${VarEmpty-'Empty'}' '          # Only the space
+echo ${VarEmpty}                        # Newline only
+echo -n ${VarEmpty:-'Empty'}' '         # Empty
+echo ${VarEmpty}                        # Newline only
+
+echo '- contents -'
+echo ${VarSomething-'Content'}          # Literal
+echo ${VarSomething:-'Content'}         # Literal
+
+echo '- Sparse Array -'
+echo ${ArrayVar[@]-'not set'}
+
+# ASCII-Art time
+# State     Y==yes, N==no
+#           -       :-
+# Unset     Y       Y       ${# ... } == 0
+# Empty     N       Y       ${# ... } == 0
+# Contents  N       N       ${# ... } > 0
+
+#  Either the first and/or the second part of the tests
+#+ may be a command or a function invocation string.
+echo
+echo '- - Test 1 for undefined - -'
+declare -i t
+_decT() {
+    t=$t-1
+}
+
+# Null reference, set: t == -1
+t=${#VarNull}                           # Results in zero.
+${VarNull- _decT }                      # Function executes, t now -1.
+echo $t
+
+# Null contents, set: t == 0
+t=${#VarEmpty}                          # Results in zero.
+${VarEmpty- _decT }                     # _decT function NOT executed.
+echo $t
+
+# Contents, set: t == number of non-null characters
+VarSomething='_simple'                  # Set to valid function name.
+t=${#VarSomething}                      # non-zero length
+${VarSomething- _decT }                 # Function _simple executed.
+echo $t                                 # Note the Append-To action.
+
+# Exercise: clean up that example.
+unset t
+unset _decT
+VarSomething=Literal
+
+echo
+echo '- - Test and Change - -'
+echo '- Assignment if null reference -'
+echo -n ${VarNull='NotSet'}' '          # NotSet NotSet
+echo ${VarNull}
+unset VarNull
+
+echo '- Assignment if null reference -'
+echo -n ${VarNull:='NotSet'}' '         # NotSet NotSet
+echo ${VarNull}
+unset VarNull
+
+echo '- No assignment if null contents -'
+echo -n ${VarEmpty='Empty'}' '          # Space only
+echo ${VarEmpty}
+VarEmpty=''
+
+echo '- Assignment if null contents -'
+echo -n ${VarEmpty:='Empty'}' '         # Empty Empty
+echo ${VarEmpty}
+VarEmpty=''
+
+echo '- No change if already has contents -'
+echo ${VarSomething='Content'}          # Literal
+echo ${VarSomething:='Content'}         # Literal
+
+
+# "Subscript sparse" Bash-Arrays
+###
+#  Bash-Arrays are subscript packed, beginning with
+#+ subscript zero unless otherwise specified.
+###
+#  The initialization of ArrayVar was one way
+#+ to "otherwise specify".  Here is the other way:
+###
+echo
+declare -a ArraySparse
+ArraySparse=( [1]=one [2]='' [4]='four' )
+# [0]=null reference, [2]=null content, [3]=null reference
+
+echo '- - Array-Sparse List - -'
+# Within double-quotes, default IFS, Glob-Pattern
+
+IFS=$'\x20'$'\x09'$'\x0A'
+printf %q "${ArraySparse[*]}"
+echo
+
+#  Note that the output does not distinguish between "null content"
+#+ and "null reference".
+#  Both print as escaped whitespace.
+###
+#  Note also that the output does NOT contain escaped whitespace
+#+ for the "null reference(s)" prior to the first defined element.
+###
+# This behavior of 2.04, 2.05a and 2.05b has been reported
+#+ and may change in a future version of Bash.
+
+#  To output a sparse array and maintain the [subscript]=value
+#+ relationship without change requires a bit of programming.
+#  One possible code fragment:
+###
+# local l=${#ArraySparse[@]}        # Count of defined elements
+# local f=0                         # Count of found subscripts
+# local i=0                         # Subscript to test
+(                                   # Anonymous in-line function
+    for (( l=${#ArraySparse[@]}, f = 0, i = 0 ; f < l ; i++ ))
+    do
+        # 'if defined then...'
+        ${ArraySparse[$i]+ eval echo '\ ['$i']='${ArraySparse[$i]} ; (( f++ )) }
+    done
+)
+
+# The reader coming upon the above code fragment cold
+#+ might want to review "command lists" and "multiple commands on a line"
+#+ in the text of the foregoing "Advanced Bash Scripting Guide."
+###
+#  Note:
+#  The "read -a array_name" version of the "read" command
+#+ begins filling array_name at subscript zero.
+#  ArraySparse does not define a value at subscript zero.
+###
+#  The user needing to read/write a sparse array to either
+#+ external storage or a communications socket must invent
+#+ a read/write code pair suitable for their purpose.
+###
+# Exercise: clean it up.
+
+unset ArraySparse
+
+echo
+echo '- - Conditional alternate (But not change)- -'
+echo '- No alternate if null reference -'
+echo -n ${VarNull+'NotSet'}' '
+echo ${VarNull}
+unset VarNull
+
+echo '- No alternate if null reference -'
+echo -n ${VarNull:+'NotSet'}' '
+echo ${VarNull}
+unset VarNull
+
+echo '- Alternate if null contents -'
+echo -n ${VarEmpty+'Empty'}' '              # Empty
+echo ${VarEmpty}
+VarEmpty=''
+
+echo '- No alternate if null contents -'
+echo -n ${VarEmpty:+'Empty'}' '             # Space only
+echo ${VarEmpty}
+VarEmpty=''
+
+echo '- Alternate if already has contents -'
+
+# Alternate literal
+echo -n ${VarSomething+'Content'}' '        # Content Literal
+echo ${VarSomething}
+
+# Invoke function
+echo -n ${VarSomething:+ $(_simple) }' '    # SimpleFunc Literal
+echo ${VarSomething}
+echo
+
+echo '- - Sparse Array - -'
+echo ${ArrayVar[@]+'Empty'}                 # An array of 'Empty'(ies)
+echo
+
+echo '- - Test 2 for undefined - -'
+
+declare -i t
+_incT() {
+    t=$t+1
+}
+
+#  Note:
+#  This is the same test used in the sparse array
+#+ listing code fragment.
+
+# Null reference, set: t == -1
+t=${#VarNull}-1                     # Results in minus-one.
+${VarNull+ _incT }                  # Does not execute.
+echo $t' Null reference'
+
+# Null contents, set: t == 0
+t=${#VarEmpty}-1                    # Results in minus-one.
+${VarEmpty+ _incT }                 # Executes.
+echo $t'  Null content'
+
+# Contents, set: t == (number of non-null characters)
+t=${#VarSomething}-1                # non-null length minus-one
+${VarSomething+ _incT }             # Executes.
+echo $t'  Contents'
+
+# Exercise: clean up that example.
+unset t
+unset _incT
+
+# ${name?err_msg} ${name:?err_msg}
+#  These follow the same rules but always exit afterwards
+#+ if an action is specified following the question mark.
+#  The action following the question mark may be a literal
+#+ or a function result.
+###
+#  ${name?} ${name:?} are test-only, the return can be tested.
+
+
+
+
+# Element operations
+# ------------------
+
+echo
+echo '- - Trailing sub-element selection - -'
+
+#  Strings, Arrays and Positional parameters
+
+#  Call this script with multiple arguments
+#+ to see the parameter selections.
+
+echo '- All -'
+echo ${VarSomething:0}              # all non-null characters
+echo ${ArrayVar[@]:0}               # all elements with content
+echo ${@:0}                         # all parameters with content;
+                                    # ignoring parameter[0]
+
+echo
+echo '- All after -'
+echo ${VarSomething:1}              # all non-null after character[0]
+echo ${ArrayVar[@]:1}               # all after element[0] with content
+echo ${@:2}                         # all after param[1] with content
+
+echo
+echo '- Range after -'
+echo ${VarSomething:4:3}            # ral
+                                    # Three characters after
+                                    # character[3]
+
+echo '- Sparse array gotch -'
+echo ${ArrayVar[@]:1:2}     #  four - The only element with content.
+                            #  Two elements after (if that many exist).
+                            #  the FIRST WITH CONTENTS
+                            #+ (the FIRST WITH  CONTENTS is being
+                            #+ considered as if it
+                            #+ were subscript zero).
+#  Executed as if Bash considers ONLY array elements with CONTENT
+#  printf %q "${ArrayVar[@]:0:3}"    # Try this one
+
+#  In versions 2.04, 2.05a and 2.05b,
+#+ Bash does not handle sparse arrays as expected using this notation.
+#
+#  The current Bash maintainer, Chet Ramey, has corrected this.
+
+
+echo '- Non-sparse array -'
+echo ${@:2:2}               # Two parameters following parameter[1]
+
+# New victims for string vector examples:
+stringZ=abcABC123ABCabc
+arrayZ=( abcabc ABCABC 123123 ABCABC abcabc )
+sparseZ=( [1]='abcabc' [3]='ABCABC' [4]='' [5]='123123' )
+
+echo
+echo ' - - Victim string - -'$stringZ'- - '
+echo ' - - Victim array - -'${arrayZ[@]}'- - '
+echo ' - - Sparse array - -'${sparseZ[@]}'- - '
+echo ' - [0]==null ref, [2]==null ref, [4]==null content - '
+echo ' - [1]=abcabc [3]=ABCABC [5]=123123 - '
+echo ' - non-null-reference count: '${#sparseZ[@]}' elements'
+
+echo
+echo '- - Prefix sub-element removal - -'
+echo '- - Glob-Pattern match must include the first character. - -'
+echo '- - Glob-Pattern may be a literal or a function result. - -'
+echo
+
+
+# Function returning a simple, Literal, Glob-Pattern
+_abc() {
+    echo -n 'abc'
+}
+
+echo '- Shortest prefix -'
+echo ${stringZ#123}                 # Unchanged (not a prefix).
+echo ${stringZ#$(_abc)}             # ABC123ABCabc
+echo ${arrayZ[@]#abc}               # Applied to each element.
+
+# echo ${sparseZ[@]#abc}            # Version-2.05b core dumps.
+# Has since been fixed by Chet Ramey.
+
+# The -it would be nice- First-Subscript-Of
+# echo ${#sparseZ[@]#*}             # This is NOT valid Bash.
+
+echo
+echo '- Longest prefix -'
+echo ${stringZ##1*3}                # Unchanged (not a prefix)
+echo ${stringZ##a*C}                # abc
+echo ${arrayZ[@]##a*c}              # ABCABC 123123 ABCABC
+
+# echo ${sparseZ[@]##a*c}           # Version-2.05b core dumps.
+# Has since been fixed by Chet Ramey.
+
+echo
+echo '- - Suffix sub-element removal - -'
+echo '- - Glob-Pattern match must include the last character. - -'
+echo '- - Glob-Pattern may be a literal or a function result. - -'
+echo
+echo '- Shortest suffix -'
+echo ${stringZ%1*3}                 # Unchanged (not a suffix).
+echo ${stringZ%$(_abc)}             # abcABC123ABC
+echo ${arrayZ[@]%abc}               # Applied to each element.
+
+# echo ${sparseZ[@]%abc}            # Version-2.05b core dumps.
+# Has since been fixed by Chet Ramey.
+
+# The -it would be nice- Last-Subscript-Of
+# echo ${#sparseZ[@]%*}             # This is NOT valid Bash.
+
+echo
+echo '- Longest suffix -'
+echo ${stringZ%%1*3}                # Unchanged (not a suffix)
+echo ${stringZ%%b*c}                # a
+echo ${arrayZ[@]%%b*c}              # a ABCABC 123123 ABCABC a
+
+# echo ${sparseZ[@]%%b*c}           # Version-2.05b core dumps.
+# Has since been fixed by Chet Ramey.
+
+echo
+echo '- - Sub-element replacement - -'
+echo '- - Sub-element at any location in string. - -'
+echo '- - First specification is a Glob-Pattern - -'
+echo '- - Glob-Pattern may be a literal or Glob-Pattern function result. - -'
+echo '- - Second specification may be a literal or function result. - -'
+echo '- - Second specification may be unspecified. Pronounce that'
+echo '    as: Replace-With-Nothing (Delete) - -'
+echo
+
+
+
+# Function returning a simple, Literal, Glob-Pattern
+_123() {
+    echo -n '123'
+}
+
+echo '- Replace first occurrence -'
+echo ${stringZ/$(_123)/999}         # Changed (123 is a component).
+echo ${stringZ/ABC/xyz}             # xyzABC123ABCabc
+echo ${arrayZ[@]/ABC/xyz}           # Applied to each element.
+echo ${sparseZ[@]/ABC/xyz}          # Works as expected.
+
+echo
+echo '- Delete first occurrence -'
+echo ${stringZ/$(_123)/}
+echo ${stringZ/ABC/}
+echo ${arrayZ[@]/ABC/}
+echo ${sparseZ[@]/ABC/}
+
+#  The replacement need not be a literal,
+#+ since the result of a function invocation is allowed.
+#  This is general to all forms of replacement.
+echo
+echo '- Replace first occurrence with Result-Of -'
+echo ${stringZ/$(_123)/$(_simple)}  # Works as expected.
+echo ${arrayZ[@]/ca/$(_simple)}     # Applied to each element.
+echo ${sparseZ[@]/ca/$(_simple)}    # Works as expected.
+
+echo
+echo '- Replace all occurrences -'
+echo ${stringZ//[b2]/X}             # X-out b's and 2's
+echo ${stringZ//abc/xyz}            # xyzABC123ABCxyz
+echo ${arrayZ[@]//abc/xyz}          # Applied to each element.
+echo ${sparseZ[@]//abc/xyz}         # Works as expected.
+
+echo
+echo '- Delete all occurrences -'
+echo ${stringZ//[b2]/}
+echo ${stringZ//abc/}
+echo ${arrayZ[@]//abc/}
+echo ${sparseZ[@]//abc/}
+
+echo
+echo '- - Prefix sub-element replacement - -'
+echo '- - Match must include the first character. - -'
+echo
+
+echo '- Replace prefix occurrences -'
+echo ${stringZ/#[b2]/X}             # Unchanged (neither is a prefix).
+echo ${stringZ/#$(_abc)/XYZ}        # XYZABC123ABCabc
+echo ${arrayZ[@]/#abc/XYZ}          # Applied to each element.
+echo ${sparseZ[@]/#abc/XYZ}         # Works as expected.
+
+echo
+echo '- Delete prefix occurrences -'
+echo ${stringZ/#[b2]/}
+echo ${stringZ/#$(_abc)/}
+echo ${arrayZ[@]/#abc/}
+echo ${sparseZ[@]/#abc/}
+
+echo
+echo '- - Suffix sub-element replacement - -'
+echo '- - Match must include the last character. - -'
+echo
+
+echo '- Replace suffix occurrences -'
+echo ${stringZ/%[b2]/X}             # Unchanged (neither is a suffix).
+echo ${stringZ/%$(_abc)/XYZ}        # abcABC123ABCXYZ
+echo ${arrayZ[@]/%abc/XYZ}          # Applied to each element.
+echo ${sparseZ[@]/%abc/XYZ}         # Works as expected.
+
+echo
+echo '- Delete suffix occurrences -'
+echo ${stringZ/%[b2]/}
+echo ${stringZ/%$(_abc)/}
+echo ${arrayZ[@]/%abc/}
+echo ${sparseZ[@]/%abc/}
+
+echo
+echo '- - Special cases of null Glob-Pattern - -'
+echo
+
+echo '- Prefix all -'
+# null substring pattern means 'prefix'
+echo ${stringZ/#/NEW}               # NEWabcABC123ABCabc
+echo ${arrayZ[@]/#/NEW}             # Applied to each element.
+echo ${sparseZ[@]/#/NEW}            # Applied to null-content also.
+                                    # That seems reasonable.
+
+echo
+echo '- Suffix all -'
+# null substring pattern means 'suffix'
+echo ${stringZ/%/NEW}               # abcABC123ABCabcNEW
+echo ${arrayZ[@]/%/NEW}             # Applied to each element.
+echo ${sparseZ[@]/%/NEW}            # Applied to null-content also.
+                                    # That seems reasonable.
+
+echo
+echo '- - Special case For-Each Glob-Pattern - -'
+echo '- - - - This is a nice-to-have dream - - - -'
+echo
+
+_GenFunc() {
+    echo -n ${0}                    # Illustration only.
+    # Actually, that would be an arbitrary computation.
+}
+
+# All occurrences, matching the AnyThing pattern.
+# Currently //*/ does not match null-content nor null-reference.
+# /#/ and /%/ does match null-content but not null-reference.
+echo ${sparseZ[@]//*/$(_GenFunc)}
+
+
+#  A possible syntax would be to make
+#+ the parameter notation used within this construct mean:
+#   ${1} - The full element
+#   ${2} - The prefix, if any, to the matched sub-element
+#   ${3} - The matched sub-element
+#   ${4} - The suffix, if any, to the matched sub-element
+#
+# echo ${sparseZ[@]//*/$(_GenFunc ${3})}   # Same as ${1} here.
+# Perhaps it will be implemented in a future version of Bash.
+
+
+exit 0
+}
+
+◊anchored-example[#:anchor "array_tm1"]{Associative arrays
+vs. conventional arrays (execution times)}
+
+◊example{
+#!/bin/bash
+#  assoc-arr-test.sh
+#  Benchmark test script to compare execution times of
+#  numeric-indexed array vs. associative array.
+#     Thank you, Erik Brandsberg.
+
+count=100000       # May take a while for some of the tests below.
+declare simple     # Can change to 20000, if desired.
+declare -a array1
+declare -A array2
+declare -a array3
+declare -A array4
+
+echo "===Assignment tests==="
+echo
+
+echo "Assigning a simple variable:"
+# References $i twice to equalize lookup times.
+time for (( i=0; i< $count; i++)); do
+        simple=$i$i
+done
+
+echo "---"
+
+echo "Assigning a numeric index array entry:"
+time for (( i=0; i< $count; i++)); do
+        array1[$i]=$i
+done
+
+echo "---"
+
+echo "Overwriting a numeric index array entry:"
+time for (( i=0; i< $count; i++)); do
+        array1[$i]=$i
+done
+
+echo "---"
+
+echo "Linear reading of numeric index array:"
+time for (( i=0; i< $count; i++)); do
+        simple=array1[$i]
+done
+
+echo "---"
+
+echo "Assigning an associative array entry:"
+time for (( i=0; i< $count; i++)); do
+        array2[$i]=$i
+done
+
+echo "---"
+
+echo "Overwriting an associative array entry:"
+time for (( i=0; i< $count; i++)); do
+        array2[$i]=$i
+done
+
+echo "---"
+
+echo "Linear reading an associative array entry:"
+time for (( i=0; i< $count; i++)); do
+        simple=array2[$i]
+done
+
+echo "---"
+
+echo "Assigning a random number to a simple variable:"
+time for (( i=0; i< $count; i++)); do
+        simple=$RANDOM
+done
+
+echo "---"
+
+echo "Assign a sparse numeric index array entry randomly into 64k cells:"
+time for (( i=0; i< $count; i++)); do
+        array3[$RANDOM]=$i
+done
+
+echo "---"
+
+echo "Reading sparse numeric index array entry:"
+time for value in "${array3[@]}"i; do
+        simple=$value
+done
+
+echo "---"
+
+echo "Assigning a sparse associative array entry randomly into 64k cells:"
+time for (( i=0; i< $count; i++)); do
+        array4[$RANDOM]=$i
+done
+
+echo "---"
+
+echo "Reading sparse associative index array entry:"
+time for value in "${array4[@]}"; do
+        simple=$value
+done
+
+exit $?
+}
+
+
+
