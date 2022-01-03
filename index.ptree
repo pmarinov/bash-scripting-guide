@@ -115,6 +115,7 @@ pages/bibliography.poly.pm
 
 ◊pages/appendix.poly.pm{
   pages/contributed_scripts.poly.pm
+  pages/reference_cards.poly.pm
 }
 
 }
