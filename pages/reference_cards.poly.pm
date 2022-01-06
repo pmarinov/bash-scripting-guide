@@ -219,4 +219,44 @@ versions of Bash.
 
 * Where ◊code{$substring} is a Regular Expression.
 
+◊section{Miscellaneous Constructs}
+
+◊example{
++-----------------------------+-------------------------------------------------+
+| Brackets                    |                                                 |
+| if [ CONDITION ]            | Test construct                                  |
+| if [[ CONDITION ]]          | Extended test construct                         |
+| Array[1]=element1           | Array initialization                            |
+| [a-z]                       | Range of characters within a Regular Expression |
+|                             |                                                 |
+| Curly Brackets              |                                                 |
+| ${variable}                 | Parameter substitution                          |
+| ${!variable}                | Indirect variable reference                     |
+| { cmd1; cmd2; . . . cmdN; } | Block of code                                   |
+| {str1,str2,str3,...}        | Brace expansion                                 |
+| {a..z}                      | Extended brace expansion                        |
+| {}                          | Text replacement, after find and xargs          |
+|                             |                                                 |
+| Parentheses                 |                                                 |
+| ( command1; command2 )      | Command group executed within a subshell        |
+| Array=(elem1 elem2 elem3)   | Array initialization                            |
+| result=$(COMMAND)           | Command substitution, new style                 |
+| >(COMMAND)                  | Process substitution                            |
+| <(COMMAND)                  | Process substitution                            |
+|                             |                                                 |
+| Double Parentheses          |                                                 |
+| (( var = 78 ))              | Integer arithmetic                              |
+| var=$(( 20 + 5 ))           | Integer arithmetic, with variable assignment    |
+| (( var++ ))                 | C-style variable increment                      |
+| (( var-- ))                 | C-style variable decrement                      |
+| (( var0 = var1<98?9:21 ))   | C-style ternary operation                       |
+|                             |                                                 |
+| Quoting                     |                                                 |
+| "$variable"                 | "Weak" quoting                                  |
+| 'string'                    | 'Strong' quoting                                |
+|                             |                                                 |
+| Back Quotes                 |                                                 |
+| result=`COMMAND`            | Command substitution, classic style             |
++-----------------------------+-------------------------------------------------+
+}
 
