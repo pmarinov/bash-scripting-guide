@@ -96,3 +96,72 @@ pattern=BEGIN
 #+      "$pattern" will not expand to "BEGIN".
 }
 
+Note: Sed uses the ◊code{-e} option to specify that the following
+string is an instruction or set of instructions. If there is only a
+single instruction contained in the string, then this may be omitted.
+
+◊example{
+sed -n '/xzy/p' $filename
+# The -n option tells sed to print only those lines matching the pattern.
+# Otherwise all input lines would print.
+# The -e option not necessary here since there is only a single editing instruction.
+}
+
+◊anchored-example[#:anchor "sed_ex1"]{Examples of sed operators}
+
+◊example{
+# Delete 8th line of input.
+sed -e 8d
+
+# Delete all blank lines.
+sed -e '/^$/d'
+
+# Delete from beginning of input up to, and including first blank line.
+sed -e '1,/^$/d'
+
+# Print only lines containing "Jones" (with -n option).
+sed -e '/Jones/p'
+
+# Substitute "Linux" for first instance of "Windows" found in each input line.
+sed -e 's/Windows/Linux/'
+
+# Substitute "Linux" for first instance of "Windows" found in each input line.
+sed -e 's/BSOD/stability/g'
+
+# Delete all spaces at the end of every line.
+sed -e 's/ *$//'
+
+# Compress all consecutive sequences of zeroes into a single zero.
+sed -e 's/00*/0/g'
+
+# Prints "How far are you along?" as first line, "Working on it" as second.
+echo "Working on it." | sed -e '1i How far are you along?'
+
+# Inserts 'Linux is great.' at line 5 of the file file.txt.
+sed -e 5i 'Linux is great.' file.txt
+
+# Delete all lines containing "GUI".
+sed -e '/GUI/d'
+
+# Delete all instances of "GUI", leaving the remainder of each line intact.
+sed -e 's/GUI//g'
+}
+
+An address range followed by one or more operations may require open
+and closed curly brackets, with appropriate newlines.
+
+◊example{
+/[0-9A-Za-z]/,/^$/{
+/^$/d
+}
+}
+
+This deletes only the first of each set of consecutive blank
+lines. That might be useful for single-spacing a text file, but
+retaining the blank line(s) between paragraphs.
+
+Note: The usual delimiter that sed uses is ◊code{/}. However, sed
+allows other delimiters, such as %. This is useful when ◊code{/} is
+part of a replacement string, as in a file pathname.
+
+
