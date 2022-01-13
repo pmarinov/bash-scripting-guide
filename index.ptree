@@ -119,6 +119,7 @@ pages/bibliography.poly.pm
   pages/sed_micro_primer.poly.pm
   pages/awk_micro_primer.poly.pm
   pages/parsing_pathnames.poly.pm
+  pages/exit_codes.poly.pm
 }
 
 }
