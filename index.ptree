@@ -120,6 +120,7 @@ pages/bibliography.poly.pm
   pages/awk_micro_primer.poly.pm
   pages/parsing_pathnames.poly.pm
   pages/exit_codes.poly.pm
+  pages/io_redirection_de.poly.pm
 }
 
 }
