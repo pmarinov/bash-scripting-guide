@@ -122,6 +122,7 @@ pages/bibliography.poly.pm
   pages/exit_codes.poly.pm
   pages/io_redirection_de.poly.pm
   pages/command_line_opt.poly.pm
+  pages/important_files.poly.pm
 }
 
 }
