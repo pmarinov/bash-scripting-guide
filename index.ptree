@@ -124,6 +124,7 @@ pages/bibliography.poly.pm
   pages/command_line_opt.poly.pm
   pages/important_files.poly.pm
   pages/completion_intro.poly.pm
+  pages/localization.poly.pm
 }
 
 }
