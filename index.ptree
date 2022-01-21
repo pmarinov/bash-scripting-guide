@@ -125,6 +125,7 @@ pages/bibliography.poly.pm
   pages/important_files.poly.pm
   pages/completion_intro.poly.pm
   pages/localization.poly.pm
+  pages/sample_bashrc.poly.pm
 }
 
 }
