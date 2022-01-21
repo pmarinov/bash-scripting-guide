@@ -126,6 +126,7 @@ pages/bibliography.poly.pm
   pages/completion_intro.poly.pm
   pages/localization.poly.pm
   pages/sample_bashrc.poly.pm
+  pages/ascii_table.poly.pm
 }
 
 }
