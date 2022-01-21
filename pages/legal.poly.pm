@@ -84,3 +84,30 @@ will suffer ill effects, aside from uncontrollable hiccups. In fact,
 the raison d'etre of this book is to enable its readers to analyze
 shell scripts and determine whether they have unanticipated
 consequences.
+
+◊section{Grant to Public Domain}
+
+This list of clarifications by Mendel Cooper is in the original book.
+
+The Advanced Bash Scripting Guide is herewith granted to the PUBLIC
+DOMAIN. This has the following implications and consequences.
+
+A. All previous releases of the Advanced Bash Scripting Guide are as
+well granted to the Public Domain.
+
+A1. All printed editions, whether authorized by the author or not, are
+as well granted to the Public Domain. This legally overrides any
+stated intention or wishes of the publishers. Any statement of
+copyright is void and invalid.  THERE ARE NO EXCEPTIONS TO THIS.
+
+A2. Any release of the Advanced Bash Scripting Guide, whether in
+electronic or print form is granted to the Public Domain by the
+express directive of the author and previous copyright holder, Mendel
+Cooper. No other person(s) or entities have ever held a valid
+copyright.
+
+B.  As a Public Domain document, unlimited copying and distribution
+rights are granted. There can be NO restrictions. If anyone has
+published or will in the future publish an original or modified
+version of this document, then only additional original material may
+be copyrighted. The core work will remain in the Public Domain.
