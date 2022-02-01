@@ -225,7 +225,7 @@ OSes. The POSIX specifications are listed on the Open Group site.}
 Note that the path given at the ◊emphasize{sha-bang} must be correct,
 otherwise an error message -- usually "Command not found." -- will be
 the only result of running the script. To avoid this possibility, a
-script may begin with a @code{#!/bin/env bash} ◊emphasize{sha-bang}
+script may begin with a ◊code{#!/bin/env bash} ◊emphasize{sha-bang}
 line. This may be useful on UNIX machines where bash is not located in
 ◊fname{/bin}.
 
