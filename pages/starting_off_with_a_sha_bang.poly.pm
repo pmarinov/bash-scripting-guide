@@ -254,9 +254,9 @@ exit $WHATEVER  # Doesn't matter. The script will not exit here.
                 # You'll get a 0, not a 85.
 }
 
-Also, try starting a README file with a #!/bin/more, and making it
-executable. The result is a self-listing documentation file. (A
-◊emphasize{here document} using ◊@command{cat} is possibly a better
+Also, try starting a README file with a ◊code{#!/bin/more}, and making
+#it executable. The result is a self-listing documentation file. (A
+◊emphasize{here document} using ◊command{cat} is possibly a better
 alternative.
 
 ◊section{Modular approach}
