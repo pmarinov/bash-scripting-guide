@@ -25,22 +25,23 @@
 
 (define this-book-title "Advanced Bash-Scripting Guide")
 
-;; Collect a list footnotes in a page
-;; (Lis of a lists, each note is an x-expression)
-(define footnotes null)
-
-;; Footnotes need to be reset at the beginning of each page
-(define (footnotes-reset)
-  (set! footnotes null))
+;; All footnotes of the book are collected into a hash table
+;;
+;; key: the 'here-path of each individual page
+;; value: the list of all footnotes for that page, each footnote is an
+;;        x-expression
+(define footnotes-book (make-hash))
 
 ;; Init entities per page
 (define (page-init)
-  (footnotes-reset))
+  ;; This function was used some time ago, it is not used anymore; it
+  ;; is still on every page -- return a harmless value
+  `(span))
 
 ;; footnotes-render:
 ;; Render footnotes as an x-expression to be placed at the bottom of
 ;; the page
-(define (footnotes-render)
+(define (footnotes-render footnotes)
   (define (a-footnote note-elements)
     (let ([a-index (+ 1 (index-of footnotes note-elements))])
       ; (printf "~a~n" a-index)
@@ -54,18 +55,21 @@
     `((div [[class "footnotes"]]
       ,@(map a-footnote footnotes)))))
 
+;; Override document root to insert footnotes rendering
 (define (root . elements)
   (case (current-poly-target)
     [(html)
       ; (printf "~a~n" elements)
-      `(root
-        ,@(decode-elements elements
-          #:txexpr-elements-proc decode-paragraphs-flow
-          #:exclude-tags '(script))
-        ,@(footnotes-render))]
-      ;; (txexpr 'root '() (decode-elements elements
-      ;;   #:txexpr-elements-proc decode-paragraphs-flow))]
-    ;; `else' -- passthrough without changes
+      (let* ([cur-page-fpath (hash-ref (current-metas) 'here-path)]
+             [cur-page-footnotes (hash-ref footnotes-book cur-page-fpath '())])
+        `(root
+          ;; Render the page elements
+          ,@(decode-elements elements
+            #:txexpr-elements-proc decode-paragraphs-flow
+            #:exclude-tags '(script))
+          ;; Followed by the footnotes (if any)
+          ,@(footnotes-render cur-page-footnotes)))]
+    ;; 'else' -- passthrough without changes
     [else `(root ,@elements)]))
 
 ;; Two '\n' mark a paragraph, single '\n' is ignored (doesn't generate
@@ -247,15 +251,20 @@
         (string-append* elements)
         "}")]
     [(html)
-      ;; Collect into footnotes
-      (set! footnotes (append footnotes (list elements)))
-      ;; Render a link to jump to the footnote
-      ; (printf "~a: ~a~n" (length footnotes) footnotes)
-      (let* ([fn-index (length footnotes)]
-             [fn-index-id (format "_footnoteref_~a" fn-index)]
-             [fn-index-jump (format "#_footnotedef_~a" fn-index)]
-             [fn-index-str (format "[~a]" fn-index)])
-        `(a [[id ,fn-index-id] [href ,f\n-index-jump]] ,fn-index-str))]
+      ;; Collect into footnotes-book
+      ;; ---
+      (let* ([cur-page-fpath (hash-ref (current-metas) 'here-path)]
+             ;; cur-page-footnotes: all collected or empty list
+             [cur-page-footnotes (hash-ref footnotes-book cur-page-fpath '())]
+             [new-footnote (append cur-page-footnotes (list elements))]
+             [fn-index (add1 (length cur-page-footnotes))])
+        ;; Override entry in hash table with the new list
+        (hash-set! footnotes-book cur-page-fpath new-footnote)
+        ; (printf "~a: [~a] ~a~n" cur-page-fpath fn-index new-footnote)
+        (let ([fn-index-id (format "_footnoteref_~a" fn-index)]
+              [fn-index-jump (format "#_footnotedef_~a" fn-index)]
+              [fn-index-str (format "[~a]" fn-index)])
+          `(a [[id ,fn-index-id] [href ,f\n-index-jump]] ,fn-index-str)))]
     ;; else (txt)
     [else (string-append* elements)]))
 
