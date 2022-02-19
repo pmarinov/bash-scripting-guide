@@ -1,8 +1,6 @@
 # README
-:license: 
-:pollen: 
 
-*Advanced Bash-Scripting Guide*
+**Advanced Bash-Scripting Guide**
 (New Edition based on Pollen)
 
 Advanced Bash-Scripting Guide in HTML:
