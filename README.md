@@ -26,7 +26,7 @@ Motivation for the new edition:
   is a program"](https://docs.racket-lang.org/pollen/index.html)
 * To invite contributions by hosting on GitHub
 
-== How to build ==
+## How to build
 
 Use `apt` to install `racket`:
 
@@ -75,12 +75,12 @@ $ make all
 
 TODO: Describe output folders
 
-== License ==
+## License
 
 Public Domain, see
 [LICENSE.txt](https://github.com/pmarinov/bash-scripting-guide/blob/master/LICENSE.txt)
 
-== Changelog ==
+## Changelog
 
 2019-11-17, v0.2.0, pmarinov
 
