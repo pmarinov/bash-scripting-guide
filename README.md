@@ -1,6 +1,5 @@
-# README
+# Advanced Bash-Scripting Guide
 
-**Advanced Bash-Scripting Guide**
 (New Edition based on Pollen)
 
 Advanced Bash-Scripting Guide in HTML:
@@ -8,7 +7,7 @@ https://hangar118.sdf.org/p/bash-scripting-guide/
 
 Home page: https://hangar118.sdf.org/p/bash-scripting-guide-home/
 
-# About
+## About
 
 The *Advanced Bash-Scripting Guide* is a book written by Mendel Cooper
 and part of The Linux Documentation Project (see
