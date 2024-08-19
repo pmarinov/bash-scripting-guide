@@ -3,18 +3,27 @@
 <rss version="2.0">
 <channel>
 
-<title>Changelog</title>
+<title>Changelog -- Advanced Bash-Scripting Guide</title>
+<link>https://hangar118.sdf.org/p/bash-scripting-guide/changelog.html</link>
+
 <description>
-<p>What is new in the Advanced Bash-Scripting Guide</p>
+
+<p>Table of Contents: <a href='https://hangar118.sdf.org/p/bash-scripting-guide/'>The Advanced Bash-Scripting
+Guide</a></p>
+
+<p>RSS: <a href='https://hangar118.sdf.org/p/bash-scripting-guide/feed.xml'>feed.xml</a></p>
+
 </description>
+
 <language>en-us</language>
-<pubDate>Tue, 13 Aug 2024 20:16:42 -0700</pubDate>
-<lastBuildDate>Tue, 13 Aug 2024 20:16:42 -0700</lastBuildDate>
+<pubDate>Sun, 18 Aug 2024 17:40:22 -0700</pubDate>
+<lastBuildDate>Sun, 18 Aug 2024 17:40:22 -0700</lastBuildDate>
 <docs>https://www.rssboard.org/rss-specification</docs>
 <generator>md2rss</generator>
 
 <item>
 <title>v0.2.1, Markdown rendering in AWK</title>
+<link>https://hangar118.sdf.org/p/bash-scripting-guide/changelog.html#v0-2-1--markdown-rendering-in-awk</link>
 
 <description>
 <![CDATA[
@@ -24,13 +33,17 @@ across <code>awk</code>. In the spirit of <i>do one thing and do it well</i>, <c
 can be defined as a <b>line-oriented</b> processor <b>with state</b>. In
 contrast, <code>sed</code> is a line-oriented with rules that provide only a
 stateless form.</p>
+
 <p>Rendering of Markdown format combines line-oriented approach with the
 need for a state. As a form of an introduction to <code>awk</code>, a
 <b>rendering</b> of Markdown is provided as a somewhat useful example.</p>
+
+<p>Chapter: <a href='https://hangar118.sdf.org/p/bash-scripting-guide/web/awk_micro_primer.html'>Awk Micro-Primer</a></p>
+
 ]]>
 </description>
 
-<pubDate>Tue, 13 Aug 2024 00:00:00 -0700</pubDate>
+<pubDate>Sun, 18 Aug 2024 00:00:00 -0700</pubDate>
 </item>
 
 </channel>
