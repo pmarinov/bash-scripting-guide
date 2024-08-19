@@ -22,4 +22,4 @@ Rendering of Markdown format combines line-oriented approach with the
 need for a state. As a form of an introduction to `awk`, a
 **rendering** of Markdown is provided as a somewhat useful example.
 
-Chapter: [Awk Micro-Primer](https://hangar118.sdf.org/p/bash-scripting-guide/web/awk_micro_primer.html)
+Chapter: [Awk Micro-Primer](https://hangar118.sdf.org/p/bash-scripting-guide/awk_micro_primer.html)

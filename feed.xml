@@ -16,8 +16,8 @@ Guide</a></p>
 </description>
 
 <language>en-us</language>
-<pubDate>Sun, 18 Aug 2024 17:40:22 -0700</pubDate>
-<lastBuildDate>Sun, 18 Aug 2024 17:40:22 -0700</lastBuildDate>
+<pubDate>Sun, 18 Aug 2024 21:32:05 -0700</pubDate>
+<lastBuildDate>Sun, 18 Aug 2024 21:32:05 -0700</lastBuildDate>
 <docs>https://www.rssboard.org/rss-specification</docs>
 <generator>md2rss</generator>
 
@@ -38,7 +38,7 @@ stateless form.</p>
 need for a state. As a form of an introduction to <code>awk</code>, a
 <b>rendering</b> of Markdown is provided as a somewhat useful example.</p>
 
-<p>Chapter: <a href='https://hangar118.sdf.org/p/bash-scripting-guide/web/awk_micro_primer.html'>Awk Micro-Primer</a></p>
+<p>Chapter: <a href='https://hangar118.sdf.org/p/bash-scripting-guide/awk_micro_primer.html'>Awk Micro-Primer</a></p>
 
 ]]>
 </description>
