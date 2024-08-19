@@ -85,17 +85,17 @@ we use it to print the final accumulated value.
 
 ◊section{Rendering Markdown (.md) files in the terminal}
 
-Markdown is a technique of text decoration of semantic structures of a
-page, such as titles, lists, code sections, etc. For example, chapter
-titles are marked with ◊code{#}, the number of ◊code{#} representing
-nest level. A multi-line section of code starts and ends with
-◊code{```}, etc.
+Markdown is a technique of text decoration for the semantic structures
+of a page, such as titles, lists, code sections, etc. For example,
+chapter titles are marked with ◊code{#}, the number of ◊code{#}
+representing nest level. A multi-line section of code starts and ends
+with ◊code{```}, etc.
 
 The format was made particularly popular after its adoption by GitHub
 for rendering of README.md files.
 
-The rendering of .md files is usually an HTML output, in the context
-of the terminal it is, however, nice to be able to read such files
+While the rendering of .md files is usually in the HTML format, in the
+context of the terminal it would be nice to be able to read such files
 with coloring using ANSI escape sequences.
 
 A markdown decoration can start on one line and continue on the next,
