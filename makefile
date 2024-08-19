@@ -25,7 +25,8 @@ pages-web := $(pages-web:web/page0.html=)
 
 # The ‘all’ rule references the rules BELOW it (the above are just variable
 # definitions, not rules).
-all: $(pages-sourcelistings) $(pages-html) style.css $(pages-web) web/index.html web/style.css \
+all: $(pages-sourcelistings) $(pages-html) style.css $(pages-web) \
+    web/index.html web/style.css web/feed.xml web/changelog.html \
     page0.info home/bash-scripting-guide.info home/index.html
 all: ## Re-generate book (HTML and INFO)
 
@@ -46,6 +47,17 @@ web/style.css: style.css
 web/index.html: pages/page0.html
 	mkdir -p web
 	sed -e 's~../style.css~style.css~' -e 's~page0~index~' $< > $@
+
+web/changelog.html: changelog.html
+	mkdir -p web
+	cp -p -v $< $@
+
+web/feed.xml: feed.xml
+	mkdir -p web
+	cp -p -v $< $@
+
+$(pages-changelog): web/%: %
+	mkdir -p web
 
 # HTML rendering for the web
 $(pages-web): web/%.html: pages/%.html
